@@ -1,17 +1,19 @@
 #!/bin/bash
 
-export JEKYLL_VERSION=3.8
-
-`which docker 2>&1 > /dev/null`
-if [[ $? -ne 0 ]]; then
-  echo "No docker found. cannot continue"
+if ! command -v docker &> /dev/null; then
+  echo "Docker not found. Cannot continue."
+  exit 1
 fi
 
+# Use -it only when running interactively (terminal attached)
+TTY_FLAG=""
+if [ -t 0 ]; then
+  TTY_FLAG="-it"
+fi
 
-docker run --rm \
-  --volume="$PWD:/srv/jekyll:Z" \
-  --volume="$PWD/.bundle:/usr/local/bundle:Z" \
-  --platform linux/amd64 \
+docker run --rm $TTY_FLAG \
+  --volume="$PWD:/srv/jekyll" \
+  -w /srv/jekyll \
   -p 4000:4000 \
-  -it jekyll/jekyll:$JEKYLL_VERSION \
-  jekyll "$@"
+  ruby:3.2 \
+  bash -c "bundle install && bundle exec jekyll $*"
