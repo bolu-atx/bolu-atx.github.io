@@ -1,3 +1,7 @@
+@use "sass:color";
+@use "sass:list";
+@use "sass:map";
+
 #flickr-container{
 	// CONFIGURATION
 	// Colours
@@ -20,7 +24,7 @@
 	// END CONFIGURATION
 
 	// Calculations
-	$tile-height: calc(1/map-get($image-grid, aspect)*100%);
+	$tile-height: calc(1/map.get($image-grid, aspect)*100%);
 
 	// flickrGal mixins
 	@mixin calculate_tile($numberoftiles){ // Calculates image tile width percentages
@@ -30,10 +34,10 @@
 	}
 	@mixin breaks {
 		@each $breakpoint in $breakpoints{
-			@media(max-width: #{nth($breakpoint, 1)}){
+			@media(max-width: #{list.nth($breakpoint, 1)}){
 				.image,
 				.album{
-					@include calculate_tile(#{nth($breakpoint, 2)});
+					@include calculate_tile(#{list.nth($breakpoint, 2)});
 				}
 			}
 		}
@@ -80,8 +84,8 @@
 		}
 		.image,
 		.album{
-			@include calculate_tile(#{map-get($image-grid, default-cols)});
-			border: map-get($image-grid, padding) solid transparent;
+			@include calculate_tile(#{map.get($image-grid, default-cols)});
+			border: map.get($image-grid, padding) solid transparent;
 			background-color: #fafafa;
 			background-position: center center;
 			background-repeat: no-repeat;
@@ -144,7 +148,7 @@
 				background-color: #aaa;
 
 				&:hover{
-					background-color: map-get($colours, primary-accent);
+					background-color: map.get($colours, primary-accent);
 					opacity: 1;
 				}
 			}
@@ -162,7 +166,7 @@
 		z-index: 9;
 		left: 0px;
 		top: 0px;
-		background-color: map-get($colours, lightbox);
+		background-color: map.get($colours, lightbox);
 		@include animate;
 
 		#lightbox-ui{
@@ -237,7 +241,7 @@
 				left: 0px;
 				text-align: center;
 				padding: 1rem 0 1.2rem 0;
-				background-color: map-get($colours, lightbox);
+				background-color: map.get($colours, lightbox);
 				z-index: 7;
 
 				#info{
@@ -265,12 +269,12 @@
 						font-size: 0.8rem;
 						@include animate;
 						a{
-							color: lighten(map-get($colours, primary-accent), 10%);
+							color: color.adjust(map.get($colours, primary-accent), $lightness: 10%);
 							text-decoration: none;
 							font-weight: 700;
 						}
 						a:hover{
-							color: lighten(map-get($colours, primary-accent), 40%);
+							color: color.adjust(map.get($colours, primary-accent), $lightness: 40%);
 						}
 						@media(max-width: 400px){
 							font-size: 0.7rem;
