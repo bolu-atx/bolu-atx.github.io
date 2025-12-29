@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /**
  * Reset some basic elements
  */
@@ -109,7 +111,7 @@ a {
     text-decoration: none;
 
     &:visited {
-        color: darken($brand-color, 5%);
+        color: color.adjust($brand-color, $lightness: -5%);
     }
 
     &:hover {
@@ -118,7 +120,7 @@ a {
     }
 
     &.dark {
-        color: lighten($brand-color, 30%)
+        color: color.adjust($brand-color, $lightness: 30%)
     }
 }
 
@@ -151,16 +153,16 @@ pre {
 
     &.dark {
         border-color: $grey-color-dark;
-        background-color: darken($background-color-dark, 5%);
+        background-color: color.adjust($background-color-dark, $lightness: -5%);
     }
 }
 
 code:not(pre > code) {
     padding: 1px 5px;
-    background-color: darken($background-color,5%);
+    background-color: color.adjust($background-color, $lightness: -5%);
 
     &.dark {
-        background-color: lighten($background-color-dark, 10%);
+        background-color: color.adjust($background-color-dark, $lightness: 10%);
     }
 }
 

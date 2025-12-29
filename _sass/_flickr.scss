@@ -1,3 +1,5 @@
+@use "sass:color";
+
 #flickr-container{
 	// CONFIGURATION
 	// Colours
@@ -265,12 +267,12 @@
 						font-size: 0.8rem;
 						@include animate;
 						a{
-							color: lighten(map-get($colours, primary-accent), 10%);
+							color: color.adjust(map-get($colours, primary-accent), $lightness: 10%);
 							text-decoration: none;
 							font-weight: 700;
 						}
 						a:hover{
-							color: lighten(map-get($colours, primary-accent), 40%);
+							color: color.adjust(map-get($colours, primary-accent), $lightness: 40%);
 						}
 						@media(max-width: 400px){
 							font-size: 0.7rem;
