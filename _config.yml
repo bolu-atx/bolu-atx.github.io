@@ -7,7 +7,7 @@
 
 # Site settings
 title: bolu.dev | 💻 + 🧬 + 📸
-email: bluevires (at) gmail (dot) com
+email: bo (at) bolu.dev
 description: "Thoughts and notes on programming, data science and other things"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://bolu.dev" # the base hostname & protocol for your site
