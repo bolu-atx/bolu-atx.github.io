@@ -5,7 +5,7 @@ permalink: /about/
 icon: user
 ---
 
-<img class="profile-pic" src="/assets/images/avatar_small.jpg">
+<img class="profile-pic" src="/assets/images/profile_photo.png">
 
 Hi, I'm Bo. I am a software developer / bioinformatics scientist at a San Diego based biotech start-up. I build scalable high performance software in signal processing pipelines of molecular diagnostic instruments. I previously worked at Illumina, building algorithms and softwares for DNA sequencers.
 
