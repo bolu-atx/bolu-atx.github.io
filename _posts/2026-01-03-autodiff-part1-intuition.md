@@ -365,6 +365,40 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
   const width = 550, height = 340;
   const nodeRadius = 24;
 
+  // Theme-aware color schemes (transparent fills, colored strokes)
+  const themes = {
+    light: {
+      input: { fill: 'transparent', stroke: '#5a9fd4' },
+      output: { fill: 'transparent', stroke: '#4CAF50' },
+      op: { fill: 'transparent', stroke: '#f9a825' },
+      text: '#333',
+      textMuted: '#666',
+      edge: '#bbb',
+      arrow: '#999',
+      forward: '#4CAF50',
+      backward: '#E91E63'
+    },
+    dark: {
+      input: { fill: 'transparent', stroke: '#6ab7ff' },
+      output: { fill: 'transparent', stroke: '#66BB6A' },
+      op: { fill: 'transparent', stroke: '#ffca28' },
+      text: '#e0e0e0',
+      textMuted: '#aaa',
+      edge: '#666',
+      arrow: '#888',
+      forward: '#66BB6A',
+      backward: '#F48FB1'
+    }
+  };
+
+  function getTheme() {
+    return localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  function colors() {
+    return themes[getTheme()];
+  }
+
   // Graph data
   const nodes = [
     { id: 'x', label: 'x = 2', x: 100, y: 280, type: 'input', value: 2 },
@@ -391,7 +425,8 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     .attr('width', '100%');
 
   // Arrow marker
-  svg.append('defs').append('marker')
+  const defs = svg.append('defs');
+  defs.append('marker')
     .attr('id', 'arrow')
     .attr('viewBox', '0 -5 10 10')
     .attr('refX', 8)
@@ -401,7 +436,7 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     .attr('orient', 'auto')
     .append('path')
     .attr('d', 'M0,-4L10,0L0,4')
-    .attr('fill', '#999');
+    .attr('class', 'arrow-path');
 
   // Helper to compute edge endpoints (from circle edge to circle edge)
   function linkEndpoints(link) {
@@ -429,7 +464,6 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     .attr('y1', d => linkEndpoints(d).y1)
     .attr('x2', d => linkEndpoints(d).x2)
     .attr('y2', d => linkEndpoints(d).y2)
-    .attr('stroke', '#ccc')
     .attr('stroke-width', 2)
     .attr('marker-end', 'url(#arrow)');
 
@@ -443,16 +477,15 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
 
   nodeElements.append('circle')
     .attr('r', nodeRadius)
-    .attr('fill', d => d.type === 'input' ? '#a8d5ff' : d.type === 'output' ? '#90EE90' : '#fff9c4')
-    .attr('stroke', d => d.type === 'input' ? '#5a9fd4' : d.type === 'output' ? '#4CAF50' : '#f9a825')
-    .attr('stroke-width', 2);
+    .attr('class', d => `node-circle node-${d.type}`)
+    .attr('stroke-width', 2.5);
 
   nodeElements.append('text')
+    .attr('class', 'node-label')
     .attr('text-anchor', 'middle')
     .attr('dy', d => (d.type === 'op' || d.type === 'output') ? -4 : 5)
     .attr('font-size', 13)
     .attr('font-weight', 'bold')
-    .attr('fill', '#333')
     .text(d => d.label);
 
   // Value labels (below node label for ops)
@@ -461,18 +494,16 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     .attr('class', 'value-label')
     .attr('text-anchor', 'middle')
     .attr('dy', 12)
-    .attr('font-size', 11)
-    .attr('fill', '#666');
+    .attr('font-size', 11);
 
   // Gradient labels (below nodes for inputs, to the side for ops)
-  const gradLabels = nodeGroup.selectAll('g')
+  nodeGroup.selectAll('g')
     .append('text')
     .attr('class', 'grad-label')
     .attr('text-anchor', d => d.type === 'input' ? 'middle' : 'start')
     .attr('x', d => d.type === 'input' ? 0 : (d.id === 'add' ? 40 : 35))
     .attr('y', d => d.type === 'input' ? nodeRadius + 18 : 5)
     .attr('font-size', 11)
-    .attr('fill', '#E91E63')
     .attr('font-weight', 'bold')
     .style('opacity', 0);
 
@@ -481,9 +512,38 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
 
   const statusText = d3.select('#status-text');
 
+  // Apply theme colors
+  function applyTheme() {
+    const c = colors();
+
+    // Update arrow
+    svg.select('.arrow-path').attr('fill', c.arrow);
+
+    // Update edges
+    linkElements.attr('stroke', c.edge);
+
+    // Update node circles
+    svg.selectAll('.node-input')
+      .attr('fill', c.input.fill)
+      .attr('stroke', c.input.stroke);
+    svg.selectAll('.node-output')
+      .attr('fill', c.output.fill)
+      .attr('stroke', c.output.stroke);
+    svg.selectAll('.node-op')
+      .attr('fill', c.op.fill)
+      .attr('stroke', c.op.stroke);
+
+    // Update text
+    svg.selectAll('.node-label').attr('fill', c.text);
+    svg.selectAll('.value-label').attr('fill', c.textMuted);
+    svg.selectAll('.grad-label').attr('fill', c.backward);
+  }
+
   function reset() {
+    const c = colors();
+
     // Reset edges
-    linkElements.attr('stroke', '#ccc').attr('stroke-width', 2);
+    linkElements.attr('stroke', c.edge).attr('stroke-width', 2);
 
     // Reset value labels
     nodeGroup.selectAll('.value-label').text('');
@@ -494,11 +554,10 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     // Clear particles
     particleGroup.selectAll('*').remove();
 
-    statusText.html('Click <strong style="color:#4CAF50">Forward Pass</strong> to see values flow up, then <strong style="color:#E91E63">Backward Pass</strong> to see gradients flow down.');
+    statusText.html(`Click <strong style="color:${c.forward}">Forward Pass</strong> to see values flow up, then <strong style="color:${c.backward}">Backward Pass</strong> to see gradients flow down.`);
   }
 
   function animateParticle(sourceId, targetId, color, delay, duration) {
-    const s = nodeMap[sourceId], t = nodeMap[targetId];
     const link = links.find(l => l.source === sourceId && l.target === targetId);
     const ep = linkEndpoints(link);
 
@@ -573,13 +632,14 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
 
   function forwardPass() {
     reset();
-    const green = '#4CAF50';
+    const c = colors();
+    const green = c.forward;
     const speed = 500;
 
-    statusText.html('<strong style="color:#4CAF50">Forward Pass:</strong> Values flow from inputs → output');
+    statusText.html(`<strong style="color:${green}">Forward Pass:</strong> Values flow from inputs → output`);
 
     setTimeout(() => {
-      statusText.html('<strong style="color:#4CAF50">Step 1:</strong> x flows to sin and ×, y flows to ×');
+      statusText.html(`<strong style="color:${green}">Step 1:</strong> x flows to sin and ×, y flows to ×`);
     }, 100);
 
     // Step 1: inputs to ops
@@ -592,14 +652,14 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
 
     // Step 2: show values
     setTimeout(() => {
-      statusText.html('<strong style="color:#4CAF50">Step 2:</strong> sin(2) ≈ 0.91, 2 × 3 = 6');
+      statusText.html(`<strong style="color:${green}">Step 2:</strong> sin(2) ≈ 0.91, 2 × 3 = 6`);
     }, 800);
     setValueLabel('sin', '≈ 0.91', 800);
     setValueLabel('mul', '= 6', 800);
 
     // Step 3: ops to output
     setTimeout(() => {
-      statusText.html('<strong style="color:#4CAF50">Step 3:</strong> Results flow to addition');
+      statusText.html(`<strong style="color:${green}">Step 3:</strong> Results flow to addition`);
     }, 1300);
     highlightEdge('sin-add', green, 1400);
     highlightEdge('mul-add', green, 1400);
@@ -607,7 +667,7 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     animateParticle('mul', 'add', green, 1400, speed);
 
     setTimeout(() => {
-      statusText.html('<strong style="color:#4CAF50">Done!</strong> Output = 0.91 + 6 ≈ 6.91');
+      statusText.html(`<strong style="color:${green}">Done!</strong> Output = 0.91 + 6 ≈ 6.91`);
     }, 2000);
     setValueLabel('add', '≈ 6.91', 2000);
   }
@@ -619,20 +679,21 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     setValueLabel('mul', '= 6', 0);
     setValueLabel('add', '≈ 6.91', 0);
 
-    const pink = '#E91E63';
+    const c = colors();
+    const pink = c.backward;
     const speed = 500;
 
-    statusText.html('<strong style="color:#E91E63">Backward Pass:</strong> Gradients flow from output → inputs');
+    statusText.html(`<strong style="color:${pink}">Backward Pass:</strong> Gradients flow from output → inputs`);
 
     // Step 1: output gradient
     setTimeout(() => {
-      statusText.html('<strong style="color:#E91E63">Step 1:</strong> Start at output with gradient = 1');
+      statusText.html(`<strong style="color:${pink}">Step 1:</strong> Start at output with gradient = 1`);
     }, 200);
     setGradLabel('add', '∇=1', 200);
 
     // Step 2: to sin and mul
     setTimeout(() => {
-      statusText.html('<strong style="color:#E91E63">Step 2:</strong> + passes gradient 1 to both inputs');
+      statusText.html(`<strong style="color:${pink}">Step 2:</strong> + passes gradient 1 to both inputs`);
     }, 900);
     highlightEdge('sin-add', pink, 1000);
     highlightEdge('mul-add', pink, 1000);
@@ -643,7 +704,7 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
 
     // Step 3: to x and y
     setTimeout(() => {
-      statusText.html('<strong style="color:#E91E63">Step 3:</strong> sin: 1×cos(2)≈−0.42 → x; ×: 1×3→x, 1×2→y');
+      statusText.html(`<strong style="color:${pink}">Step 3:</strong> sin: 1×cos(2)≈−0.42 → x; ×: 1×3→x, 1×2→y`);
     }, 2000);
     highlightEdge('x-sin', pink, 2100);
     highlightEdge('x-mul', pink, 2100);
@@ -653,7 +714,7 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
     animateParticleReverse('y', 'mul', pink, 2100, speed);
 
     setTimeout(() => {
-      statusText.html('<strong style="color:#E91E63">Done!</strong> ∂f/∂x = 3 + (−0.42) ≈ 2.58, ∂f/∂y = 2');
+      statusText.html(`<strong style="color:${pink}">Done!</strong> ∂f/∂x = 3 + (−0.42) ≈ 2.58, ∂f/∂y = 2`);
     }, 2700);
     setGradLabel('x', '∇≈2.58', 2700);
     setGradLabel('y', '∇=2', 2700);
@@ -663,7 +724,15 @@ Static diagrams are nice, but autodiff really clicks when you *see* the flow. He
   d3.select('#btn-backward').on('click', backwardPass);
   d3.select('#btn-reset').on('click', reset);
 
+  // Initialize with current theme
+  applyTheme();
   reset();
+
+  // Listen for theme changes
+  window.addEventListener('themechange', function(e) {
+    applyTheme();
+    reset();
+  });
 })();
 </script>
 

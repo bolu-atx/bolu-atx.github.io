@@ -25,16 +25,50 @@
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false });
-    document.addEventListener('DOMContentLoaded', function() {
-      // Convert Jekyll/Kramdown code blocks to Mermaid format
+
+    function getMermaidTheme() {
+      return localStorage.getItem('theme') === 'dark' ? 'dark' : 'default';
+    }
+
+    function initMermaid() {
+      mermaid.initialize({
+        startOnLoad: false,
+        look: 'handDrawn',
+        theme: getMermaidTheme(),
+        handDrawnSeed: 42
+      });
+    }
+
+    function renderMermaid() {
       document.querySelectorAll('pre > code.language-mermaid').forEach(function(code) {
         const pre = code.parentElement;
         pre.className = 'mermaid';
+        pre.removeAttribute('data-processed');
         pre.textContent = code.textContent;
       });
       mermaid.run();
+    }
+
+    // Initial render
+    initMermaid();
+    document.addEventListener('DOMContentLoaded', renderMermaid);
+
+    // Re-render on theme change
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'theme') {
+        initMermaid();
+        renderMermaid();
+      }
     });
+
+    // Expose for theme toggle button
+    window.refreshMermaid = function() {
+      initMermaid();
+      document.querySelectorAll('.mermaid').forEach(el => {
+        el.removeAttribute('data-processed');
+      });
+      mermaid.run();
+    };
   </script>
   <script type="text/javascript" src="{{ "/assets/js/dark-theme.js" | prepend: site.baseurl }}"></script>
   {% if site.tags != "" %}

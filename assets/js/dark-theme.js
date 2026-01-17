@@ -35,6 +35,14 @@ function setTheme(theme) {
             }
         })
     }
+
+    // Refresh Mermaid diagrams if available
+    if (typeof window.refreshMermaid === 'function') {
+        window.refreshMermaid();
+    }
+
+    // Dispatch custom event for other components (e.g., D3 animations)
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
 }
 
 function toggleTheme() {
