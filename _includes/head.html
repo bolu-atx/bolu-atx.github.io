@@ -14,7 +14,28 @@
   <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false });
+    document.addEventListener('DOMContentLoaded', function() {
+      // Convert Jekyll/Kramdown code blocks to Mermaid format
+      document.querySelectorAll('pre > code.language-mermaid').forEach(function(code) {
+        const pre = code.parentElement;
+        pre.className = 'mermaid';
+        pre.textContent = code.textContent;
+      });
+      mermaid.run();
+    });
+  </script>
   <script type="text/javascript" src="{{ "/assets/js/dark-theme.js" | prepend: site.baseurl }}"></script>
   {% if site.tags != "" %}
   {% include collect-tags.html %}
