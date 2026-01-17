@@ -53,9 +53,9 @@ graph BT
     sin --> add
     add --> out
 
-    style x fill:#a8d5ff
-    style y fill:#a8d5ff
-    style out fill:#90EE90
+    style x fill:none,stroke:#5a9fd4,stroke-width:2px
+    style y fill:none,stroke:#5a9fd4,stroke-width:2px
+    style out fill:none,stroke:#4CAF50,stroke-width:2px
 ```
 
 Read this bottom-to-top. The inputs `x` and `y` flow upward. They get combined by operations. Eventually we get our output.
@@ -78,9 +78,9 @@ graph BT
     mul --> add
     sin --> add
 
-    style x fill:#a8d5ff
-    style y fill:#a8d5ff
-    style add fill:#90EE90
+    style x fill:none,stroke:#5a9fd4,stroke-width:2px
+    style y fill:none,stroke:#5a9fd4,stroke-width:2px
+    style add fill:none,stroke:#4CAF50,stroke-width:2px
 ```
 
 Now you can literally *see* the computation happening. Values flow up from inputs to output.
@@ -122,7 +122,7 @@ graph BT
     linkStyle 3 stroke:#ff6b6b,stroke-width:3px
     linkStyle 4 stroke:#ff6b6b,stroke-width:3px
 
-    style x fill:#ffcccc
+    style x fill:none,stroke:#E91E63,stroke-width:2px
 ```
 
 Notice something important: **$x$ connects to the output through two different paths**.
@@ -188,7 +188,7 @@ graph BT
     mul -->|"×1"| add
     sin -->|"×1"| add
 
-    style x fill:#ffcccc
+    style x fill:none,stroke:#E91E63,stroke-width:2px
 ```
 
 ## Why Not Just Go Forward?
@@ -223,7 +223,7 @@ graph BT
     mul --> add
     sin --> add
 
-    style add fill:#90EE90
+    style add fill:none,stroke:#4CAF50,stroke-width:2px
 ```
 
 The add node has sensitivity 1. It passes this backward to both its inputs (because addition has local rate 1 in both directions):
@@ -242,9 +242,9 @@ graph BT
     mul --> add
     sin --> add
 
-    style add fill:#c8e6c9
-    style mul fill:#fff9c4
-    style sin fill:#fff9c4
+    style add fill:none,stroke:#4CAF50,stroke-width:2px
+    style mul fill:none,stroke:#f9a825,stroke-width:2px
+    style sin fill:none,stroke:#f9a825,stroke-width:2px
 ```
 
 Now multiply and sin both have sensitivity 1. They propagate backward using their local rates:
@@ -268,11 +268,11 @@ graph BT
     mul --> add
     sin --> add
 
-    style add fill:#c8e6c9
-    style mul fill:#c8e6c9
-    style sin fill:#c8e6c9
-    style x fill:#e1bee7
-    style y fill:#e1bee7
+    style add fill:none,stroke:#4CAF50,stroke-width:2px
+    style mul fill:none,stroke:#4CAF50,stroke-width:2px
+    style sin fill:none,stroke:#4CAF50,stroke-width:2px
+    style x fill:none,stroke:#9C27B0,stroke-width:2px
+    style y fill:none,stroke:#9C27B0,stroke-width:2px
 ```
 
 **One backward pass gave us *all* the derivatives.**
@@ -321,9 +321,9 @@ graph BT
     a --> c
     b --> c
 
-    style x fill:#a8d5ff
-    style y fill:#a8d5ff
-    style c fill:#90EE90
+    style x fill:none,stroke:#5a9fd4,stroke-width:2px
+    style y fill:none,stroke:#5a9fd4,stroke-width:2px
+    style c fill:none,stroke:#4CAF50,stroke-width:2px
 ```
 
 This is $c = (x + y)(x - y) = x^2 - y^2$. The graph has a diamond shape — $x$ and $y$ each flow through two different paths before rejoining.
