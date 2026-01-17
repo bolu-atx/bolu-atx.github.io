@@ -5,14 +5,17 @@ icon: tag
 <article class="post">
 
   <header class="post-header">
-    <h1>Tag: {{ page.tag }}</h1>
+    <h1 class="post-title">
+      <span class="text-muted" style="font-weight: 400;">Tag:</span> {{ page.tag }}
+    </h1>
   </header>
 
   <div class="post-content">
-    <ul>
+    <ul class="archive-list">
     {% for post in site.tags[page.tag] %}
-    <li><a href="{{ post.url }}">{{ post.title }}</a> ({{ post.date | date_to_string }})<br>
-        {{ post.description }}
+    <li class="archive-item">
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %d, %Y" }}</time>
+      <a href="{{ post.url }}">{{ post.title }}</a>
     </li>
     {% endfor %}
     </ul>
