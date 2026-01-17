@@ -1,21 +1,29 @@
 <footer class="site-footer">
-
   <div class="wrapper">
-
     <h2 class="footer-heading">{{ site.title }}</h2>
-    <p>{{ site.description }}</p>
-
+    <p class="footer-description">{{ site.description }}</p>
 
     <div class="footer-col-wrapper">
       <div class="footer-col footer-col-1">
+        <h3>Contact</h3>
         <ul class="contact-list">
-          <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
-          <li>&nbsp;</li>
-          <li><p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p></li>
+          <li>
+            <a href="mailto:{{ site.email }}">
+              <i class="ti ti-mail"></i>
+              {{ site.email }}
+            </a>
+          </li>
+          <li class="rss-subscribe">
+            <a href="{{ "/feed.xml" | prepend: site.baseurl }}">
+              <i class="ti ti-rss"></i>
+              Subscribe via RSS
+            </a>
+          </li>
         </ul>
       </div>
 
       <div class="footer-col footer-col-2">
+        <h3>Connect</h3>
         <ul class="social-media-list">
           {% if site.github_username %}
           <li>
@@ -34,16 +42,21 @@
             {% include icon-linkedin.html username=site.linkedin_username %}
           </li>
           {% endif %}
-
         </ul>
       </div>
 
       <div class="footer-col footer-col-3">
-      <p>tags</p>
-        {% include archive.html %}
+        <h3>Topics</h3>
+        <div class="tag-cloud">
+          {% include archive.html %}
+        </div>
       </div>
     </div>
 
+    <div class="footer-bottom">
+      <p class="text-muted" style="margin-top: 2rem; font-size: 0.85rem; text-align: center;">
+        Built with Jekyll
+      </p>
+    </div>
   </div>
-
 </footer>

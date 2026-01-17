@@ -3,45 +3,60 @@ layout: default
 ---
 
 <div class="home">
-
   <ul class="post-list">
     {% for post in paginator.posts %}
       <li>
-        <span class="post-meta">
-          {{ post.date | date: "%b %-d, %Y" }}
-          {% include est-read-time.html %}
-        </span>
+        <div class="post-meta">
+          <time datetime="{{ post.date | date_to_xmlschema }}">
+            {{ post.date | date: "%b %-d, %Y" }}
+          </time>
+          <span class="read-time">{% include est-read-time.html %}</span>
+        </div>
 
         <h2>
           <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
         </h2>
+
         <div class="post-preview">
           {{ post.excerpt }}
-          <br>
-            <div class="post-preview-readmore"><a href="{{ post.url }}">Read more...</a></div>
+          <a href="{{ post.url }}" class="post-preview-readmore">Read more</a>
         </div>
       </li>
     {% endfor %}
   </ul>
 
-  <!-- Pagination links -->
-<div class="pagination">
-  {% if paginator.previous_page %}
-    <a href="{{ paginator.previous_page_path }}" class="previous">
-      ⇠
-    </a>
-  {% else %}
-  <span>⇠</span>
-  {% endif %}
-  <span class="page_number ">
-    {{ paginator.page }} of {{ paginator.total_pages }}
-  </span>
-  {% if paginator.next_page %}
-    <a href="{{ paginator.next_page_path }}" class="next">⇢</a>
-  {% else %}
-  <span>⇢</span>
-  {% endif %}
-</div>
+  <!-- Pagination -->
+  <nav class="pagination" aria-label="Pagination">
+    {% if paginator.previous_page %}
+      <a href="{{ paginator.previous_page_path }}" class="previous" aria-label="Previous page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+    {% else %}
+      <span aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </span>
+    {% endif %}
 
+    <span class="page_number">
+      {{ paginator.page }} of {{ paginator.total_pages }}
+    </span>
 
+    {% if paginator.next_page %}
+      <a href="{{ paginator.next_page_path }}" class="next" aria-label="Next page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+    {% else %}
+      <span aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </span>
+    {% endif %}
+  </nav>
 </div>

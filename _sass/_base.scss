@@ -1,233 +1,465 @@
-@use "sass:color";
 @use "variables" as *;
 
-/**
- * Reset some basic elements
- */
+// =============================================================================
+// CSS CUSTOM PROPERTIES - Theme System
+// =============================================================================
+
+:root {
+  // Colors
+  --color-ink: #{$color-ink};
+  --color-ink-light: #{$color-ink-light};
+  --color-ink-muted: #{$color-ink-muted};
+  --color-paper: #{$color-paper};
+  --color-paper-warm: #{$color-paper-warm};
+  --color-paper-dark: #{$color-paper-dark};
+  --color-accent: #{$color-accent};
+  --color-accent-light: #{$color-accent-light};
+  --color-accent-dark: #{$color-accent-dark};
+
+  // Typography
+  --font-display: #{$font-display};
+  --font-body: #{$font-body};
+  --font-mono: #{$font-mono};
+
+  // Spacing
+  --space-xs: #{$space-xs};
+  --space-sm: #{$space-sm};
+  --space-md: #{$space-md};
+  --space-lg: #{$space-lg};
+  --space-xl: #{$space-xl};
+  --space-2xl: #{$space-2xl};
+
+  // Transitions
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+
+  // Shadows
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+
+  // Code block colors (light)
+  --code-bg: #f8f8f8;
+  --code-border: #e5e5e5;
+  --code-text: #{$color-ink};
+}
+
+// Dark theme
+[data-theme="dark"] {
+  --color-ink: #{$color-ink-dark-mode};
+  --color-ink-light: #{$color-ink-light-dark-mode};
+  --color-ink-muted: #{$color-ink-muted-dark-mode};
+  --color-paper: #{$color-paper-dark-mode};
+  --color-paper-warm: #{$color-paper-warm-dark-mode};
+  --color-paper-dark: #{$color-paper-dark-dark-mode};
+  --color-accent: #{$color-accent-dark-mode};
+  --color-accent-light: #{$color-accent-light-dark-mode};
+
+  // Adjusted shadows for dark mode
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+
+  // Code block colors (dark)
+  --code-bg: #1e1e2e;
+  --code-border: #313244;
+  --code-text: #cdd6f4;
+}
+
+// =============================================================================
+// RESET & BASE
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body, h1, h2, h3, h4, h5, h6,
 p, blockquote, pre, hr,
 dl, dd, ol, ul, figure {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
+html {
+  font-size: $base-font-size;
+  scroll-behavior: smooth;
 
+  @include respond-to($bp-tablet) {
+    font-size: 16px;
+  }
+}
 
-/**
- * Basic styling
- */
+// =============================================================================
+// BODY - Base Styling
+// =============================================================================
+
 body {
-    font: $base-font-weight #{$base-font-size}/#{$base-line-height} $base-font-family;
-    color: $text-color;
-    background: linear-gradient(
-        to right,
-        color.adjust($background-color, $lightness: -8%) 0%,
-        $background-color 20%,
-        $background-color 80%,
-        color.adjust($background-color, $lightness: -8%) 100%
-    );
-    background-attachment: fixed;
-    -webkit-text-size-adjust: 100%;
-    -webkit-font-feature-settings: "kern" 1;
-    -moz-font-feature-settings: "kern" 1;
-    -o-font-feature-settings: "kern" 1;
-    font-feature-settings: "kern" 1;
-    font-kerning: normal;
+  font-family: var(--font-body);
+  font-weight: $weight-normal;
+  line-height: $line-height-base;
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+  transition: background-color var(--transition-base), color var(--transition-base);
 
-    &.dark {
-        background: linear-gradient(
-            to right,
-            color.adjust($background-color-dark, $lightness: -5%) 0%,
-            $background-color-dark 20%,
-            $background-color-dark 80%,
-            color.adjust($background-color-dark, $lightness: -5%) 100%
-        );
-        background-attachment: fixed;
-        color: $text-color-dark;
-    }
+  // Subtle texture overlay
+  &::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(37, 99, 235, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(37, 99, 235, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
 }
 
-
-
-
-/**
- * Set `margin-bottom` to maintain vertical rhythm
- */
-h3, h4, h5, h6,
-p, blockquote, pre,
-ul, ol, dl, figure,
-%vertical-rhythm {
-    // margin-bottom: calc($spacing-unit / 2);
-    margin-bottom: 1rem;
+[data-theme="dark"] body::before {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(96, 165, 250, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(96, 165, 250, 0.03) 0%, transparent 50%);
 }
 
-h1, h2 ,
-%vertical-rhythm 
-{
-    margin-top: 0.3rem;
-    margin-bottom: 1.3rem;
+// =============================================================================
+// TYPOGRAPHY
+// =============================================================================
+
+// Vertical rhythm
+h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
+  margin-bottom: 1.25rem;
 }
 
+h1, h2 {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
 
+// Headings - Using display font
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: $weight-bold;
+  line-height: $line-height-tight;
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+}
 
-/**
- * Images
- */
+h1 {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5, h6 {
+  font-size: 1.1rem;
+}
+
+// =============================================================================
+// IMAGES & FIGURES
+// =============================================================================
+
 img {
-    max-width: 100%;
-    vertical-align: middle;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+  border-radius: $radius-md;
 }
 
+figure {
+  margin: $space-lg 0;
 
-
-/**
- * Figures
- */
-figure > img {
+  > img {
     display: block;
+    margin: 0 auto;
+  }
 }
 
 figcaption {
-    font-size: $small-font-size;
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  text-align: center;
+  margin-top: $space-sm;
+  font-style: italic;
 }
 
+// =============================================================================
+// LISTS
+// =============================================================================
 
-
-/**
- * Lists
- */
 ul, ol {
-    margin-left: $spacing-unit;
+  margin-left: $space-lg;
 }
 
 li {
-    > ul,
-    > ol {
-         margin-bottom: 0;
-    }
+  margin-bottom: $space-xs;
+
+  > ul,
+  > ol {
+    margin-bottom: 0;
+    margin-top: $space-xs;
+  }
 }
 
+// =============================================================================
+// LINKS
+// =============================================================================
 
-
-/**
- * Headings
- */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: $base-font-weight;
-}
-
-
-
-/**
- * Links
- */
 a {
-    color: $brand-color;
-    text-decoration: none;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 
-    &:visited {
-        color: color.adjust($brand-color, $lightness: -5%);
-    }
+  &:hover {
+    color: var(--color-accent-light);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
 
-    &:hover {
-        color: $text-color;
-        text-decoration: underline;
-    }
-
-    &.dark {
-        color: color.adjust($brand-color, $lightness: 30%)
-    }
+  &:focus-visible {
+    @include focus-ring;
+  }
 }
 
+// =============================================================================
+// BLOCKQUOTES
+// =============================================================================
 
-
-
-/**
- * Blockquotes
- */
 blockquote {
-    color: $grey-color-dark;
-    border-left: 4px solid $brand-color;
-    padding-left: calc($spacing-unit / 2);
+  position: relative;
+  padding: $space-md $space-lg;
+  margin: $space-xl 0;
+  background: var(--color-paper-warm);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 0 $radius-md $radius-md 0;
+  font-style: italic;
+  color: var(--color-ink-light);
 
-    > :last-child {
-        margin-bottom: 0;
-    }
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  &::before {
+    content: "\201C";
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    font-family: var(--font-display);
+    font-size: 4rem;
+    color: var(--color-accent);
+    opacity: 0.2;
+    line-height: 1;
+  }
 }
 
+// =============================================================================
+// CODE FORMATTING
+// =============================================================================
 
-
-/**
- * Code formatting
- */
-pre {
-    font-size: 15px;
-    border: 1px solid $grey-color-light;
-    border-radius: 3px;
-    background-color: $background-color;
-
-    &.dark {
-        border-color: $grey-color-dark;
-        background-color: color.adjust($background-color-dark, $lightness: -5%);
-    }
+code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
 }
 
+// Inline code
 code:not(pre > code) {
-    padding: 1px 5px;
-    background-color: color.adjust($background-color, $lightness: -5%);
+  padding: 2px 6px;
+  background-color: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: $radius-sm;
+  color: var(--color-accent-dark);
+  font-size: 0.875em;
 
-    &.dark {
-        background-color: color.adjust($background-color-dark, $lightness: 10%);
-    }
+  [data-theme="dark"] & {
+    color: var(--color-accent-light);
+  }
 }
 
+// Code blocks
 pre {
-    padding: 8px 12px;
-    overflow-x: auto;
+  padding: $space-md;
+  background-color: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: $radius-lg;
+  overflow-x: auto;
+  line-height: 1.6;
 
-    > code {
-        border: 0;
-        padding-right: 0;
-        padding-left: 0;
-    }
+  > code {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+  }
 }
 
+// Scrollbar styling for code blocks
+pre::-webkit-scrollbar {
+  height: 8px;
+}
 
+pre::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/**
- * Wrapper
- */
+pre::-webkit-scrollbar-thumb {
+  background: var(--color-ink-muted);
+  border-radius: $radius-full;
+
+  &:hover {
+    background: var(--color-ink-light);
+  }
+}
+
+// =============================================================================
+// HORIZONTAL RULE
+// =============================================================================
+
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-paper-dark), transparent);
+  margin: $space-2xl 0;
+}
+
+// =============================================================================
+// TABLES
+// =============================================================================
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: $space-lg 0;
+  font-size: 0.95rem;
+}
+
+th, td {
+  padding: $space-sm $space-md;
+  text-align: left;
+  border-bottom: 1px solid var(--color-paper-dark);
+}
+
+th {
+  font-family: var(--font-display);
+  font-weight: $weight-semibold;
+  color: var(--color-ink);
+  background: var(--color-paper-warm);
+}
+
+tr:hover td {
+  background: var(--color-paper-warm);
+}
+
+// =============================================================================
+// WRAPPER - Content Container
+// =============================================================================
+
 .wrapper {
-    max-width:         calc(#{$content-width} - (#{$spacing-unit} * 2));
-    margin-right: auto;
-    margin-left: auto;
-    padding-right: $spacing-unit;
-    padding-left: $spacing-unit;
-    @extend %clearfix;
+  max-width: $content-width;
+  margin: 0 auto;
+  padding: 0 $space-lg;
 
-    @include media-query($on-laptop) {
-        max-width:         calc(#{$content-width} - (#{$spacing-unit}));
-        padding-right: calc($spacing-unit / 2);
-        padding-left: calc($spacing-unit / 2);
-    }
+  @include respond-to($bp-tablet) {
+    padding: 0 $space-md;
+  }
+
+  @include respond-to($bp-mobile) {
+    padding: 0 $space-sm;
+  }
 }
 
+.wrapper--wide {
+  max-width: $content-width-wide;
+}
 
+// =============================================================================
+// SELECTION
+// =============================================================================
 
+::selection {
+  background: var(--color-accent);
+  color: white;
+}
 
-/**
- * Icons
- */
+// =============================================================================
+// ICONS
+// =============================================================================
+
 .icon {
+  > svg {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
 
-    > svg {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        vertical-align: middle;
-
-        path {
-            fill: $grey-color;
-        }
+    path {
+      fill: var(--color-ink-muted);
+      transition: fill var(--transition-fast);
     }
+  }
+
+  &:hover > svg path {
+    fill: var(--color-accent);
+  }
+}
+
+// =============================================================================
+// UTILITY CLASSES
+// =============================================================================
+
+.text-center { text-align: center; }
+.text-muted { color: var(--color-ink-muted); }
+.sr-only { @extend %visually-hidden; }
+
+// Animation utilities
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease forwards;
 }
