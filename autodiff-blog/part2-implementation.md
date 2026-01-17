@@ -1,17 +1,12 @@
----
-layout: post
-title:  "Understanding Autodiff, Part 2: Building It in Rust"
-date:   2026-01-17 10:00:00 -0700
-tags: rust machine-learning programming
-author: bolu-atx
-categories: programming
+# Understanding Autodiff, Part 2: Building It in Rust
+
+*From mental model to working code*
+
 ---
 
-In [Part 1]({% post_url 2026-01-03-autodiff-part1-intuition %}), we built intuition for autodiff: computation as graphs, derivatives as sensitivity flowing backward, the chain rule as path multiplication.
+In [Part 1](./part1-intuition.md), we built intuition for autodiff: computation as graphs, derivatives as sensitivity flowing backward, the chain rule as path multiplication.
 
 Now let's make it real. We'll implement a working autodiff engine in Rust — something you can actually use to compute gradients.
-
-<!--more-->
 
 Fair warning: this will be more code-heavy. But I'll try to connect each piece back to the mental model we built.
 
@@ -451,7 +446,7 @@ where
 }
 ```
 
-Central differences give $O(\varepsilon^2)$ accuracy. With $\varepsilon = 10^{-7}$, we get errors around $10^{-14}$ — more than enough to validate our exact gradients.
+Central differences give O(ε²) accuracy. With ε = 10⁻⁷, we get errors around 10⁻¹⁴ — more than enough to validate our exact gradients.
 
 ```rust
 #[test]
@@ -514,4 +509,4 @@ If you want to explore further, the full code is at [github.com/bolu-atx/autodif
 
 ---
 
-*This is Part 2 of a two-part series. [Part 1]({% post_url 2026-01-03-autodiff-part1-intuition %}) covers the conceptual foundations.*
+*This is Part 2 of a two-part series. [Part 1](./part1-intuition.md) covers the conceptual foundations.*

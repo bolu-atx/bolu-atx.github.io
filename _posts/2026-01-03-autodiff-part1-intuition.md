@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Understanding Autodiff, Part 1: Thinking in Graphs"
-date:   2026-01-17 09:00:00 -0700
+date:   2026-01-03 09:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
