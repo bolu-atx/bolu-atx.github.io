@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Deep Learning in Rust: From Scratch, Part 2 — A Scalar Autodiff Engine"
+title:  "Autodiff in Rust, Part 2 — A Scalar Autodiff Engine"
 date:   2026-01-17 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
 ---
 
-In [Part 1]({% post_url 2026-01-03-deep-learning-rust-part1-graphs %}), we built intuition for autodiff: computation as graphs, derivatives as sensitivity flowing backward, the chain rule as path multiplication.
+In [Part 1]({% post_url 2026-01-03-autodiff-rust-part1-graphs %}), we built intuition for autodiff: computation as graphs, derivatives as sensitivity flowing backward, the chain rule as path multiplication.
 
 Now let's make it real. We'll implement a working autodiff engine in Rust — something you can actually use to compute gradients.
 
@@ -514,4 +514,4 @@ If you want to explore further, the full code is at [github.com/bolu-atx/autodif
 
 ---
 
-*This is Part 2 of a two-part series. [Part 1]({% post_url 2026-01-03-deep-learning-rust-part1-graphs %}) covers the conceptual foundations.*
+*Part 2 of the "Autodiff in Rust" series. [Part 1]({% post_url 2026-01-03-autodiff-rust-part1-graphs %}) covers the conceptual foundations. Continue to [Deep Learning from Scratch]({% post_url 2026-01-25-deep-learning-scratch-part1-tensors %}) to build neural networks on top of this engine.*

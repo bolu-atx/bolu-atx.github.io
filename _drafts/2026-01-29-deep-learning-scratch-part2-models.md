@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Deep Learning in Rust: From Scratch, Part 4 — Layers, Models, and Loss"
+title:  "Deep Learning from Scratch in Rust, Part 2 — Layers, Models, and Loss"
 date:   2026-01-29 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
 ---
 
-In [Part 3]({% post_url 2026-01-25-deep-learning-rust-part3-tensors %}), we built tensor autodiff — gradients flow through multi-dimensional arrays with broadcasting and reductions handled correctly. But we still don't have a neural network.
+In [Part 1]({% post_url 2026-01-25-deep-learning-scratch-part1-tensors %}), we built tensor autodiff — gradients flow through multi-dimensional arrays with broadcasting and reductions handled correctly. But we still don't have a neural network.
 
 What's missing? The building blocks: **layers** that encapsulate learnable parameters, **models** that compose layers, and **loss functions** that define what "correct" means.
 
@@ -455,8 +455,8 @@ The gradient for every parameter flows automatically through the computation gra
 
 We have models with parameters and loss functions that produce gradients. But gradients alone don't train anything. We need **optimizers** to turn gradients into parameter updates.
 
-[Part 5]({% post_url 2026-02-01-deep-learning-rust-part5-optimizers %}) implements SGD, Momentum, and Adam — the algorithms that make learning happen.
+[Part 3]({% post_url 2026-02-01-deep-learning-scratch-part3-optimizers %}) implements SGD, Momentum, and Adam — the algorithms that make learning happen.
 
 ---
 
-*Part 4 of the "Deep Learning in Rust: From Scratch" series. [Part 3]({% post_url 2026-01-25-deep-learning-rust-part3-tensors %}) covers tensor gradients, [Part 5]({% post_url 2026-02-01-deep-learning-rust-part5-optimizers %}) covers optimizers.*
+*Part 2 of the "Deep Learning from Scratch in Rust" series. [Part 1]({% post_url 2026-01-25-deep-learning-scratch-part1-tensors %}) covers tensor gradients, [Part 3]({% post_url 2026-02-01-deep-learning-scratch-part3-optimizers %}) covers optimizers.*
