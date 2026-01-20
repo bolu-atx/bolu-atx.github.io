@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Understanding Autodiff, Part 5: Pluggable Backends in Rust"
+title:  "Deep Learning in Rust: From Scratch, Part 6 — Pluggable Backends"
 date:   2026-02-08 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
@@ -460,10 +460,10 @@ We've covered:
 4. **Metal backend**: GPU shaders for parallel compute
 5. **Interop**: Moving data between backends
 
-The autodiff engine from Parts 1-4 runs on any backend that implements the trait. Write once, run anywhere — at native speed.
+The autodiff engine from Parts 1-5 runs on any backend that implements the trait. Write once, run anywhere — at native speed.
 
 ---
 
-*This concludes our series on building autodiff from scratch. From scalar intuition to tensor gradients to optimizers to hardware backends — we've built a working ML framework.*
+*This concludes the "Deep Learning in Rust: From Scratch" series. From scalar intuition to tensor gradients to models to optimizers to hardware backends — we've built a working ML framework.*
 
 *Full source code: [github.com/bolu-atx/autodiff-rs](https://github.com/bolu-atx/autodiff-rs)*
