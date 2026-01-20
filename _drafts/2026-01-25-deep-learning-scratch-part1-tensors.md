@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Deep Learning in Rust: From Scratch, Part 3 — Tensor Gradients"
+title:  "Deep Learning from Scratch in Rust, Part 1 — Tensor Gradients"
 date:   2026-01-25 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
 ---
 
-In [Part 2]({% post_url 2026-01-17-deep-learning-rust-part2-scalar-autodiff %}), we built a working autodiff engine for scalar functions. Clean, elegant, and... completely impractical.
+In the [Autodiff series]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}), we built a working autodiff engine for scalar functions. Clean, elegant, and... completely impractical. But building it was so much fun that I decided to take it all the way — from toy scalar engine to a real deep learning framework.
 
 Real neural networks don't operate on individual numbers. They process *tensors* — multi-dimensional arrays where a single forward pass might involve millions of values. Today we'll generalize our scalar engine to tensors and discover the new problems that emerge.
 
@@ -1140,8 +1140,8 @@ We have tensors with gradients. But an autodiff engine isn't a neural network ye
 - **Models**: Compose layers into trainable architectures
 - **Loss functions**: Define what "correct" means
 
-[Part 4]({% post_url 2026-01-29-deep-learning-rust-part4-models %}) builds these building blocks.
+[Part 2]({% post_url 2026-01-29-deep-learning-scratch-part2-models %}) builds these building blocks.
 
 ---
 
-*Part 3 of the "Deep Learning in Rust: From Scratch" series. [Part 2]({% post_url 2026-01-17-deep-learning-rust-part2-scalar-autodiff %}) builds the scalar autodiff engine, [Part 4]({% post_url 2026-01-29-deep-learning-rust-part4-models %}) covers models and loss.*
+*Part 1 of the "Deep Learning from Scratch in Rust" series. This builds on the [Autodiff in Rust]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}) series. [Part 2]({% post_url 2026-01-29-deep-learning-scratch-part2-models %}) covers models and loss.*
