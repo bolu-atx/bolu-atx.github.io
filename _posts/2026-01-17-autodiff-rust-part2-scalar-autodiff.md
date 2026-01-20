@@ -514,4 +514,4 @@ If you want to explore further, the full code is at [github.com/bolu-atx/autodif
 
 ---
 
-*Part 2 of the "Autodiff in Rust" series. [Part 1]({% post_url 2026-01-03-autodiff-rust-part1-graphs %}) covers the conceptual foundations. Continue to [Deep Learning from Scratch]({% post_url 2026-01-25-deep-learning-scratch-part1-tensors %}) to build neural networks on top of this engine.*
+*Part 2 of the "Autodiff in Rust" series. [Part 1]({% post_url 2026-01-03-autodiff-rust-part1-graphs %}) covers the conceptual foundations.*
