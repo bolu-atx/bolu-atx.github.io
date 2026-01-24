@@ -285,8 +285,9 @@ Watch SGD struggle on a narrow valley — the classic pathological case:
       const mHat = [this.m[0] / bc1, this.m[1] / bc1];
       const vHat = [this.v[0] / bc2, this.v[1] / bc2];
 
-      this.pos[0] -= lr * mHat[0] / (Math.sqrt(vHat[0]) + 1e-8);
-      this.pos[1] -= lr * mHat[1] / (Math.sqrt(vHat[1]) + 1e-8);
+      const adamLr = lr * 5;  // Adam needs higher base LR due to normalization
+      this.pos[0] -= adamLr * mHat[0] / (Math.sqrt(vHat[0]) + 1e-8);
+      this.pos[1] -= adamLr * mHat[1] / (Math.sqrt(vHat[1]) + 1e-8);
       this.path.push([...this.pos]);
     }
   }
@@ -723,8 +724,9 @@ Here's the same optimization viewed as balls rolling down a loss surface. Drag t
         const bc2 = 1 - Math.pow(0.999, this.t);
         const mHat = [this.m[0] / bc1, this.m[1] / bc1];
         const vHat = [this.vAdam[0] / bc2, this.vAdam[1] / bc2];
-        this.pos[0] -= lr * mHat[0] / (Math.sqrt(vHat[0]) + 1e-8);
-        this.pos[1] -= lr * mHat[1] / (Math.sqrt(vHat[1]) + 1e-8);
+        const adamLr = lr * 5;  // Adam needs higher base LR due to normalization
+        this.pos[0] -= adamLr * mHat[0] / (Math.sqrt(vHat[0]) + 1e-8);
+        this.pos[1] -= adamLr * mHat[1] / (Math.sqrt(vHat[1]) + 1e-8);
       }
       this.path.push([...this.pos]);
     }
