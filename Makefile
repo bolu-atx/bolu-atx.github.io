@@ -1,4 +1,18 @@
-.PHONY: serve build clean install shell clean-cache
+.PHONY: help serve build build-preview clean install shell clean-cache
+
+.DEFAULT_GOAL := help
+
+help:
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Targets:"
+	@echo "  serve          Start local dev server with drafts + future posts (localhost:4000)"
+	@echo "  build          Production build (no drafts/future)"
+	@echo "  build-preview  Build with drafts + future posts"
+	@echo "  install        Install Ruby dependencies"
+	@echo "  clean          Remove generated _site and cache"
+	@echo "  clean-cache    Remove Docker gem cache volume"
+	@echo "  shell          Open bash shell in Docker container"
 
 VOLUME_NAME := jekyll-gems-bolu-blog
 RUBY_IMAGE := ruby:3.2
@@ -25,6 +39,10 @@ serve: .volume
 build: .volume
 	$(DOCKER_RUN) $(RUBY_IMAGE) \
 		bash -c "bundle install --quiet && bundle exec jekyll build"
+
+build-preview: .volume
+	$(DOCKER_RUN) $(RUBY_IMAGE) \
+		bash -c "bundle install --quiet && bundle exec jekyll build --drafts --future"
 
 clean:
 	rm -rf _site .jekyll-cache .jekyll-metadata
