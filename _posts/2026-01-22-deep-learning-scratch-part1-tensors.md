@@ -1140,8 +1140,8 @@ We have tensors with gradients. But an autodiff engine isn't a neural network ye
 - **Models**: Compose layers into trainable architectures
 - **Loss functions**: Define what "correct" means
 
-[Part 2]({% post_url 2026-01-29-deep-learning-scratch-part2-models %}) builds these building blocks.
+Part 2 will build these building blocks.
 
 ---
 
-*Part 1 of the "Deep Learning from Scratch in Rust" series. This builds on the [Autodiff in Rust]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}) series. [Part 2]({% post_url 2026-01-29-deep-learning-scratch-part2-models %}) covers models and loss.*
+*Part 1 of the "Deep Learning from Scratch in Rust" series. This builds on the [Autodiff in Rust]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}) series.*

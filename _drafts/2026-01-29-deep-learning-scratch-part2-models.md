@@ -7,7 +7,7 @@ author: bolu-atx
 categories: programming
 ---
 
-In [Part 1]({% post_url 2026-01-25-deep-learning-scratch-part1-tensors %}), we built tensor autodiff — gradients flow through multi-dimensional arrays with broadcasting and reductions handled correctly. But we still don't have a neural network.
+In [Part 1]({% post_url 2026-01-22-deep-learning-scratch-part1-tensors %}), we built tensor autodiff — gradients flow through multi-dimensional arrays with broadcasting and reductions handled correctly. But we still don't have a neural network.
 
 What's missing? The building blocks: **layers** that encapsulate learnable parameters, **models** that compose layers, and **loss functions** that define what "correct" means.
 
@@ -459,4 +459,4 @@ We have models with parameters and loss functions that produce gradients. But gr
 
 ---
 
-*Part 2 of the "Deep Learning from Scratch in Rust" series. [Part 1]({% post_url 2026-01-25-deep-learning-scratch-part1-tensors %}) covers tensor gradients, [Part 3]({% post_url 2026-02-01-deep-learning-scratch-part3-optimizers %}) covers optimizers.*
+*Part 2 of the "Deep Learning from Scratch in Rust" series. [Part 1]({% post_url 2026-01-22-deep-learning-scratch-part1-tensors %}) covers tensor gradients, [Part 3]({% post_url 2026-02-01-deep-learning-scratch-part3-optimizers %}) covers optimizers.*
