@@ -669,3 +669,124 @@
     font-weight: $weight-medium;
   }
 }
+
+// =============================================================================
+// MERMAID DIAGRAMS - Theme-aware hand-drawn styling
+// =============================================================================
+
+.mermaid {
+  margin: $space-lg 0;
+  padding: $space-md;
+  background: var(--color-paper-warm);
+  border-radius: $radius-lg;
+  border: 1px solid var(--color-paper-dark);
+  overflow-x: auto;
+  transition: background-color var(--transition-base), border-color var(--transition-base);
+
+  // Center the SVG
+  display: flex;
+  justify-content: center;
+
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+// Mermaid theme color overrides via CSS custom properties
+// These override inline styles from the diagrams for dark mode compatibility
+:root {
+  // Semantic diagram colors - light mode
+  --mermaid-node-input: #e3f2fd;
+  --mermaid-node-input-stroke: #2563eb;
+  --mermaid-node-output: #e8f5e9;
+  --mermaid-node-output-stroke: #059669;
+  --mermaid-node-highlight: #fce4ec;
+  --mermaid-node-highlight-stroke: #db2777;
+  --mermaid-node-warning: #fff8e1;
+  --mermaid-node-warning-stroke: #d97706;
+  --mermaid-node-process: #f3e5f5;
+  --mermaid-node-process-stroke: #7c3aed;
+  --mermaid-node-positive: #dcfce7;
+  --mermaid-node-positive-stroke: #16a34a;
+  --mermaid-node-negative: #fee2e2;
+  --mermaid-node-negative-stroke: #dc2626;
+  --mermaid-link-highlight: #ef4444;
+}
+
+[data-theme="dark"] {
+  // Semantic diagram colors - dark mode (more muted, easier on eyes)
+  --mermaid-node-input: #1e3a5f;
+  --mermaid-node-input-stroke: #60a5fa;
+  --mermaid-node-output: #14532d;
+  --mermaid-node-output-stroke: #34d399;
+  --mermaid-node-highlight: #4a1942;
+  --mermaid-node-highlight-stroke: #f472b6;
+  --mermaid-node-warning: #422006;
+  --mermaid-node-warning-stroke: #fbbf24;
+  --mermaid-node-process: #2e1065;
+  --mermaid-node-process-stroke: #a78bfa;
+  --mermaid-node-positive: #14532d;
+  --mermaid-node-positive-stroke: #4ade80;
+  --mermaid-node-negative: #450a0a;
+  --mermaid-node-negative-stroke: #f87171;
+  --mermaid-link-highlight: #f87171;
+}
+
+// Force override inline styles in mermaid SVGs
+// These selectors target the rendered SVG elements
+.mermaid {
+  // Node styling overrides
+  .node rect,
+  .node circle,
+  .node ellipse,
+  .node polygon,
+  .node path {
+    transition: fill 0.2s ease, stroke 0.2s ease;
+  }
+
+  // Cluster/subgraph backgrounds
+  .cluster rect {
+    fill: var(--color-paper-warm) !important;
+    stroke: var(--color-paper-dark) !important;
+  }
+
+  // Edge labels
+  .edgeLabel {
+    background-color: var(--color-paper) !important;
+    color: var(--color-ink) !important;
+
+    rect {
+      fill: var(--color-paper) !important;
+    }
+  }
+
+  // Actor boxes in sequence diagrams
+  .actor {
+    fill: var(--color-paper-warm) !important;
+    stroke: var(--color-accent) !important;
+  }
+
+  // Note boxes
+  .note {
+    fill: var(--color-paper-warm) !important;
+    stroke: var(--color-accent) !important;
+  }
+
+  // All text should use theme color
+  text {
+    fill: var(--color-ink) !important;
+  }
+
+  // Links/arrows - ensure visibility
+  .flowchart-link,
+  .relation,
+  path.path {
+    stroke: var(--color-ink-muted) !important;
+  }
+
+  // Arrow markers
+  marker path {
+    fill: var(--color-ink-muted) !important;
+  }
+}

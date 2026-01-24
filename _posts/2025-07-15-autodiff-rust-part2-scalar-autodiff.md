@@ -122,7 +122,8 @@ graph BT
     node_mul -.->|"Arc"| node_x
     node_sin -.->|"Arc"| node_x
 
-    style node_x fill:#a8d5ff
+    classDef shared fill:none,stroke:#60a5fa,stroke-width:2px
+    class node_x shared
 ```
 
 Multiple expressions can point to the same underlying node. This is exactly the graph structure we need.
