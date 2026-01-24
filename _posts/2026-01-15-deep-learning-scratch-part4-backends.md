@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Deep Learning from Scratch in Rust, Part 4 — Pluggable Backends"
-date:   2026-02-08 10:00:00 -0700
+date:   2026-01-15 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
@@ -464,6 +464,6 @@ The autodiff engine runs on any backend that implements the trait. Write once, r
 
 ---
 
-*This concludes the "Deep Learning from Scratch in Rust" series. From tensor gradients to models to optimizers to hardware backends — we've built a working ML framework. See also the [Autodiff in Rust]({% post_url 2026-01-03-autodiff-rust-part1-graphs %}) series for the foundational concepts.*
+*This concludes the "Deep Learning from Scratch in Rust" series. From tensor gradients to models to optimizers to hardware backends — we've built a working ML framework. See also the [Autodiff in Rust]({% post_url 2025-06-15-autodiff-rust-part1-graphs %}) series for the foundational concepts.*
 
 *Full source code: [github.com/bolu-atx/autodiff-rs](https://github.com/bolu-atx/autodiff-rs)*
