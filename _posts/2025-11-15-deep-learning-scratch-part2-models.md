@@ -41,6 +41,42 @@ Where:
 - $b$: bias vector of shape `[out_features]`
 - $y$: output of shape `[batch, out_features]`
 
+```mermaid
+graph LR
+    subgraph Input
+        x["x<br/>[batch, in_features]"]
+    end
+
+    subgraph Parameters
+        W["W<br/>[out, in]"]
+        b["b<br/>[out]"]
+    end
+
+    subgraph Operations
+        matmul["matmul<br/>x @ Wᵀ"]
+        add["add<br/>+ bias"]
+    end
+
+    subgraph Output
+        y["y<br/>[batch, out_features]"]
+    end
+
+    x --> matmul
+    W --> matmul
+    matmul --> add
+    b --> add
+    add --> y
+
+    classDef input fill:none,stroke:#60a5fa,stroke-width:2px
+    classDef param fill:none,stroke:#a78bfa,stroke-width:2px
+    classDef output fill:none,stroke:#34d399,stroke-width:2px
+    class x input
+    class W,b param
+    class y output
+```
+
+Each input connects to every output through learned weights — that's why it's called "fully connected."
+
 ```rust
 use ad_backend_cpu::CpuBackend;
 use ad_tensor::prelude::*;
@@ -118,6 +154,140 @@ The $\sqrt{2}$ accounts for ReLU zeroing half the values. This keeps variance st
 
 Activations introduce non-linearity. Without them, stacking linear layers is pointless — the composition of linear functions is linear.
 
+<div id="activation-viz" style="margin: 2em 0;">
+  <div style="display: flex; justify-content: center;">
+    <div id="activation-plot" style="width: 500px; max-width: 100%;"></div>
+  </div>
+  <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1em; flex-wrap: wrap;">
+    <label style="cursor: pointer;"><input type="checkbox" id="show-relu" checked> <span style="color: #ef4444;">■</span> ReLU</label>
+    <label style="cursor: pointer;"><input type="checkbox" id="show-sigmoid" checked> <span style="color: #22c55e;">■</span> Sigmoid</label>
+    <label style="cursor: pointer;"><input type="checkbox" id="show-tanh" checked> <span style="color: #3b82f6;">■</span> Tanh</label>
+  </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+(function() {
+  const width = 500, height = 320;
+  const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+
+  function getTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  const themes = {
+    light: { bg: '#fafaf9', text: '#1a1a2e', grid: '#e5e5e5', axis: '#6b6b8a' },
+    dark: { bg: '#1f1f23', text: '#e4e4e7', grid: '#3f3f46', axis: '#a1a1aa' }
+  };
+
+  const activations = {
+    relu: { fn: x => Math.max(0, x), color: '#ef4444', name: 'ReLU' },
+    sigmoid: { fn: x => 1 / (1 + Math.exp(-x)), color: '#22c55e', name: 'Sigmoid' },
+    tanh: { fn: x => Math.tanh(x), color: '#3b82f6', name: 'Tanh' }
+  };
+
+  const svg = d3.select('#activation-plot')
+    .append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', '100%');
+
+  const g = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const x = d3.scaleLinear().domain([-5, 5]).range([0, plotW]);
+  const y = d3.scaleLinear().domain([-1.5, 1.5]).range([plotH, 0]);
+
+  // Grid
+  const gridGroup = g.append('g').attr('class', 'grid');
+
+  // Axes
+  const xAxisGroup = g.append('g').attr('transform', `translate(0,${plotH/2})`);
+  const yAxisGroup = g.append('g').attr('transform', `translate(${plotW/2},0)`);
+
+  // Labels
+  svg.append('text').attr('class', 'x-label')
+    .attr('x', width / 2).attr('y', height - 5)
+    .attr('text-anchor', 'middle').attr('font-size', 12);
+
+  svg.append('text').attr('class', 'y-label')
+    .attr('transform', 'rotate(-90)')
+    .attr('x', -height / 2).attr('y', 15)
+    .attr('text-anchor', 'middle').attr('font-size', 12);
+
+  // Lines
+  const line = d3.line().x(d => x(d.x)).y(d => y(d.y)).curve(d3.curveMonotoneX);
+  const data = d3.range(-5, 5.1, 0.1).map(x => ({ x }));
+
+  const paths = {};
+  Object.entries(activations).forEach(([key, { fn, color }]) => {
+    const pathData = data.map(d => ({ x: d.x, y: fn(d.x) }));
+    paths[key] = g.append('path')
+      .datum(pathData)
+      .attr('fill', 'none')
+      .attr('stroke', color)
+      .attr('stroke-width', 2.5)
+      .attr('d', line);
+  });
+
+  function updateTheme() {
+    const c = themes[getTheme()];
+    svg.style('background', c.bg);
+
+    gridGroup.selectAll('line').remove();
+    for (let i = -4; i <= 4; i++) {
+      gridGroup.append('line')
+        .attr('x1', x(i)).attr('x2', x(i))
+        .attr('y1', 0).attr('y2', plotH)
+        .attr('stroke', c.grid).attr('stroke-width', 0.5);
+    }
+    for (let i = -1; i <= 1; i += 0.5) {
+      gridGroup.append('line')
+        .attr('x1', 0).attr('x2', plotW)
+        .attr('y1', y(i)).attr('y2', y(i))
+        .attr('stroke', c.grid).attr('stroke-width', 0.5);
+    }
+
+    xAxisGroup.selectAll('*').remove();
+    xAxisGroup.append('line').attr('x1', 0).attr('x2', plotW).attr('stroke', c.axis);
+    d3.range(-4, 5, 2).forEach(v => {
+      xAxisGroup.append('text').attr('x', x(v)).attr('y', 15)
+        .attr('text-anchor', 'middle').attr('fill', c.text).attr('font-size', 10).text(v);
+    });
+
+    yAxisGroup.selectAll('*').remove();
+    yAxisGroup.append('line').attr('y1', 0).attr('y2', plotH).attr('stroke', c.axis);
+    [-1, 1].forEach(v => {
+      yAxisGroup.append('text').attr('x', -8).attr('y', y(v) + 3)
+        .attr('text-anchor', 'end').attr('fill', c.text).attr('font-size', 10).text(v);
+    });
+
+    svg.select('.x-label').attr('fill', c.text).text('Input (x)');
+    svg.select('.y-label').attr('fill', c.text).text('Output');
+  }
+
+  function updateVisibility() {
+    Object.keys(paths).forEach(key => {
+      const visible = document.getElementById(`show-${key}`).checked;
+      paths[key].style('display', visible ? 'block' : 'none');
+    });
+  }
+
+  ['relu', 'sigmoid', 'tanh'].forEach(key => {
+    document.getElementById(`show-${key}`).addEventListener('change', updateVisibility);
+  });
+
+  updateTheme();
+  window.addEventListener('themechange', updateTheme);
+})();
+</script>
+
+Notice how each activation squashes or clips the input differently:
+- **ReLU**: Zero for negatives, linear for positives. Simple, fast, but "dead neurons" can occur.
+- **Sigmoid**: Squashes to (0, 1). Good for probabilities, but gradients vanish at extremes.
+- **Tanh**: Squashes to (-1, 1). Zero-centered, but same vanishing gradient problem.
+
 Activations are pure tensor operations — they work with any backend. We implement them as both tensor methods and standalone functions:
 
 ```rust
@@ -187,6 +357,39 @@ pub fn log_softmax<B: Backend>(logits: &Tensor<B>) -> Tensor<B> {
 ## Building Models
 
 Without a formal `Module` trait, we compose layers manually. This is actually clearer:
+
+```mermaid
+graph LR
+    subgraph "Input"
+        x["x<br/>[batch, input_dim]"]
+    end
+
+    subgraph "Hidden Layer"
+        l1["Linear<br/>(input → hidden)"]
+        relu["ReLU"]
+    end
+
+    subgraph "Output Layer"
+        l2["Linear<br/>(hidden → output)"]
+    end
+
+    subgraph "Output"
+        y["y<br/>[batch, output_dim]"]
+    end
+
+    x --> l1 --> relu --> l2 --> y
+
+    classDef input fill:none,stroke:#60a5fa,stroke-width:2px
+    classDef layer fill:none,stroke:#a78bfa,stroke-width:2px
+    classDef activation fill:none,stroke:#f472b6,stroke-width:2px
+    classDef output fill:none,stroke:#34d399,stroke-width:2px
+    class x input
+    class l1,l2 layer
+    class relu activation
+    class y output
+```
+
+Data flows left-to-right: input → linear transform → non-linearity → linear transform → output. This is the simplest multi-layer perceptron (MLP).
 
 ```rust
 pub struct MLP {
@@ -450,6 +653,26 @@ for epoch in 0..1000 {
 ```
 
 The gradient for every parameter flows automatically through the computation graph — from loss, through the layers, to the weights.
+
+```mermaid
+graph LR
+    subgraph "Forward Pass →"
+        direction LR
+        x1["Input"] --> h1["Hidden"] --> o1["Output"] --> loss1["Loss"]
+    end
+
+    subgraph "← Backward Pass"
+        direction RL
+        loss2["∂L/∂L = 1"] --> o2["∂L/∂output"] --> h2["∂L/∂hidden"] --> w2["∂L/∂weights"]
+    end
+
+    loss1 -.-> loss2
+
+    classDef forward fill:none,stroke:#60a5fa,stroke-width:2px
+    classDef backward fill:none,stroke:#f472b6,stroke-width:2px
+    class x1,h1,o1,loss1 forward
+    class loss2,o2,h2,w2 backward
+```
 
 ## What's Next
 
