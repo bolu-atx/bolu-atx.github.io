@@ -682,6 +682,8 @@
   border: 1px solid var(--color-paper-dark);
   overflow-x: auto;
   transition: background-color var(--transition-base), border-color var(--transition-base);
+  cursor: zoom-in;
+  position: relative;
 
   // Center the SVG
   display: flex;
@@ -690,6 +692,29 @@
   svg {
     max-width: 100%;
     height: auto;
+  }
+
+  // Expand hint (desktop only)
+  &::after {
+    content: "";
+    position: absolute;
+    top: $space-sm;
+    right: $space-sm;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b6b8a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7'/%3E%3C/svg%3E");
+    background-size: contain;
+    opacity: 0.5;
+    transition: opacity var(--transition-fast);
+    pointer-events: none;
+
+    @include respond-to($bp-tablet) {
+      display: none; // Tap is intuitive on touch devices
+    }
+  }
+
+  &:hover::after {
+    opacity: 0.8;
   }
 }
 
@@ -788,5 +813,135 @@
   // Arrow markers
   marker path {
     fill: var(--color-ink-muted) !important;
+  }
+}
+
+// =============================================================================
+// MERMAID LIGHTBOX - Fullscreen pan/zoom viewer
+// =============================================================================
+
+.mermaid-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.mermaid-lightbox__content {
+  position: relative;
+  width: 90vw;
+  height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: $radius-lg;
+  background: var(--color-paper);
+
+  @include respond-to($bp-mobile) {
+    width: 100vw;
+    height: calc(100vh - 80px); // Room for controls
+    border-radius: 0;
+  }
+
+  svg {
+    max-width: none;
+    max-height: none;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+.mermaid-lightbox__controls {
+  position: absolute;
+  bottom: $space-md;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: $space-xs;
+  padding: $space-xs;
+  background: var(--color-paper-warm);
+  border-radius: $radius-full;
+  box-shadow: var(--shadow-lg);
+  z-index: 10;
+
+  @include respond-to($bp-mobile) {
+    bottom: $space-lg;
+    padding-bottom: env(safe-area-inset-bottom, $space-xs); // iPhone home indicator
+  }
+}
+
+.mermaid-lightbox__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: $radius-full;
+  background: transparent;
+  color: var(--color-ink-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent; // Remove tap highlight on mobile
+
+  svg {
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+  }
+
+  &:hover, &:active {
+    background: var(--color-paper-dark);
+    color: var(--color-ink);
+  }
+
+  &--close {
+    position: absolute;
+    top: $space-sm;
+    right: $space-sm;
+    width: 48px;
+    height: 48px;
+    background: var(--color-paper-warm);
+    box-shadow: var(--shadow-md);
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.mermaid-lightbox__hint {
+  position: absolute;
+  bottom: $space-md + 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  color: var(--color-ink-muted);
+  background: var(--color-paper-warm);
+  padding: $space-xs $space-sm;
+  border-radius: $radius-md;
+  opacity: 0.8;
+  pointer-events: none;
+
+  @include respond-to($bp-mobile) {
+    display: none; // Touch is self-explanatory
   }
 }
