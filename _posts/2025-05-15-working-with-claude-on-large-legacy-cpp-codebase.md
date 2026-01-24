@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "What I Learned Using Claude to Rewrite a Legacy C/C++ Codebase"
-date: 2025-12-30 10:00:00 -0700
+date: 2025-05-15 10:00:00 -0700
 tags: claude ai llm cpp modernization
 author: bolu-atx
 categories: programming

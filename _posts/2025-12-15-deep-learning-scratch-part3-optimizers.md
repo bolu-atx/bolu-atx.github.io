@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Deep Learning from Scratch in Rust, Part 3 — Optimizers"
-date:   2026-02-01 10:00:00 -0700
+date:   2025-12-15 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
@@ -9,7 +9,7 @@ categories: programming
 
 We have gradients. Now what?
 
-In [Part 2]({% post_url 2026-01-29-deep-learning-scratch-part2-models %}), we built layers, models, and loss functions. Given a model and a loss, autodiff computes ∂loss/∂θ for every parameter θ. But gradients alone don't train a model. We need an *optimizer* to turn gradients into parameter updates.
+In [Part 2]({% post_url 2025-11-15-deep-learning-scratch-part2-models %}), we built layers, models, and loss functions. Given a model and a loss, autodiff computes ∂loss/∂θ for every parameter θ. But gradients alone don't train a model. We need an *optimizer* to turn gradients into parameter updates.
 
 Today we'll implement the three most important optimizers: SGD, SGD with Momentum, and Adam. Along the way, we'll see why Adam became the default choice.
 
@@ -818,8 +818,8 @@ The 3D view makes it visceral: SGD (red) zig-zags down the valley walls. Momentu
 
 We have gradients, we have optimizers. The remaining question: where does the computation happen?
 
-Our `B::mul`, `B::add` operations are abstract. In [Part 4]({% post_url 2026-02-08-deep-learning-scratch-part4-backends %}), we'll implement concrete backends — CPU with SIMD, and Metal for GPU acceleration.
+Our `B::mul`, `B::add` operations are abstract. In [Part 4]({% post_url 2026-01-15-deep-learning-scratch-part4-backends %}), we'll implement concrete backends — CPU with SIMD, and Metal for GPU acceleration.
 
 ---
 
-*Part 3 of the "Deep Learning from Scratch in Rust" series. [Part 2]({% post_url 2026-01-29-deep-learning-scratch-part2-models %}) covers models and loss, [Part 4]({% post_url 2026-02-08-deep-learning-scratch-part4-backends %}) covers backends.*
+*Part 3 of the "Deep Learning from Scratch in Rust" series. [Part 2]({% post_url 2025-11-15-deep-learning-scratch-part2-models %}) covers models and loss, [Part 4]({% post_url 2026-01-15-deep-learning-scratch-part4-backends %}) covers backends.*

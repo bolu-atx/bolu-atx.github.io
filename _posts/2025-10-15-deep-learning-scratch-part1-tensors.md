@@ -1,13 +1,13 @@
 ---
 layout: post
 title:  "Deep Learning from Scratch in Rust, Part 1 — Tensor Gradients"
-date:   2026-01-22 10:00:00 -0700
+date:   2025-10-15 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
 ---
 
-In the [Autodiff series]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}), we built a working autodiff engine for scalar functions. Clean, elegant, and... completely impractical. But building it was so much fun that I decided to take it all the way — from toy scalar engine to a real deep learning framework.
+In the [Autodiff series]({% post_url 2025-07-15-autodiff-rust-part2-scalar-autodiff %}), we built a working autodiff engine for scalar functions. Clean, elegant, and... completely impractical. But building it was so much fun that I decided to take it all the way — from toy scalar engine to a real deep learning framework.
 
 Real neural networks don't operate on individual numbers. They process *tensors* — multi-dimensional arrays where a single forward pass might involve millions of values. Today we'll generalize our scalar engine to tensors and discover the new problems that emerge.
 
@@ -1144,4 +1144,4 @@ Part 2 will build these building blocks.
 
 ---
 
-*Part 1 of the "Deep Learning from Scratch in Rust" series. This builds on the [Autodiff in Rust]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}) series.*
+*Part 1 of the "Deep Learning from Scratch in Rust" series. This builds on the [Autodiff in Rust]({% post_url 2025-07-15-autodiff-rust-part2-scalar-autodiff %}) series.*

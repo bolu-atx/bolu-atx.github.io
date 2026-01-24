@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Autodiff in Rust, Part 1 — Thinking in Graphs"
-date:   2026-01-03 09:00:00 -0700
+date:   2025-06-15 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
 categories: programming
@@ -749,4 +749,4 @@ Automatic differentiation isn't really about calculus. It's about:
 3. **Composition**: The chain rule falls out naturally from graph traversal
 4. **Direction**: Going backward lets us compute all gradients at once
 
-That's the conceptual foundation. In [Part 2]({% post_url 2026-01-17-autodiff-rust-part2-scalar-autodiff %}), we'll build this in Rust — turning these pictures into actual code.
+That's the conceptual foundation. In [Part 2]({% post_url 2025-07-15-autodiff-rust-part2-scalar-autodiff %}), we'll build this in Rust — turning these pictures into actual code.
