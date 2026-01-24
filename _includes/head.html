@@ -204,6 +204,134 @@
     };
   </script>
 
+  <!-- Mermaid lightbox with pan/zoom -->
+  <script src="https://cdn.jsdelivr.net/npm/panzoom@9.4.3/dist/panzoom.min.js"></script>
+  <script>
+    (function() {
+      let lightbox = null;
+      let panzoomInstance = null;
+
+      function createLightbox() {
+        if (lightbox) return lightbox;
+
+        lightbox = document.createElement('div');
+        lightbox.className = 'mermaid-lightbox';
+        lightbox.innerHTML = `
+          <div class="mermaid-lightbox__content"></div>
+          <button class="mermaid-lightbox__btn mermaid-lightbox__btn--close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+          <div class="mermaid-lightbox__controls">
+            <button class="mermaid-lightbox__btn" data-action="zoom-in" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/>
+              </svg>
+            </button>
+            <button class="mermaid-lightbox__btn" data-action="zoom-out" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M8 11h6"/>
+              </svg>
+            </button>
+            <button class="mermaid-lightbox__btn" data-action="reset" aria-label="Reset zoom">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+              </svg>
+            </button>
+          </div>
+          <div class="mermaid-lightbox__hint">Scroll to zoom • Drag to pan</div>
+        `;
+
+        document.body.appendChild(lightbox);
+
+        // Close button
+        lightbox.querySelector('.mermaid-lightbox__btn--close').addEventListener('click', closeLightbox);
+
+        // Click backdrop to close
+        lightbox.addEventListener('click', function(e) {
+          if (e.target === lightbox) closeLightbox();
+        });
+
+        // Zoom controls
+        lightbox.querySelector('[data-action="zoom-in"]').addEventListener('click', function() {
+          if (panzoomInstance) panzoomInstance.zoomIn();
+        });
+        lightbox.querySelector('[data-action="zoom-out"]').addEventListener('click', function() {
+          if (panzoomInstance) panzoomInstance.zoomOut();
+        });
+        lightbox.querySelector('[data-action="reset"]').addEventListener('click', function() {
+          if (panzoomInstance) panzoomInstance.reset();
+        });
+
+        return lightbox;
+      }
+
+      function openLightbox(mermaidEl) {
+        const lb = createLightbox();
+        const content = lb.querySelector('.mermaid-lightbox__content');
+        const svg = mermaidEl.querySelector('svg');
+
+        if (!svg) return;
+
+        // Clone SVG into lightbox
+        const svgClone = svg.cloneNode(true);
+        svgClone.style.width = 'auto';
+        svgClone.style.height = 'auto';
+        svgClone.style.maxWidth = 'none';
+        svgClone.style.maxHeight = 'none';
+        content.innerHTML = '';
+        content.appendChild(svgClone);
+
+        // Initialize panzoom
+        if (panzoomInstance) {
+          panzoomInstance.dispose();
+        }
+        panzoomInstance = panzoom(svgClone, {
+          maxZoom: 5,
+          minZoom: 0.5,
+          bounds: false,
+          boundsPadding: 0.1,
+          smoothScroll: false
+        });
+
+        // Show lightbox
+        lb.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+
+        // Escape to close
+        document.addEventListener('keydown', handleEscape);
+      }
+
+      function closeLightbox() {
+        if (!lightbox) return;
+
+        lightbox.classList.remove('is-open');
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleEscape);
+
+        if (panzoomInstance) {
+          panzoomInstance.dispose();
+          panzoomInstance = null;
+        }
+      }
+
+      function handleEscape(e) {
+        if (e.key === 'Escape') closeLightbox();
+      }
+
+      // Attach click handlers to mermaid diagrams
+      document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(e) {
+          const mermaidEl = e.target.closest('.mermaid');
+          if (mermaidEl && !e.target.closest('.mermaid-lightbox')) {
+            openLightbox(mermaidEl);
+          }
+        });
+      });
+    })();
+  </script>
+
   <!-- Theme toggle script -->
   <script>
     function setTheme(theme) {
