@@ -630,18 +630,6 @@ let feature_indices: Vec<usize> = if self.colsample_bytree < 1.0 {
 
 Each tree sees only a random subset of features. This decorrelates trees and improves generalization.
 
-## What We Built
-
-| Component | Lines | Purpose |
-|-----------|-------|---------|
-| `objective.rs` | ~100 | Loss functions with gradients/Hessians |
-| `tree.rs` | ~400 | Tree structure, split finding, building |
-| `booster.rs` | ~150 | Training orchestration |
-| `serialize.rs` | ~200 | XGBoost JSON compatibility |
-| `data.rs` | ~100 | Data loading and storage |
-
-Total: ~950 lines of Rust for a complete gradient boosting implementation.
-
 ## What's Missing (Future Work)
 
 1. **Multiclass classification**: Requires K trees per round for K classes
