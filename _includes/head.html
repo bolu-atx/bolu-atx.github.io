@@ -41,29 +41,136 @@
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
-  <!-- Mermaid diagrams -->
+  <!-- Mermaid diagrams with theme-aware hand-drawn styling -->
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 
-    function getMermaidTheme() {
-      return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
+    function getMermaidConfig() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+      // Hand-drawn xkcd-style with theme-aware colors
+      return {
+        startOnLoad: false,
+        look: 'handDrawn',
+        handDrawnSeed: 42,
+        theme: 'base',
+        themeVariables: isDark ? {
+          // Dark mode - warm, muted tones that feel hand-sketched
+          background: '#18181b',
+          primaryColor: '#2d3748',
+          primaryBorderColor: '#60a5fa',
+          primaryTextColor: '#e4e4e7',
+          secondaryColor: '#1f2937',
+          secondaryBorderColor: '#818cf8',
+          secondaryTextColor: '#e4e4e7',
+          tertiaryColor: '#27272a',
+          tertiaryBorderColor: '#a78bfa',
+          tertiaryTextColor: '#e4e4e7',
+          lineColor: '#71717a',
+          textColor: '#e4e4e7',
+          mainBkg: '#2d3748',
+          nodeBorder: '#60a5fa',
+          clusterBkg: '#1f2937',
+          clusterBorder: '#4b5563',
+          titleColor: '#e4e4e7',
+          edgeLabelBackground: '#27272a',
+          // Flowchart specific
+          nodeTextColor: '#e4e4e7',
+          // Sequence diagram
+          actorBkg: '#2d3748',
+          actorBorder: '#60a5fa',
+          actorTextColor: '#e4e4e7',
+          actorLineColor: '#71717a',
+          signalColor: '#e4e4e7',
+          signalTextColor: '#e4e4e7',
+          labelBoxBkgColor: '#27272a',
+          labelBoxBorderColor: '#4b5563',
+          labelTextColor: '#e4e4e7',
+          loopTextColor: '#e4e4e7',
+          noteBkgColor: '#2d3748',
+          noteBorderColor: '#60a5fa',
+          noteTextColor: '#e4e4e7',
+          // Git diagram
+          git0: '#60a5fa',
+          git1: '#34d399',
+          git2: '#f472b6',
+          git3: '#fbbf24',
+          gitBranchLabel0: '#e4e4e7',
+          gitBranchLabel1: '#e4e4e7',
+          gitBranchLabel2: '#e4e4e7',
+          gitBranchLabel3: '#e4e4e7',
+        } : {
+          // Light mode - soft, sketchy feel
+          background: '#fafaf9',
+          primaryColor: '#f0f4f8',
+          primaryBorderColor: '#2563eb',
+          primaryTextColor: '#1a1a2e',
+          secondaryColor: '#e8f0fe',
+          secondaryBorderColor: '#6366f1',
+          secondaryTextColor: '#1a1a2e',
+          tertiaryColor: '#f5f4f0',
+          tertiaryBorderColor: '#8b5cf6',
+          tertiaryTextColor: '#1a1a2e',
+          lineColor: '#6b6b8a',
+          textColor: '#1a1a2e',
+          mainBkg: '#f0f4f8',
+          nodeBorder: '#2563eb',
+          clusterBkg: '#f5f4f0',
+          clusterBorder: '#d1d5db',
+          titleColor: '#1a1a2e',
+          edgeLabelBackground: '#fafaf9',
+          // Flowchart specific
+          nodeTextColor: '#1a1a2e',
+          // Sequence diagram
+          actorBkg: '#f0f4f8',
+          actorBorder: '#2563eb',
+          actorTextColor: '#1a1a2e',
+          actorLineColor: '#6b6b8a',
+          signalColor: '#1a1a2e',
+          signalTextColor: '#1a1a2e',
+          labelBoxBkgColor: '#f5f4f0',
+          labelBoxBorderColor: '#d1d5db',
+          labelTextColor: '#1a1a2e',
+          loopTextColor: '#1a1a2e',
+          noteBkgColor: '#f0f4f8',
+          noteBorderColor: '#2563eb',
+          noteTextColor: '#1a1a2e',
+          // Git diagram
+          git0: '#2563eb',
+          git1: '#059669',
+          git2: '#db2777',
+          git3: '#d97706',
+          gitBranchLabel0: '#1a1a2e',
+          gitBranchLabel1: '#1a1a2e',
+          gitBranchLabel2: '#1a1a2e',
+          gitBranchLabel3: '#1a1a2e',
+        },
+        flowchart: {
+          curve: 'basis',
+          padding: 15,
+          htmlLabels: true,
+          useMaxWidth: true,
+        },
+        sequence: {
+          useMaxWidth: true,
+          wrap: true,
+        }
+      };
     }
 
     function initMermaid() {
-      mermaid.initialize({
-        startOnLoad: false,
-        look: 'handDrawn',
-        theme: getMermaidTheme(),
-        handDrawnSeed: 42
-      });
+      mermaid.initialize(getMermaidConfig());
     }
 
     function renderMermaid() {
       document.querySelectorAll('pre > code.language-mermaid').forEach(function(code) {
         const pre = code.parentElement;
+        const source = code.textContent;
+        // Save original source BEFORE mermaid replaces it with SVG
+        pre.setAttribute('data-mermaid-source', source);
         pre.className = 'mermaid';
         pre.removeAttribute('data-processed');
-        pre.textContent = code.textContent;
+        pre.textContent = source;
       });
       mermaid.run();
     }
@@ -74,7 +181,12 @@
     window.addEventListener('themechange', function() {
       initMermaid();
       document.querySelectorAll('.mermaid').forEach(el => {
-        el.removeAttribute('data-processed');
+        // Retrieve the preserved original source
+        const source = el.getAttribute('data-mermaid-source');
+        if (source) {
+          el.removeAttribute('data-processed');
+          el.innerHTML = source;
+        }
       });
       mermaid.run();
     });
@@ -82,7 +194,11 @@
     window.refreshMermaid = function() {
       initMermaid();
       document.querySelectorAll('.mermaid').forEach(el => {
-        el.removeAttribute('data-processed');
+        const source = el.getAttribute('data-mermaid-source');
+        if (source) {
+          el.removeAttribute('data-processed');
+          el.innerHTML = source;
+        }
       });
       mermaid.run();
     };

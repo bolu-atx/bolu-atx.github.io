@@ -24,10 +24,10 @@ graph TD
     C -->|Yes| F["Predict: Will Buy"]
     C -->|No| G["Predict: Won't Buy"]
 
-    style D fill:#ffcccc
-    style G fill:#ffcccc
-    style E fill:#ccffcc
-    style F fill:#ccffcc
+    classDef negative fill:none,stroke:#f87171,stroke-width:2px
+    classDef positive fill:none,stroke:#4ade80,stroke-width:2px
+    class D,G negative
+    class E,F positive
 ```
 
 The tree learns by finding the best question to ask at each step. But what makes a question "good"?

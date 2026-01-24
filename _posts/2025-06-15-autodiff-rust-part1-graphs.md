@@ -53,9 +53,10 @@ graph BT
     sin --> add
     add --> out
 
-    style x fill:none,stroke:#5a9fd4,stroke-width:2px
-    style y fill:none,stroke:#5a9fd4,stroke-width:2px
-    style out fill:none,stroke:#4CAF50,stroke-width:2px
+    classDef input fill:none,stroke:#60a5fa,stroke-width:2px
+    classDef output fill:none,stroke:#34d399,stroke-width:2px
+    class x,y input
+    class out output
 ```
 
 Read this bottom-to-top. The inputs `x` and `y` flow upward. They get combined by operations. Eventually we get our output.
@@ -78,9 +79,10 @@ graph BT
     mul --> add
     sin --> add
 
-    style x fill:none,stroke:#5a9fd4,stroke-width:2px
-    style y fill:none,stroke:#5a9fd4,stroke-width:2px
-    style add fill:none,stroke:#4CAF50,stroke-width:2px
+    classDef input fill:none,stroke:#60a5fa,stroke-width:2px
+    classDef output fill:none,stroke:#34d399,stroke-width:2px
+    class x,y input
+    class add output
 ```
 
 Now you can literally *see* the computation happening. Values flow up from inputs to output.
@@ -117,12 +119,13 @@ graph BT
     mul --> add
     sin --> add
 
-    linkStyle 0 stroke:#ff6b6b,stroke-width:3px
-    linkStyle 2 stroke:#ff6b6b,stroke-width:3px
-    linkStyle 3 stroke:#ff6b6b,stroke-width:3px
-    linkStyle 4 stroke:#ff6b6b,stroke-width:3px
+    linkStyle 0 stroke:#f472b6,stroke-width:3px
+    linkStyle 2 stroke:#f472b6,stroke-width:3px
+    linkStyle 3 stroke:#f472b6,stroke-width:3px
+    linkStyle 4 stroke:#f472b6,stroke-width:3px
 
-    style x fill:none,stroke:#E91E63,stroke-width:2px
+    classDef highlight fill:none,stroke:#f472b6,stroke-width:2px
+    class x highlight
 ```
 
 Notice something important: **$x$ connects to the output through two different paths**.
@@ -188,7 +191,8 @@ graph BT
     mul -->|"×1"| add
     sin -->|"×1"| add
 
-    style x fill:none,stroke:#E91E63,stroke-width:2px
+    classDef highlight fill:none,stroke:#f472b6,stroke-width:2px
+    class x highlight
 ```
 
 ## Why Not Just Go Forward?
@@ -223,7 +227,8 @@ graph BT
     mul --> add
     sin --> add
 
-    style add fill:none,stroke:#4CAF50,stroke-width:2px
+    classDef done fill:none,stroke:#34d399,stroke-width:2px
+    class add done
 ```
 
 The add node has sensitivity 1. It passes this backward to both its inputs (because addition has local rate 1 in both directions):
@@ -242,9 +247,10 @@ graph BT
     mul --> add
     sin --> add
 
-    style add fill:none,stroke:#4CAF50,stroke-width:2px
-    style mul fill:none,stroke:#f9a825,stroke-width:2px
-    style sin fill:none,stroke:#f9a825,stroke-width:2px
+    classDef done fill:none,stroke:#34d399,stroke-width:2px
+    classDef progress fill:none,stroke:#fbbf24,stroke-width:2px
+    class add done
+    class mul,sin progress
 ```
 
 Now multiply and sin both have sensitivity 1. They propagate backward using their local rates:
@@ -268,11 +274,10 @@ graph BT
     mul --> add
     sin --> add
 
-    style add fill:none,stroke:#4CAF50,stroke-width:2px
-    style mul fill:none,stroke:#4CAF50,stroke-width:2px
-    style sin fill:none,stroke:#4CAF50,stroke-width:2px
-    style x fill:none,stroke:#9C27B0,stroke-width:2px
-    style y fill:none,stroke:#9C27B0,stroke-width:2px
+    classDef done fill:none,stroke:#34d399,stroke-width:2px
+    classDef result fill:none,stroke:#a78bfa,stroke-width:2px
+    class add,mul,sin done
+    class x,y result
 ```
 
 **One backward pass gave us *all* the derivatives.**
@@ -321,9 +326,10 @@ graph BT
     a --> c
     b --> c
 
-    style x fill:none,stroke:#5a9fd4,stroke-width:2px
-    style y fill:none,stroke:#5a9fd4,stroke-width:2px
-    style c fill:none,stroke:#4CAF50,stroke-width:2px
+    classDef input fill:none,stroke:#60a5fa,stroke-width:2px
+    classDef output fill:none,stroke:#34d399,stroke-width:2px
+    class x,y input
+    class c output
 ```
 
 This is $c = (x + y)(x - y) = x^2 - y^2$. The graph has a diamond shape — $x$ and $y$ each flow through two different paths before rejoining.
