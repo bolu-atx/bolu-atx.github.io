@@ -16,19 +16,24 @@ layout: default
       {% endif %}
       <span class="read-time">{% include est-read-time-page.html %}</span>
     </div>
-    {% if page.tags.size > 0 %}
-    <div class="post-tags">
-      {% for tag in page.tags %}
-      {% capture tag_name %}{{ tag }}{% endcapture %}
-      <a href="/tag/{{ tag_name }}" class="post-tag">{{ tag_name }}</a>
-      {% endfor %}
+    <div class="post-header__bottom">
+      {% if page.tags.size > 0 %}
+      <div class="post-tags">
+        {% for tag in page.tags %}
+        {% capture tag_name %}{{ tag }}{% endcapture %}
+        <a href="/tag/{{ tag_name }}" class="post-tag">{{ tag_name }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% include social-share.html position="header" %}
     </div>
-    {% endif %}
   </header>
 
   <div class="post-content" itemprop="articleBody">
     {{ content }}
   </div>
+
+  {% include social-share.html %}
 </article>
 
 {% if jekyll.environment == 'production' %}
