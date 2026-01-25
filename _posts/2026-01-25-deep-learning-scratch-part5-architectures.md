@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Deep Learning from Scratch in Rust, Part 5 — Neural Network Architectures"
-date:   2026-02-15 10:00:00 -0700
+date:   2026-01-25 10:00:00 -0700
 tags: rust machine-learning programming transformers
 author: bolu-atx
 categories: programming
