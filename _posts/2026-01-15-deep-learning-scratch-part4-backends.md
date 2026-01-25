@@ -464,6 +464,4 @@ The autodiff engine runs on any backend that implements the trait. Write once, r
 
 ---
 
-*This concludes the "Deep Learning from Scratch in Rust" series. From tensor gradients to models to optimizers to hardware backends — we've built a working ML framework. See also the [Autodiff in Rust]({% post_url 2025-06-15-autodiff-rust-part1-graphs %}) series for the foundational concepts.*
-
-*Full source code: [github.com/bolu-atx/autodiff-rs](https://github.com/bolu-atx/autodiff-rs)*
+*Part 4 of the "Deep Learning from Scratch in Rust" series. See [Part 1]({% post_url 2025-10-15-deep-learning-scratch-part1-tensors %}) for tensor gradients, [Part 2]({% post_url 2025-11-15-deep-learning-scratch-part2-models %}) for layers and loss functions, [Part 3]({% post_url 2025-12-15-deep-learning-scratch-part3-optimizers %}) for optimizers, and [Part 5]({% post_url 2026-02-15-deep-learning-scratch-part5-architectures %}) for neural network architectures.*
