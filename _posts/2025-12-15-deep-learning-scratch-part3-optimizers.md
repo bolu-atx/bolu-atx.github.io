@@ -93,267 +93,63 @@ SGD is simple but has problems:
 
 ### Visualizing the Problem
 
-Watch SGD struggle on a narrow valley — the classic pathological case:
+Consider a narrow valley — the classic pathological case for optimization:
 
-<div id="optimizer-2d-viz" style="width: 100%; max-width: 700px; margin: 2rem auto;"></div>
-<div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
-  <button id="reset-optimizers" style="padding: 0.5rem 1rem; cursor: pointer;">Reset</button>
-  <label style="display: flex; align-items: center; gap: 0.5rem;">
-    Learning Rate: <input type="range" id="lr-slider" min="0.001" max="0.1" step="0.001" value="0.02">
-    <span id="lr-value">0.020</span>
-  </label>
-</div>
-<div style="display: flex; justify-content: center; gap: 2rem; font-size: 0.9rem; margin-bottom: 2rem;">
-  <span><span style="display: inline-block; width: 12px; height: 12px; background: #e63946; border-radius: 50%;"></span> SGD</span>
-  <span><span style="display: inline-block; width: 12px; height: 12px; background: #2a9d8f; border-radius: 50%;"></span> Momentum</span>
-  <span><span style="display: inline-block; width: 12px; height: 12px; background: #e9c46a; border-radius: 50%;"></span> Adam</span>
-</div>
+<svg viewBox="0 0 500 320" style="width: 100%; max-width: 500px; display: block; margin: 2rem auto; font-family: system-ui, sans-serif;">
+  <!-- Background -->
+  <rect width="500" height="320" fill="var(--bg-secondary, #f5f5f5)"/>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script>
-(function() {
-  const width = 700, height = 500;
-  const margin = { top: 20, right: 20, bottom: 40, left: 50 };
-  const plotWidth = width - margin.left - margin.right;
-  const plotHeight = height - margin.top - margin.bottom;
+  <!-- Contour lines (elliptical valley) -->
+  <g stroke="var(--text-tertiary, #ccc)" fill="none" stroke-width="1">
+    <ellipse cx="400" cy="160" rx="30" ry="15" />
+    <ellipse cx="400" cy="160" rx="60" ry="30" />
+    <ellipse cx="400" cy="160" rx="100" ry="50" />
+    <ellipse cx="400" cy="160" rx="150" ry="75" />
+    <ellipse cx="400" cy="160" rx="210" ry="105" />
+    <ellipse cx="400" cy="160" rx="280" ry="140" />
+  </g>
 
-  // Beale function - classic narrow valley optimization test
-  function beale(x, y) {
-    const a = 1.5 - x + x * y;
-    const b = 2.25 - x + x * y * y;
-    const c = 2.625 - x + x * y * y * y;
-    return a * a + b * b + c * c;
-  }
+  <!-- Minimum marker -->
+  <circle cx="400" cy="160" r="6" fill="none" stroke="var(--text-primary, #333)" stroke-width="2"/>
+  <text x="400" y="145" text-anchor="middle" font-size="11" fill="var(--text-secondary, #666)">minimum</text>
 
-  // Gradient of Beale function
-  function bealeGrad(x, y) {
-    const a = 1.5 - x + x * y;
-    const b = 2.25 - x + x * y * y;
-    const c = 2.625 - x + x * y * y * y;
-    const dx = 2 * a * (-1 + y) + 2 * b * (-1 + y * y) + 2 * c * (-1 + y * y * y);
-    const dy = 2 * a * x + 2 * b * 2 * x * y + 2 * c * 3 * x * y * y;
-    return [dx, dy];
-  }
+  <!-- SGD path (red) - zig-zag oscillation -->
+  <path d="M 60,60 L 90,110 L 110,70 L 140,120 L 160,80 L 190,130 L 210,90 L 240,140 L 260,100 L 290,145 L 310,115 L 340,150 L 360,130 L 380,155"
+        fill="none" stroke="#e63946" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="380" cy="155" r="5" fill="#e63946"/>
+  <circle cx="60" cy="60" r="4" fill="#e63946" opacity="0.5"/>
 
-  const xDomain = [-1, 4.5];
-  const yDomain = [-1, 2];
-  const xScale = d3.scaleLinear().domain(xDomain).range([0, plotWidth]);
-  const yScale = d3.scaleLinear().domain(yDomain).range([plotHeight, 0]);
+  <!-- Momentum path (green) - smoother with overshoot -->
+  <path d="M 60,60 L 100,100 L 150,130 L 220,155 L 300,165 L 380,170 L 420,162 L 405,160"
+        fill="none" stroke="#2a9d8f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="405" cy="160" r="5" fill="#2a9d8f"/>
+  <circle cx="60" cy="60" r="4" fill="#2a9d8f" opacity="0.5"/>
 
-  // Generate contour data
-  const n = 200;
-  const values = new Array(n * n);
-  for (let j = 0; j < n; j++) {
-    for (let i = 0; i < n; i++) {
-      const x = xDomain[0] + (xDomain[1] - xDomain[0]) * i / (n - 1);
-      const y = yDomain[0] + (yDomain[1] - yDomain[0]) * j / (n - 1);
-      values[j * n + i] = Math.log(1 + beale(x, y));
-    }
-  }
+  <!-- Adam path (yellow) - efficient direct path -->
+  <path d="M 60,60 L 120,100 L 200,135 L 300,155 L 400,160"
+        fill="none" stroke="#d4a017" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="400" cy="160" r="5" fill="#d4a017"/>
+  <circle cx="60" cy="60" r="4" fill="#d4a017" opacity="0.5"/>
 
-  const contours = d3.contours()
-    .size([n, n])
-    .thresholds(d3.range(0, 8, 0.3))
-    (values);
+  <!-- Start label -->
+  <text x="60" y="50" text-anchor="middle" font-size="11" fill="var(--text-secondary, #666)">start</text>
 
-  const container = d3.select("#optimizer-2d-viz");
-  const svg = container.append("svg")
-    .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("preserveAspectRatio", "xMidYMid meet")
-    .style("width", "100%")
-    .style("height", "auto")
-    .style("background", "var(--bg-primary, #1a1a2e)");
+  <!-- Legend -->
+  <g transform="translate(60, 280)">
+    <circle cx="0" cy="0" r="5" fill="#e63946"/>
+    <text x="12" y="4" font-size="12" fill="var(--text-primary, #333)">SGD — oscillates across valley</text>
+  </g>
+  <g transform="translate(60, 300)">
+    <circle cx="0" cy="0" r="5" fill="#2a9d8f"/>
+    <text x="12" y="4" font-size="12" fill="var(--text-primary, #333)">Momentum — overshoots, then corrects</text>
+  </g>
+  <g transform="translate(300, 280)">
+    <circle cx="0" cy="0" r="5" fill="#d4a017"/>
+    <text x="12" y="4" font-size="12" fill="var(--text-primary, #333)">Adam — adaptive, efficient</text>
+  </g>
+</svg>
 
-  const g = svg.append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // Color scale for contours
-  const color = d3.scaleSequential(d3.interpolateViridis).domain([0, 8]);
-
-  // Transform contours to plot coordinates
-  const transform = d3.geoTransform({
-    point: function(x, y) {
-      this.stream.point(
-        xScale(xDomain[0] + (xDomain[1] - xDomain[0]) * x / (n - 1)),
-        yScale(yDomain[0] + (yDomain[1] - yDomain[0]) * y / (n - 1))
-      );
-    }
-  });
-  const path = d3.geoPath(transform);
-
-  g.selectAll("path.contour")
-    .data(contours)
-    .enter().append("path")
-    .attr("class", "contour")
-    .attr("d", path)
-    .attr("fill", d => color(d.value))
-    .attr("stroke", "rgba(255,255,255,0.1)")
-    .attr("stroke-width", 0.5);
-
-  // Mark the minimum
-  g.append("circle")
-    .attr("cx", xScale(3))
-    .attr("cy", yScale(0.5))
-    .attr("r", 6)
-    .attr("fill", "none")
-    .attr("stroke", "#fff")
-    .attr("stroke-width", 2);
-
-  // Axes
-  g.append("g")
-    .attr("transform", `translate(0,${plotHeight})`)
-    .call(d3.axisBottom(xScale).ticks(6))
-    .attr("color", "var(--text-secondary, #888)");
-
-  g.append("g")
-    .call(d3.axisLeft(yScale).ticks(4))
-    .attr("color", "var(--text-secondary, #888)");
-
-  g.append("text")
-    .attr("x", plotWidth / 2)
-    .attr("y", plotHeight + 35)
-    .attr("fill", "var(--text-primary, #fff)")
-    .attr("text-anchor", "middle")
-    .text("θ₁");
-
-  g.append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -plotHeight / 2)
-    .attr("y", -35)
-    .attr("fill", "var(--text-primary, #fff)")
-    .attr("text-anchor", "middle")
-    .text("θ₂");
-
-  // Optimizer state
-  let lr = 0.02;
-  const startPos = [0, 1.5];
-
-  class SGDOptimizer {
-    constructor() { this.reset(); }
-    reset() { this.pos = [...startPos]; this.path = [[...this.pos]]; }
-    step(lr) {
-      const [gx, gy] = bealeGrad(this.pos[0], this.pos[1]);
-      const gradNorm = Math.sqrt(gx*gx + gy*gy);
-      const clippedNorm = Math.min(gradNorm, 50);
-      const scale = gradNorm > 0 ? clippedNorm / gradNorm : 0;
-      this.pos[0] -= lr * gx * scale;
-      this.pos[1] -= lr * gy * scale;
-      this.path.push([...this.pos]);
-    }
-  }
-
-  class MomentumOptimizer {
-    constructor() { this.reset(); }
-    reset() { this.pos = [...startPos]; this.v = [0, 0]; this.path = [[...this.pos]]; }
-    step(lr) {
-      const [gx, gy] = bealeGrad(this.pos[0], this.pos[1]);
-      const gradNorm = Math.sqrt(gx*gx + gy*gy);
-      const clippedNorm = Math.min(gradNorm, 50);
-      const scale = gradNorm > 0 ? clippedNorm / gradNorm : 0;
-      this.v[0] = 0.9 * this.v[0] + gx * scale;
-      this.v[1] = 0.9 * this.v[1] + gy * scale;
-      this.pos[0] -= lr * this.v[0];
-      this.pos[1] -= lr * this.v[1];
-      this.path.push([...this.pos]);
-    }
-  }
-
-  class AdamOptimizer {
-    constructor() { this.reset(); }
-    reset() {
-      this.pos = [...startPos];
-      this.m = [0, 0];
-      this.v = [0, 0];
-      this.t = 0;
-      this.path = [[...this.pos]];
-    }
-    step(lr) {
-      this.t++;
-      const [gx, gy] = bealeGrad(this.pos[0], this.pos[1]);
-      const gradNorm = Math.sqrt(gx*gx + gy*gy);
-      const clippedNorm = Math.min(gradNorm, 50);
-      const scale = gradNorm > 0 ? clippedNorm / gradNorm : 0;
-      const cgx = gx * scale, cgy = gy * scale;
-
-      this.m[0] = 0.9 * this.m[0] + 0.1 * cgx;
-      this.m[1] = 0.9 * this.m[1] + 0.1 * cgy;
-      this.v[0] = 0.999 * this.v[0] + 0.001 * cgx * cgx;
-      this.v[1] = 0.999 * this.v[1] + 0.001 * cgy * cgy;
-
-      const bc1 = 1 - Math.pow(0.9, this.t);
-      const bc2 = 1 - Math.pow(0.999, this.t);
-      const mHat = [this.m[0] / bc1, this.m[1] / bc1];
-      const vHat = [this.v[0] / bc2, this.v[1] / bc2];
-
-      const adamLr = lr * 5;  // Adam needs higher base LR due to normalization
-      this.pos[0] -= adamLr * mHat[0] / (Math.sqrt(vHat[0]) + 1e-8);
-      this.pos[1] -= adamLr * mHat[1] / (Math.sqrt(vHat[1]) + 1e-8);
-      this.path.push([...this.pos]);
-    }
-  }
-
-  const sgd = new SGDOptimizer();
-  const momentum = new MomentumOptimizer();
-  const adam = new AdamOptimizer();
-
-  const line = d3.line()
-    .x(d => xScale(d[0]))
-    .y(d => yScale(d[1]));
-
-  const sgdPath = g.append("path").attr("fill", "none").attr("stroke", "#e63946").attr("stroke-width", 2);
-  const momPath = g.append("path").attr("fill", "none").attr("stroke", "#2a9d8f").attr("stroke-width", 2);
-  const adamPath = g.append("path").attr("fill", "none").attr("stroke", "#e9c46a").attr("stroke-width", 2);
-
-  const sgdDot = g.append("circle").attr("r", 5).attr("fill", "#e63946");
-  const momDot = g.append("circle").attr("r", 5).attr("fill", "#2a9d8f");
-  const adamDot = g.append("circle").attr("r", 5).attr("fill", "#e9c46a");
-
-  function updatePaths() {
-    sgdPath.attr("d", line(sgd.path));
-    momPath.attr("d", line(momentum.path));
-    adamPath.attr("d", line(adam.path));
-    sgdDot.attr("cx", xScale(sgd.pos[0])).attr("cy", yScale(sgd.pos[1]));
-    momDot.attr("cx", xScale(momentum.pos[0])).attr("cy", yScale(momentum.pos[1]));
-    adamDot.attr("cx", xScale(adam.pos[0])).attr("cy", yScale(adam.pos[1]));
-  }
-
-  updatePaths();
-
-  let animating = true;
-  let stepCount = 0;
-  const maxSteps = 300;
-
-  function animate() {
-    if (animating && stepCount < maxSteps) {
-      sgd.step(lr);
-      momentum.step(lr);
-      adam.step(lr);
-      stepCount++;
-      updatePaths();
-    }
-    requestAnimationFrame(animate);
-  }
-  animate();
-
-  document.getElementById("reset-optimizers").addEventListener("click", () => {
-    sgd.reset();
-    momentum.reset();
-    adam.reset();
-    stepCount = 0;
-    animating = true;
-    updatePaths();
-  });
-
-  const lrSlider = document.getElementById("lr-slider");
-  const lrValue = document.getElementById("lr-value");
-  lrSlider.addEventListener("input", () => {
-    lr = parseFloat(lrSlider.value);
-    lrValue.textContent = lr.toFixed(3);
-  });
-})();
-</script>
-
-Notice how SGD oscillates back and forth across the narrow valley, making slow progress. Momentum builds up speed in the consistent direction while dampening oscillations. Adam adapts — taking larger steps where the gradient is stable.
+SGD oscillates back and forth across the narrow valley — the gradient points perpendicular to the valley walls, not toward the minimum. Momentum builds velocity in the consistent direction while dampening oscillations. Adam adapts per-parameter, taking larger steps where gradients are stable.
 
 ## SGD with Momentum
 
@@ -548,273 +344,6 @@ The pattern is: forward → loss → backward → step. Each `opt.step()` call m
 | AdamW | 2 Vecs | 11+ ops | When using weight decay |
 
 Adam uses 3x the memory of SGD but typically converges faster and is less sensitive to learning rate.
-
-### The Race in 3D
-
-Here's the same optimization viewed as balls rolling down a loss surface. Drag to rotate, scroll to zoom:
-
-<div id="optimizer-3d-viz" style="width: 100%; max-width: 800px; height: 500px; margin: 2rem auto; border-radius: 8px; overflow: hidden;"></div>
-<div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
-  <button id="reset-3d" style="padding: 0.5rem 1rem; cursor: pointer;">Reset Race</button>
-  <button id="toggle-trails-3d" style="padding: 0.5rem 1rem; cursor: pointer;">Toggle Trails</button>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script>
-(function() {
-  const container = document.getElementById('optimizer-3d-viz');
-  if (!container) return;
-
-  const width = container.clientWidth || 800;
-  const height = 500;
-
-  // Scene setup
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x1a1a2e);
-
-  const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-  camera.position.set(8, 6, 8);
-  camera.lookAt(0, 0, 0);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
-
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-  scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(5, 10, 5);
-  scene.add(directionalLight);
-
-  // Loss function (simplified Beale-like with visible minimum)
-  function loss(x, z) {
-    const a = 1.5 - x + x * z;
-    const b = 2.25 - x + x * z * z;
-    return 0.15 * (a * a + b * b);
-  }
-
-  function lossGrad(x, z) {
-    const a = 1.5 - x + x * z;
-    const b = 2.25 - x + x * z * z;
-    const dx = 0.15 * 2 * (a * (-1 + z) + b * (-1 + z * z));
-    const dz = 0.15 * 2 * (a * x + b * 2 * x * z);
-    return [dx, dz];
-  }
-
-  // Create surface geometry
-  const surfaceSize = 8;
-  const surfaceRes = 80;
-  const geometry = new THREE.PlaneGeometry(surfaceSize, surfaceSize, surfaceRes, surfaceRes);
-  geometry.rotateX(-Math.PI / 2);
-
-  const positions = geometry.attributes.position;
-  const colors = [];
-  const colorScale = new THREE.Color();
-
-  for (let i = 0; i < positions.count; i++) {
-    const x = positions.getX(i);
-    const z = positions.getZ(i);
-    const y = loss(x, z);
-    positions.setY(i, y);
-
-    // Color by height
-    const t = Math.min(y / 3, 1);
-    colorScale.setHSL(0.7 - t * 0.5, 0.7, 0.4 + t * 0.3);
-    colors.push(colorScale.r, colorScale.g, colorScale.b);
-  }
-
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  geometry.computeVertexNormals();
-
-  const surfaceMaterial = new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    side: THREE.DoubleSide,
-    flatShading: false,
-    transparent: true,
-    opacity: 0.85,
-  });
-  const surface = new THREE.Mesh(geometry, surfaceMaterial);
-  scene.add(surface);
-
-  // Wireframe overlay
-  const wireframe = new THREE.LineSegments(
-    new THREE.WireframeGeometry(geometry),
-    new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.1, transparent: true })
-  );
-  scene.add(wireframe);
-
-  // Mark minimum (at approximately x=3, z=0.5)
-  const minMarker = new THREE.Mesh(
-    new THREE.RingGeometry(0.15, 0.25, 32),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
-  );
-  minMarker.rotation.x = -Math.PI / 2;
-  minMarker.position.set(3, loss(3, 0.5) + 0.05, 0.5);
-  scene.add(minMarker);
-
-  // Optimizer balls
-  const startPos = [-2, 2];
-  const ballRadius = 0.12;
-
-  function createBall(color) {
-    const ball = new THREE.Mesh(
-      new THREE.SphereGeometry(ballRadius, 16, 16),
-      new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.4 })
-    );
-    return ball;
-  }
-
-  const sgdBall = createBall(0xe63946);
-  const momBall = createBall(0x2a9d8f);
-  const adamBall = createBall(0xe9c46a);
-  scene.add(sgdBall, momBall, adamBall);
-
-  // Trail lines
-  let showTrails = true;
-  const trailMaterial = {
-    sgd: new THREE.LineBasicMaterial({ color: 0xe63946, linewidth: 2 }),
-    mom: new THREE.LineBasicMaterial({ color: 0x2a9d8f, linewidth: 2 }),
-    adam: new THREE.LineBasicMaterial({ color: 0xe9c46a, linewidth: 2 }),
-  };
-  let sgdTrail, momTrail, adamTrail;
-
-  // Optimizer states
-  class Optimizer3D {
-    constructor(type) {
-      this.type = type;
-      this.reset();
-    }
-    reset() {
-      this.pos = [...startPos];
-      this.v = [0, 0];
-      this.m = [0, 0];
-      this.vAdam = [0, 0];
-      this.t = 0;
-      this.path = [[...this.pos]];
-    }
-    step(lr = 0.03) {
-      const [gx, gz] = lossGrad(this.pos[0], this.pos[1]);
-      const gradNorm = Math.sqrt(gx*gx + gz*gz);
-      const clippedNorm = Math.min(gradNorm, 20);
-      const scale = gradNorm > 0 ? clippedNorm / gradNorm : 0;
-      const cgx = gx * scale, cgz = gz * scale;
-
-      if (this.type === 'sgd') {
-        this.pos[0] -= lr * cgx;
-        this.pos[1] -= lr * cgz;
-      } else if (this.type === 'momentum') {
-        this.v[0] = 0.9 * this.v[0] + cgx;
-        this.v[1] = 0.9 * this.v[1] + cgz;
-        this.pos[0] -= lr * this.v[0];
-        this.pos[1] -= lr * this.v[1];
-      } else if (this.type === 'adam') {
-        this.t++;
-        this.m[0] = 0.9 * this.m[0] + 0.1 * cgx;
-        this.m[1] = 0.9 * this.m[1] + 0.1 * cgz;
-        this.vAdam[0] = 0.999 * this.vAdam[0] + 0.001 * cgx * cgx;
-        this.vAdam[1] = 0.999 * this.vAdam[1] + 0.001 * cgz * cgz;
-        const bc1 = 1 - Math.pow(0.9, this.t);
-        const bc2 = 1 - Math.pow(0.999, this.t);
-        const mHat = [this.m[0] / bc1, this.m[1] / bc1];
-        const vHat = [this.vAdam[0] / bc2, this.vAdam[1] / bc2];
-        const adamLr = lr * 5;  // Adam needs higher base LR due to normalization
-        this.pos[0] -= adamLr * mHat[0] / (Math.sqrt(vHat[0]) + 1e-8);
-        this.pos[1] -= adamLr * mHat[1] / (Math.sqrt(vHat[1]) + 1e-8);
-      }
-      this.path.push([...this.pos]);
-    }
-  }
-
-  const sgd = new Optimizer3D('sgd');
-  const mom = new Optimizer3D('momentum');
-  const adam = new Optimizer3D('adam');
-
-  function updateBallPosition(ball, pos) {
-    ball.position.set(pos[0], loss(pos[0], pos[1]) + ballRadius, pos[1]);
-  }
-
-  function createTrailGeometry(path) {
-    const points = path.map(p => new THREE.Vector3(p[0], loss(p[0], p[1]) + 0.02, p[1]));
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }
-
-  function updateTrails() {
-    if (sgdTrail) scene.remove(sgdTrail);
-    if (momTrail) scene.remove(momTrail);
-    if (adamTrail) scene.remove(adamTrail);
-
-    if (showTrails) {
-      sgdTrail = new THREE.Line(createTrailGeometry(sgd.path), trailMaterial.sgd);
-      momTrail = new THREE.Line(createTrailGeometry(mom.path), trailMaterial.mom);
-      adamTrail = new THREE.Line(createTrailGeometry(adam.path), trailMaterial.adam);
-      scene.add(sgdTrail, momTrail, adamTrail);
-    }
-  }
-
-  function resetAll() {
-    sgd.reset();
-    mom.reset();
-    adam.reset();
-    stepCount = 0;
-    animating = true;
-    updateBallPosition(sgdBall, sgd.pos);
-    updateBallPosition(momBall, mom.pos);
-    updateBallPosition(adamBall, adam.pos);
-    updateTrails();
-  }
-
-  updateBallPosition(sgdBall, sgd.pos);
-  updateBallPosition(momBall, mom.pos);
-  updateBallPosition(adamBall, adam.pos);
-
-  let animating = true;
-  let stepCount = 0;
-  const maxSteps = 250;
-
-  function animate() {
-    requestAnimationFrame(animate);
-
-    if (animating && stepCount < maxSteps) {
-      sgd.step();
-      mom.step();
-      adam.step();
-      stepCount++;
-
-      updateBallPosition(sgdBall, sgd.pos);
-      updateBallPosition(momBall, mom.pos);
-      updateBallPosition(adamBall, adam.pos);
-      updateTrails();
-    }
-
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  document.getElementById('reset-3d').addEventListener('click', resetAll);
-  document.getElementById('toggle-trails-3d').addEventListener('click', () => {
-    showTrails = !showTrails;
-    updateTrails();
-  });
-
-  // Handle resize
-  window.addEventListener('resize', () => {
-    const newWidth = container.clientWidth || 800;
-    camera.aspect = newWidth / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(newWidth, height);
-  });
-})();
-</script>
-
-The 3D view makes it visceral: SGD (red) zig-zags down the valley walls. Momentum (green) overshoots but self-corrects. Adam (yellow) finds the efficient path.
 
 ## What's Next
 
