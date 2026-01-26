@@ -4,7 +4,7 @@ title:  "From Decision Trees to XGBoost: A Visual Guide to Gradient Boosting, Pa
 date:   2025-08-15 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
-categories: programming
+categories: machine-learning
 ---
 
 You've probably heard of XGBoost—it's won countless Kaggle competitions and powers prediction systems everywhere. But how does it actually work? In this post, we'll build up the intuition from simple decision trees to the full gradient boosting algorithm.
@@ -283,4 +283,4 @@ In Part 2, we'll implement this algorithm in Rust from scratch, seeing exactly h
 
 ---
 
-*Part 1 of the "XGBoost from Scratch" series. [Part 2](/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers the Rust implementation, [Part 3](/2025/09/22/xgboost-visual-guide-part3-distributed.html) covers scaling to terabytes.*
+*Part 1 of the "XGBoost from Scratch" series. [Part 2](/machine-learning/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers the Rust implementation, [Part 3](/machine-learning/2025/09/22/xgboost-visual-guide-part3-distributed.html) covers scaling to terabytes.*

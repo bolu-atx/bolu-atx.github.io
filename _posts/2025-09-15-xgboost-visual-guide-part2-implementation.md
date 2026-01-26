@@ -4,7 +4,7 @@ title:  "Building XGBoost from Scratch in Rust, Part 2 — Implementation"
 date:   2025-09-15 10:00:00 -0700
 tags: rust machine-learning programming
 author: bolu-atx
-categories: programming
+categories: machine-learning
 ---
 
 In Part 1, we covered the theory behind gradient boosting. Now let's implement it. We'll build a gradient boosted tree library in Rust that produces XGBoost-compatible models.
@@ -641,4 +641,4 @@ But the core algorithm—the part that actually makes XGBoost work—is complete
 
 ---
 
-*Part 2 of the "XGBoost from Scratch" series. [Part 1](/2025/08/15/xgboost-visual-guide-part1-theory.html) covers theory, [Part 3](/2025/09/22/xgboost-visual-guide-part3-distributed.html) covers scaling to terabytes.*
+*Part 2 of the "XGBoost from Scratch" series. [Part 1](/machine-learning/2025/08/15/xgboost-visual-guide-part1-theory.html) covers theory, [Part 3](/machine-learning/2025/09/22/xgboost-visual-guide-part3-distributed.html) covers scaling to terabytes.*
