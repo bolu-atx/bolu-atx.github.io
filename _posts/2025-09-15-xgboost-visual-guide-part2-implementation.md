@@ -641,4 +641,4 @@ But the core algorithm—the part that actually makes XGBoost work—is complete
 
 ---
 
-*Part 2 of the "XGBoost from Scratch" series. Part 1 covers the theory behind gradient boosting.*
+*Part 2 of the "XGBoost from Scratch" series. [Part 1](/2025/08/15/xgboost-visual-guide-part1-theory.html) covers theory, [Part 3](/2025/09/22/xgboost-visual-guide-part3-distributed.html) covers scaling to terabytes.*
