@@ -283,4 +283,4 @@ In Part 2, we'll implement this algorithm in Rust from scratch, seeing exactly h
 
 ---
 
-*Part 1 of the "XGBoost from Scratch" series. Part 2 covers the Rust implementation.*
+*Part 1 of the "XGBoost from Scratch" series. [Part 2](/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers the Rust implementation, [Part 3](/2025/09/22/xgboost-visual-guide-part3-distributed.html) covers scaling to terabytes.*

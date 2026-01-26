@@ -719,4 +719,4 @@ The algorithmic innovations discussed here—weighted quantile sketch, sparsity-
 
 ---
 
-*Part 3 of the "XGBoost from Scratch" series. [Part 1](/2025/09/01/xgboost-visual-guide-part1-theory.html) covers theory, [Part 2](/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers implementation.*
+*Part 3 of the "XGBoost from Scratch" series. [Part 1](/2025/08/15/xgboost-visual-guide-part1-theory.html) covers theory, [Part 2](/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers implementation.*
