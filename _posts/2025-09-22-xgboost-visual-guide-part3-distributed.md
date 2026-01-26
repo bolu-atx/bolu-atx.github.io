@@ -4,7 +4,7 @@ title:  "Building XGBoost from Scratch in Rust, Part 3 — Scaling to Terabytes"
 date:   2025-09-22 10:00:00 -0700
 tags: rust machine-learning programming distributed-systems
 author: bolu-atx
-categories: programming
+categories: machine-learning
 ---
 
 In Part 2, we built a working gradient boosted tree implementation. It produces correct, XGBoost-compatible models. But try running it on 100 million rows and you'll be waiting a while. Let's understand why, and how production systems solve it.
@@ -719,4 +719,4 @@ The algorithmic innovations discussed here—weighted quantile sketch, sparsity-
 
 ---
 
-*Part 3 of the "XGBoost from Scratch" series. [Part 1](/2025/08/15/xgboost-visual-guide-part1-theory.html) covers theory, [Part 2](/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers implementation.*
+*Part 3 of the "XGBoost from Scratch" series. [Part 1](/machine-learning/2025/08/15/xgboost-visual-guide-part1-theory.html) covers theory, [Part 2](/machine-learning/2025/09/15/xgboost-visual-guide-part2-implementation.html) covers implementation.*
