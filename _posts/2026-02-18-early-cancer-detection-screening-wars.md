@@ -7,9 +7,6 @@ author: bolu-atx
 categories: biotech
 ---
 
-![The ECD Screening Wars: A Bioinformatician's Guide to Early Cancer Detection](/assets/posts-media/cancer-screening-wars.jpg)
-*TL;DR: 31 tests fight over stool vs. blood, single-cancer vs. multi-cancer, and sensitivity vs. compliance --- stool wins on accuracy, blood wins on uptake, and nobody has cracked Stage I detection for the cancers that kill the most.*
-
 Seventy percent of cancer deaths occur in organs with no screening guideline. Pancreatic cancer, ovarian cancer, liver cancer -- by the time symptoms appear, the survival window has closed. A blood test that catches 50 cancers at once sounds like science fiction. It is not. But as I dug into the [OpenOnco](https://openonco.org) data for this category, the story turned out to be more complicated than the headlines suggest.
 
 <!--more-->
@@ -152,6 +149,8 @@ This geographic fragmentation means the global ECD landscape looks very differen
 
 Based on what I've seen in the data and filings, the next 12-18 months could reshape this category.
 
+<div id="ecd-pipeline" style="width:100%;max-width:700px;margin:0 auto"></div>
+
 **Galleri's PMA review** is the biggest regulatory event in ECD history. If the FDA approves an MCED test for population screening, it opens the floodgates for Medicare coverage and commercial payer adoption. Congressional bills (H.R. 2407, S. 2085) are already pending to mandate Medicare MCED coverage.
 
 **Freenome's CRC blood test** is headed for FDA review through its Exact Sciences partnership. If approved, it would be the second blood-based CRC screening option alongside Shield, intensifying the compliance-vs-sensitivity debate.
@@ -178,6 +177,12 @@ That last one is where I think people like me might eventually have something to
 [Part 2: MRD](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html) |
 Part 3: Screening Wars (this post)*
 
+---
+
+And because no post in this series is complete without a Gemini-drawn xkcd-style cheat sheet -- here's the screening wars on a napkin.
+
+![The ECD Screening Wars: A Bioinformatician's Guide to Early Cancer Detection](/assets/posts-media/cancer-screening-wars.jpg)
+*TL;DR: 31 tests fight over stool vs. blood, single-cancer vs. multi-cancer, and sensitivity vs. compliance --- stool wins on accuracy, blood wins on uptake, and nobody has cracked Stage I detection for the cancers that kill the most.*
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="/assets/js/cancer-charts.js"></script>
@@ -617,12 +622,223 @@ Part 3: Screening Wars (this post)*
   }
 
   // ============================================================
+  // Chart 4: Regulatory Pipeline (horizontal strip chart)
+  // ============================================================
+  function drawPipelineChart() {
+    var c = CancerCharts.getColors();
+    var container = d3.select('#ecd-pipeline');
+    container.selectAll('*').remove();
+
+    var stageOrder = ["FDA Approved", "PMA Filed", "BTD + LDT", "US LDT", "Investigational", "Non-US Only"];
+
+    var data = [
+      // FDA Approved
+      { name: "Cologuard Plus", vendor: "Exact Sciences", stage: "FDA Approved", indication: "CRC-stool", detail: "PMA Oct 2024", label: "Cologuard Plus" },
+      { name: "ColoSense", vendor: "Geneoscopy", stage: "FDA Approved", indication: "CRC-stool", detail: "PMA May 2024" },
+      { name: "Cologuard", vendor: "Exact Sciences", stage: "FDA Approved", indication: "CRC-stool", detail: "PMA 2014" },
+      { name: "Shield", vendor: "Guardant Health", stage: "FDA Approved", indication: "CRC-blood", detail: "PMA July 2024", label: "Shield" },
+      { name: "Epi proColon", vendor: "Epigenomics", stage: "FDA Approved", indication: "CRC-blood", detail: "Approved 2016" },
+      // PMA Filed
+      { name: "Freenome CRC", vendor: "Freenome / Exact Sciences", stage: "PMA Filed", indication: "CRC-blood", detail: "PMA submitted Aug 2025", label: "Freenome" },
+      { name: "Galleri", vendor: "GRAIL", stage: "PMA Filed", indication: "MCED", detail: "PMA filed Jan 29, 2026", label: "Galleri" },
+      { name: "HelioLiver", vendor: "Helio Genomics", stage: "PMA Filed", indication: "Liver", detail: "PMA submitted Q2 2024" },
+      // BTD + LDT
+      { name: "Shield MCD", vendor: "Guardant Health", stage: "BTD + LDT", indication: "MCED", detail: "BTD June 2025; NCI Vanguard Study", label: "Shield MCD" },
+      { name: "Oncoguard Liver", vendor: "Exact Sciences", stage: "BTD + LDT", indication: "Liver", detail: "BTD Oct 2019" },
+      { name: "CancerDetect", vendor: "Viome", stage: "BTD + LDT", indication: "Other", detail: "FDA Breakthrough Device Designation" },
+      // US LDT
+      { name: "Cancerguard", vendor: "Exact Sciences", stage: "US LDT", indication: "MCED", detail: "CLIA LDT; launched Sept 2025 via Quest" },
+      { name: "EPISEEK", vendor: "Precision Epigenomics", stage: "US LDT", indication: "MCED", detail: "CLIA LDT" },
+      { name: "MethylScan HCC", vendor: "EarlyDx", stage: "US LDT", indication: "Liver", detail: "CLIA LDT" },
+      { name: "FirstLook Lung", vendor: "DELFI Diagnostics", stage: "US LDT", indication: "Lung", detail: "CLIA LDT; FDA IVD submission planned" },
+      { name: "ProVue Lung", vendor: "PrognomiQ", stage: "US LDT", indication: "Lung", detail: "CLIA LDT; launched Nov 2025" },
+      { name: "Avantect", vendor: "ClearNote Health", stage: "US LDT", indication: "Other", detail: "CLIA LDT; NYSDOH approved" },
+      { name: "ClarityDX Prostate", vendor: "Nanostics", stage: "US LDT", indication: "Other", detail: "CLIA LDT" },
+      { name: "OnkoSkan", vendor: "Protea Biosciences", stage: "US LDT", indication: "Other", detail: "CLIA LDT" },
+      // Investigational
+      { name: "Signal-C", vendor: "Universal DX", stage: "Investigational", indication: "CRC-blood", detail: "FDA pivotal trial ongoing" },
+      { name: "Freenome MCED", vendor: "Freenome", stage: "Investigational", indication: "CRC-blood", detail: "In development" },
+      { name: "OverC", vendor: "Burning Rock", stage: "Investigational", indication: "MCED", detail: "Dual BTD (FDA + NMPA); US investigational" },
+      // Non-US Only
+      { name: "IColocomf", vendor: "Wuhan Ammunition", stage: "Non-US Only", indication: "CRC-stool", detail: "NMPA + CE-IVD (China, EU)" },
+      { name: "IColohunter", vendor: "Wuhan Ammunition", stage: "Non-US Only", indication: "CRC-blood", detail: "NMPA + CE-IVD (China, EU)" },
+      { name: "SPOT-MAS", vendor: "Gene Solutions", stage: "Non-US Only", indication: "MCED", detail: "Available across SE Asia" },
+      { name: "Trucheck Intelli", vendor: "Datar Cancer Genetics", stage: "Non-US Only", indication: "MCED", detail: "CE-IVD (EU, UK)" },
+      { name: "IHepcomf", vendor: "Wuhan Ammunition", stage: "Non-US Only", indication: "Liver", detail: "NMPA + CE-IVD (China, EU)" },
+      { name: "IEsohunter", vendor: "Wuhan Ammunition", stage: "Non-US Only", indication: "Other", detail: "NMPA + CE-IVD (China, EU)" },
+      { name: "IUrisure", vendor: "Wuhan Ammunition", stage: "Non-US Only", indication: "Other", detail: "NMPA (China)" },
+      { name: "GALEAS Bladder", vendor: "Nonacus", stage: "Non-US Only", indication: "Other", detail: "UKCA (UK)" },
+      { name: "OncoXPLORE+", vendor: "Nonacus", stage: "Non-US Only", indication: "Other", detail: "RUO (EU)" },
+    ];
+
+    var margin = { top: 35, right: 25, bottom: 45, left: 120 };
+    var width = 700, height = 400;
+    var innerW = width - margin.left - margin.right;
+    var innerH = height - margin.top - margin.bottom;
+
+    var svg = container.append('svg')
+      .attr('viewBox', '0 0 ' + width + ' ' + height)
+      .style('width', '100%')
+      .style('font-family', 'inherit');
+
+    var g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var y = d3.scaleBand()
+      .domain(stageOrder)
+      .range([0, innerH])
+      .padding(0.15);
+
+    // Group by stage
+    var byStage = {};
+    stageOrder.forEach(function(s) { byStage[s] = []; });
+    data.forEach(function(d) { byStage[d.stage].push(d); });
+
+    var dotSpacing = 52;
+
+    // Separator lines
+    stageOrder.forEach(function(stage, i) {
+      if (i > 0) {
+        var lineY = y(stage) - y.step() * y.paddingInner() / 2;
+        g.append('line')
+          .attr('x1', 0).attr('x2', innerW)
+          .attr('y1', lineY).attr('y2', lineY)
+          .attr('stroke', c.grid).attr('stroke-dasharray', '3,3');
+      }
+    });
+
+    // Highlight PMA Filed row
+    g.append('rect')
+      .attr('x', 0)
+      .attr('y', y("PMA Filed"))
+      .attr('width', innerW)
+      .attr('height', y.bandwidth())
+      .attr('fill', c.pink)
+      .attr('fill-opacity', 0.06)
+      .attr('rx', 4);
+
+    // Stage labels
+    stageOrder.forEach(function(stage) {
+      var cy = y(stage) + y.bandwidth() / 2;
+      g.append('text')
+        .attr('x', -10)
+        .attr('y', cy)
+        .attr('text-anchor', 'end')
+        .attr('dominant-baseline', 'middle')
+        .attr('fill', stage === "PMA Filed" ? c.pink : c.text)
+        .attr('font-size', 11)
+        .attr('font-weight', stage === "PMA Filed" ? 700 : 400)
+        .text(stage);
+    });
+
+    // Dots per stage
+    var indicationColor = function(d) { return c[d.indication] || c.muted; };
+
+    stageOrder.forEach(function(stage) {
+      var tests = byStage[stage];
+      var n = tests.length;
+      var startX = (innerW - (n - 1) * dotSpacing) / 2;
+      var cy = y(stage) + y.bandwidth() / 2;
+
+      tests.forEach(function(d, i) {
+        var cx = startX + i * dotSpacing;
+        var color = indicationColor(d);
+        var hasLabel = !!d.label;
+
+        if (stage === "FDA Approved") {
+          g.append('path')
+            .attr('d', CancerCharts.STAR_PATH)
+            .attr('transform', 'translate(' + cx + ',' + cy + ')')
+            .attr('fill', c.yellow)
+            .attr('stroke', color)
+            .attr('stroke-width', 1.5)
+            .style('cursor', 'pointer')
+            .on('mouseover', function(event) {
+              CancerCharts.showTooltip(event,
+                '<strong>' + d.name + ' \u2605 FDA</strong><br/>' +
+                d.vendor + '<br/>' + d.detail);
+            })
+            .on('mousemove', CancerCharts.moveTooltip)
+            .on('mouseout', CancerCharts.hideTooltip);
+        } else {
+          g.append('circle')
+            .attr('cx', cx)
+            .attr('cy', cy)
+            .attr('r', hasLabel ? 6 : 5)
+            .attr('fill', color)
+            .attr('fill-opacity', 0.7)
+            .attr('stroke', color)
+            .attr('stroke-width', hasLabel ? 2 : 1)
+            .style('cursor', 'pointer')
+            .on('mouseover', function(event) {
+              CancerCharts.showTooltip(event,
+                '<strong>' + d.name + '</strong><br/>' +
+                d.vendor + '<br/>' + d.detail);
+            })
+            .on('mousemove', CancerCharts.moveTooltip)
+            .on('mouseout', CancerCharts.hideTooltip);
+        }
+
+        if (hasLabel) {
+          g.append('text')
+            .attr('x', cx)
+            .attr('y', cy - (stage === "FDA Approved" ? 12 : 10))
+            .attr('text-anchor', 'middle')
+            .attr('fill', stage === "FDA Approved" ? c.text : color)
+            .attr('font-size', 9)
+            .attr('font-weight', 600)
+            .text(d.label);
+        }
+      });
+
+      // Count at right edge
+      g.append('text')
+        .attr('x', innerW + 5)
+        .attr('y', cy + 4)
+        .attr('fill', c.muted)
+        .attr('font-size', 10)
+        .text(n);
+    });
+
+    // Title
+    svg.append('text').attr('x', margin.left + innerW / 2).attr('y', 18)
+      .attr('text-anchor', 'middle').attr('fill', c.text).attr('font-size', 15).attr('font-weight', 600)
+      .text('ECD Regulatory Pipeline: 31 Tests, 6 Stages');
+
+    // "Next up" annotation
+    g.append('text')
+      .attr('x', innerW - 4)
+      .attr('y', y("PMA Filed") + 12)
+      .attr('text-anchor', 'end')
+      .attr('fill', c.pink).attr('font-size', 10).attr('font-style', 'italic')
+      .text('\u2190 next up for FDA review');
+
+    // Legend
+    var legendItems = [
+      { label: 'CRC (stool)', color: c['CRC-stool'] },
+      { label: 'CRC (blood)', color: c['CRC-blood'] },
+      { label: 'MCED', color: c['MCED'] },
+      { label: 'Liver', color: c['Liver'] },
+      { label: 'Lung', color: c['Lung'] },
+      { label: 'Other', color: c['Other'] },
+    ];
+    var legend = g.append('g').attr('transform', 'translate(0,' + (innerH + 10) + ')');
+    legendItems.forEach(function(item, i) {
+      var lx = i * 85;
+      legend.append('circle').attr('cx', lx).attr('cy', 0).attr('r', 4)
+        .attr('fill', item.color).attr('fill-opacity', 0.7);
+      legend.append('text').attr('x', lx + 8).attr('y', 4)
+        .attr('fill', c.text).attr('font-size', 10).text(item.label);
+    });
+  }
+
+  // ============================================================
   // Init and theme change
   // ============================================================
   function drawAll() {
     drawRocChart();
     drawStageChart();
     drawGeoChart();
+    drawPipelineChart();
   }
 
   if (document.readyState === 'loading') {
