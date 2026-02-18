@@ -8,6 +8,7 @@ categories: biotech
 ---
 
 ![The MRD Detection Pipeline: Searching for Needles in a Haystack of Blood & Errors](/assets/posts-media/mrd-infographic.jpg)
+*TL;DR: 44 tests race to find one-in-a-million cancer DNA fragments in your blood after treatment --- only one has FDA clearance, and the rest are fighting over patents, payers, and parts-per-million.*
 
 You have been declared cancer-free. The CT scans are clean. Your oncologist uses words like "complete response." But somewhere in your body, a few thousand cells survived chemotherapy, evaded the immune system, and are quietly dividing. Of the 44 tests on the market designed to find them, only one has FDA clearance. This is the story of molecular residual disease testing in 2026 --- a field exploding with innovation, locked in patent wars, and racing toward a regulatory reckoning.
 
@@ -16,9 +17,6 @@ You have been declared cancer-free. The CT scans are clean. Your oncologist uses
 *[Part 1: The Four Pillars](/biotech/2026/02/16/cancer-testing-landscape.html) |
 Part 2: MRD (this post) |
 [Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)*
-
-![The MRD Detection Pipeline: Searching for Needles in a Haystack of Blood & Errors](/assets/posts-media/mrd-infographic.jpg)
-*TL;DR: 44 tests race to find one-in-a-million cancer DNA fragments in your blood after treatment --- only one has FDA clearance, and the rest are fighting over patents, payers, and parts-per-million.*
 
 ## The problem imaging cannot solve
 
