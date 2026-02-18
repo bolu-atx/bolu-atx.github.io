@@ -7,6 +7,8 @@ author: bolu-atx
 categories: biotech
 ---
 
+![Cancer Detection Molecular Assays: A Crash Course for Code Monkeys](/assets/posts-media/cancer-detection.jpg)
+
 There are 155 molecular cancer tests on the market right now. They come from 75 different vendors. Together, they generate 6,743 trackable data points -- turnaround times, sensitivity figures, FDA statuses, reimbursement codes, panel sizes. I spent the last few weeks pulling all of this data from [OpenOnco](https://openonco.org), an open-source database that tracks the molecular oncology testing landscape, and turning it into something navigable. What emerged is a map of an industry that is simultaneously hyper-specialized and deeply fragmented -- one where a handful of platform decisions made years ago now shape which patients get tested, which cancers get caught, and which treatments get matched.
 
 This is the first post in a three-part series. Part 1 (this post) maps the four categories of cancer molecular testing and introduces the dataset. Part 2 dives into MRD -- the fastest-moving category where a single test (Signatera) dominates reimbursement while 43 competitors fight for clinical evidence. Part 3 covers the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer, and the FDA's unprecedented approval streak in 2024.
