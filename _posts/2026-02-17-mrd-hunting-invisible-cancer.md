@@ -7,9 +7,6 @@ author: bolu-atx
 categories: biotech
 ---
 
-![The MRD Detection Pipeline: Searching for Needles in a Haystack of Blood & Errors](/assets/posts-media/mrd-infographic.jpg)
-*TL;DR: 44 tests race to find one-in-a-million cancer DNA fragments in your blood after treatment --- only one has FDA clearance, and the rest are fighting over patents, payers, and parts-per-million.*
-
 You've been declared cancer-free. The CT scans are clean. Your oncologist uses words like "complete response." But somewhere in your body, a few thousand cells may have survived chemotherapy, evaded the immune system, and are quietly dividing. Of the 44 tests on the market designed to find them, only one has FDA clearance. As I dug into the [OpenOnco](https://openonco.org) data for this category, MRD turned out to be the most fascinating corner of the landscape -- a field exploding with innovation, locked in patent wars, and racing toward a regulatory reckoning.
 
 <!--more-->
@@ -145,6 +142,13 @@ The MRD market is not just a scientific race --- the more I researched, the more
 MRD testing is the bridge between treatment and surveillance --- the molecular early warning system that imaging never was. The field seems to be consolidating around a few leaders, but the regulatory, reimbursement, and legal landscapes will shape which tests survive the next five years. As an outsider looking in, the gap between the science (which is remarkable) and the business reality (which is messy) is striking.
 
 In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)**, I look at the other end of the timeline: **early cancer detection** --- the tests trying to find cancer *before* you ever knew it was there. Multi-cancer early detection (MCED) tests like Galleri promise to screen for dozens of cancer types from a single blood draw, but Stage I sensitivity remains the hard problem. The data tells a complicated story.
+
+---
+
+Once again, I couldn't resist asking Gemini to draw me an xkcd-style summary. If the 4,000 words above were too many, this is the napkin-sketch version.
+
+![The MRD Detection Pipeline: Searching for Needles in a Haystack of Blood & Errors](/assets/posts-media/mrd-infographic.jpg)
+*TL;DR: 44 tests race to find one-in-a-million cancer DNA fragments in your blood after treatment --- only one has FDA clearance, and the rest are fighting over patents, payers, and parts-per-million.*
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="/assets/js/cancer-charts.js"></script>

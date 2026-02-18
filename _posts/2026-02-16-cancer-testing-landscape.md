@@ -7,9 +7,6 @@ author: bolu-atx
 categories: biotech
 ---
 
-![Cancer Detection Molecular Assays: A Crash Course for Code Monkeys](/assets/posts-media/cancer-detection.jpg)
-*TL;DR: 155 tests from 75 vendors now cover the full cancer timeline --- risk, screening, profiling, and recurrence monitoring --- but most are unregulated LDTs and the data is a mess.*
-
 I stumbled onto [OpenOnco](https://openonco.org) a few weeks ago and couldn't stop scrolling. It's an open-source database that catalogs the molecular oncology testing landscape -- 155 tests, 75 vendors, 6,743 trackable data points covering everything from turnaround times to FDA statuses to reimbursement codes. For someone like me -- a software engineer who has spent time adjacent to bioinformatics but has never designed an assay -- it was a goldmine. I could finally see the shape of an industry I'd been curious about for years.
 
 I am not an assay scientist. Most of the domain context in this series comes from hours of research with the help of Claude and Gemini, cross-referenced against the OpenOnco dataset, published papers, and FDA filings. Think of this as a software person's field guide to molecular oncology testing -- what I found when I tried to make sense of the landscape, with all the caveats that implies.
@@ -127,6 +124,12 @@ In **[Part 2: MRD](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html)**, I d
 
 In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)**, I tackle the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer screening, the FDA's 2024 approval streak, and the population-scale math that makes specificity the most important number in medicine.
 
+---
+
+I've been having way too much fun with Gemini's image generation lately -- the xkcd-style hand-drawn look is irresistible for summarizing dense topics. Here's my attempt at a one-page takeaway for this post.
+
+![Cancer Detection Molecular Assays: A Crash Course for Code Monkeys](/assets/posts-media/cancer-detection.jpg)
+*TL;DR: 155 tests from 75 vendors now cover the full cancer timeline --- risk, screening, profiling, and recurrence monitoring --- but most are unregulated LDTs and the data is a mess.*
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="/assets/js/cancer-charts.js"></script>
