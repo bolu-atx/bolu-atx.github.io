@@ -10,7 +10,9 @@ categories: biotech
 ![Cancer Detection Molecular Assays: A Crash Course for Code Monkeys](/assets/posts-media/cancer-detection.jpg)
 *TL;DR: 155 tests from 75 vendors now cover the full cancer timeline --- risk, screening, profiling, and recurrence monitoring --- but most are unregulated LDTs and the data is a mess.*
 
-There are 155 molecular cancer tests on the market right now. They come from 75 different vendors. Together, they generate 6,743 trackable data points -- turnaround times, sensitivity figures, FDA statuses, reimbursement codes, panel sizes. I spent the last few weeks pulling all of this data from [OpenOnco](https://openonco.org), an open-source database that tracks the molecular oncology testing landscape, and turning it into something navigable. What emerged is a map of an industry that is simultaneously hyper-specialized and deeply fragmented -- one where a handful of platform decisions made years ago now shape which patients get tested, which cancers get caught, and which treatments get matched.
+I stumbled onto [OpenOnco](https://openonco.org) a few weeks ago and couldn't stop scrolling. It's an open-source database that catalogs the molecular oncology testing landscape -- 155 tests, 75 vendors, 6,743 trackable data points covering everything from turnaround times to FDA statuses to reimbursement codes. For someone like me -- a software engineer who has spent time adjacent to bioinformatics but has never designed an assay -- it was a goldmine. I could finally see the shape of an industry I'd been curious about for years.
+
+I am not an assay scientist. Most of the domain context in this series comes from hours of research with the help of Claude and Gemini, cross-referenced against the OpenOnco dataset, published papers, and FDA filings. Think of this as a software person's field guide to molecular oncology testing -- what I found when I tried to make sense of the landscape, with all the caveats that implies.
 
 This is the first post in a three-part series. Part 1 (this post) maps the four categories of cancer molecular testing and introduces the dataset. Part 2 dives into MRD -- the fastest-moving category where a single test (Signatera) dominates reimbursement while 43 competitors fight for clinical evidence. Part 3 covers the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer, and the FDA's unprecedented approval streak in 2024.
 
@@ -82,7 +84,7 @@ Not every patient moves through all four stages. Someone with a BRCA2 variant (H
 
 ## Key concepts
 
-Before diving into the data, a few definitions that will recur throughout this series.
+Before diving into the data, a few definitions that will recur throughout this series. These are simplified -- if you're an assay developer, you'll find these reductive, but they're good enough for the data exploration that follows.
 
 **cfDNA (cell-free DNA).** When cells die -- normal turnover, inflammation, or tumor cell death -- they release fragments of their DNA into the bloodstream. These fragments are short (~160 base pairs) and get cleared within hours. Tumor-derived cfDNA (ctDNA) carries the mutations and methylation patterns of the cancer, which is what these tests detect. The challenge: ctDNA is a needle in a haystack, often less than 0.1% of total cfDNA in early-stage disease.
 
@@ -97,14 +99,14 @@ Before diving into the data, a few definitions that will recur throughout this s
 
 ## The data
 
-All of the analysis in this series is built on data from [OpenOnco](https://openonco.org), an open-source database that tracks the molecular oncology testing landscape. The dataset covers **155 tests** from **75 vendors** across the four categories. There are **6,743 total data points** tracked per test (clinical performance, regulatory status, reimbursement, sample requirements, turnaround time, etc.) with a **62% fill rate** -- meaning 4,202 fields have data. Data quality is tiered: Tier 1 data (sensitivity, specificity, regulatory status) has a 99% citation rate. About **20% of tests** (31 out of 155) have vendor-verified data, where the test manufacturer reviewed and corrected OpenOnco's entries.
+All of the analysis in this series is built on data from [OpenOnco](https://openonco.org). It's genuinely impressive work -- someone (or a team) has methodically cataloged the entire molecular oncology testing landscape and made it open-source. The dataset covers **155 tests** from **75 vendors** across the four categories. There are **6,743 total data points** tracked per test (clinical performance, regulatory status, reimbursement, sample requirements, turnaround time, etc.) with a **62% fill rate** -- meaning 4,202 fields have data. Data quality is tiered: Tier 1 data (sensitivity, specificity, regulatory status) has a 99% citation rate. About **20% of tests** (31 out of 155) have vendor-verified data, where the test manufacturer reviewed and corrected OpenOnco's entries.
 
-The coverage is not uniform. CGP has the deepest data (longest-established category with the most FDA-approved tests). MRD has the most active changelog (fastest-moving category). ECD has the most contested data points (vendors actively disputing each other's claimed performance). HCT has the shallowest data -- the tests are commoditized and the vendors have little incentive to differentiate on published metrics.
+The coverage is not uniform, which itself is interesting. CGP has the deepest data (longest-established category with the most FDA-approved tests). MRD has the most active changelog (fastest-moving category). ECD has the most contested data points (vendors actively disputing each other's claimed performance). HCT has the shallowest data -- the tests are commoditized and the vendors have little incentive to differentiate on published metrics.
 
 
 ## The landscape at a glance
 
-The treemap below shows every test in the dataset, grouped by category. Tile size is uniform -- this is a map of the market's breadth, not revenue. Opacity indicates regulatory status: fully opaque tiles are FDA approved or cleared; translucent tiles are CLIA LDTs or earlier-stage.
+The treemap below shows every test in the dataset, grouped by category. Tile size is uniform -- this is a map of the market's breadth, not revenue. The number on each tile is the count of cancer types the test covers. Opacity indicates regulatory status: fully opaque tiles are FDA approved or cleared; translucent tiles are CLIA LDTs or earlier-stage. Hover for details on cancer types, sample requirements, and clinical performance.
 
 <div id="treemap" style="width:100%;max-width:800px;margin:0 auto"></div>
 
@@ -121,9 +123,9 @@ New cancer tests are not launching at a steady rate. The chart below shows tests
 
 ## What's next
 
-In **[Part 2: MRD](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html)**, we dive deep into MRD -- the fastest-moving category. We'll compare tumor-informed vs. tumor-agnostic approaches, map the clinical evidence landscape, break down Signatera's dominance (and its vulnerabilities), and visualize the sensitivity-vs-turnaround tradeoff across all 44 tests.
+In **[Part 2: MRD](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html)**, I dig into MRD -- the fastest-moving category. I compare tumor-informed vs. tumor-agnostic approaches, look at the clinical evidence landscape, try to understand Signatera's dominance (and its vulnerabilities), and visualize the sensitivity-vs-turnaround tradeoff across all 44 tests.
 
-In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)**, we tackle the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer screening, the FDA's 2024 approval streak, and the population-scale math that makes specificity the most important number in medicine.
+In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)**, I tackle the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer screening, the FDA's 2024 approval streak, and the population-scale math that makes specificity the most important number in medicine.
 
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
@@ -319,6 +321,165 @@ In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screeni
     { year: 2026, MRD: 3, ECD: 1, CGP: 0, HCT: 0 },
   ];
 
+  // ── Cancer info lookup (from OpenOnco) ──
+  const cancerInfo = {
+    "FoundationOne CDx": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "FoundationOne Liquid CDx": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "FoundationOne Heme": {n:2, t:["Heme","Sarcoma"], s:"Tissue/blood/marrow"},
+    "Guardant360 CDx": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "Guardant360 Liquid": {n:1, t:["Pan-cancer"], s:"Blood", sp:99.9},
+    "Tempus xT CDx": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "Tempus xF": {n:1, t:["Pan-cancer"], s:"Blood", se:99, sp:99.9},
+    "Tempus xF+": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "MSK-IMPACT": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "MI Cancer Seek": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "OncoExTra": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "OmniSeq INSIGHT": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "StrataNGS": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "MI Profile": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "NEO PanTracer Tissue": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "Northstar Select": {n:17, t:["Pan-cancer"], s:"Blood", sp:99.9},
+    "IsoPSA": {n:1, t:["Prostate"], s:"Blood", se:90.2, sp:45.5},
+    "Oncotype DX": {n:1, t:["Breast"], s:"Tissue"},
+    "Liquid Trace Solid Tumor": {n:10, t:["Lung","Brain","Breast","Thyroid","CRC","Oropharyngeal","Pancreas","Ovarian","Prostate","+1 more"], s:"Blood"},
+    "Liquid Trace Hematology": {n:10, t:["MM","Lymphoma","ALL","AML","MDS","CMML","MPN","VEXAS","+2 more"], s:"Blood"},
+    "LiquidHALLMARK": {n:15, t:["Lung","Breast","CRC","Prostate","Ovarian","Gastric","Liver","Pancreas"], s:"Blood", se:99.4, sp:99},
+    "Resolution ctDx FIRST": {n:1, t:["NSCLC"], s:"Blood", se:66.2, sp:100},
+    "OncoCompass Target": {n:2, t:["NSCLC","Pan-cancer"], s:"Blood", se:96, sp:99.9},
+    "OncoScreen Focus CDx": {n:3, t:["NSCLC","CRC","GIST"], s:"Tissue"},
+    "TruSight Oncology Comprehensive": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "GeneseeqPrime": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "PGDx elio tissue complete": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "Oncomine Comprehensive Assay Plus": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "TSO 500": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "cobas EGFR Mutation Test v2": {n:1, t:["NSCLC"], s:"Blood", se:85, sp:98},
+    "cobas KRAS Mutation Test": {n:1, t:["CRC"], s:"Blood", se:95, sp:99},
+    "therascreen EGFR RGQ PCR Kit": {n:1, t:["NSCLC"], s:"Blood", se:80, sp:98},
+    "OncoBEAM RAS CRC Kit": {n:1, t:["CRC"], s:"Blood", se:95, sp:99},
+    "PGDx elio plasma focus Dx": {n:1, t:["Pan-cancer"], s:"Blood", se:96},
+    "LeukoStrat CDx FLT3": {n:1, t:["AML"], s:"Bone marrow/blood"},
+    "Hedera Profiling 2 ctDNA": {n:4, t:["Pan-cancer","NSCLC","Breast","CRC"], s:"Blood", se:97, sp:99.7},
+    "OncoScreen Focus CDx Tissue Kit": {n:3, t:["NSCLC","CRC","GIST"], s:"Tissue", se:100, sp:100},
+    "OncoScreen Plus Tissue Kit": {n:1, t:["Pan-cancer"], s:"Tissue", se:97, sp:99},
+    "MSK-IMPACT SOPHiA": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "MSK-ACCESS SOPHiA": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "MSK-IMPACT Flex SOPHiA": {n:1, t:["Pan-cancer"], s:"Tissue"},
+    "CellSight DNA": {n:1, t:["Pan-cancer"], s:"Blood", se:99},
+    "CancerVision": {n:1, t:["Pan-cancer"], s:"Tissue", se:100, sp:99},
+    "K-4CARE": {n:1, t:["Pan-cancer"], s:"Tissue", se:99, sp:99},
+    "Decipher Prostate": {n:1, t:["Prostate"], s:"Tissue"},
+    "PGDx elio plasma focus Dx (2)": {n:1, t:["Pan-cancer"], s:"Blood", se:96},
+    "Haystack MRD": {n:1, t:["Multi-solid"], s:"Blood, 30 mL", se:95, sp:100},
+    "NeXT Personal Dx": {n:4, t:["Breast","CRC","NSCLC","Cervical"], s:"Blood, 20 mL", se:100, sp:99.9},
+    "Oncodetect": {n:1, t:["Multi-solid"], s:"Blood", se:91, sp:94},
+    "Pathlight": {n:2, t:["Breast","Multi-solid"], s:"Blood", se:100, sp:100},
+    "RaDaR ST": {n:3, t:["Breast","H&N","Multi-solid"], s:"Blood", se:95.7, sp:91},
+    "Reveal MRD": {n:3, t:["CRC","Breast","NSCLC"], s:"Blood, 20 mL", se:81, sp:98},
+    "Signatera": {n:6, t:["CRC","Breast","Bladder","NSCLC","Ovarian","Pan-solid"], s:"Blood, 20 mL", se:94, sp:98},
+    "Tempus xM MRD": {n:1, t:["CRC"], s:"Blood, 17 mL", se:61.1, sp:94},
+    "Labcorp Plasma Detect": {n:4, t:["CRC","Lung","Bladder","Multi-solid"], s:"Blood, 20 mL", se:95, sp:99.4},
+    "FoundationOne Tracker": {n:1, t:["Multi-solid"], s:"Blood", se:100, sp:99.6},
+    "Foundation TI-WGS MRD": {n:1, t:["Multi-solid"], s:"Blood", se:90, sp:100},
+    "Veracyte MRD (C2i)": {n:2, t:["Bladder","Multi-solid"], s:"Blood, 4 mL", se:91, sp:92},
+    "Guardant LUNAR": {n:2, t:["CRC","Multi-solid"], s:"Blood, 4 mL", se:56, sp:100},
+    "NavDx": {n:3, t:["HPV+ H&N","Anal SCC","HPV gynecologic"], s:"Blood, 10 mL", se:90.4, sp:98.6},
+    "Foresight CLARITY": {n:5, t:["DLBCL","LBCL","Follicular","Hodgkin","MM"], s:"Blood", se:90.6, sp:97.7},
+    "Invitae PCM": {n:6, t:["NSCLC","Breast","CRC","Pancreas","H&N","Multi-solid"], s:"Blood, 20 mL", se:76.9, sp:100},
+    "Caris Assure": {n:1, t:["Pan-cancer"], s:"Blood, 20 mL", se:93.8, sp:100},
+    "clonoSEQ": {n:6, t:["MM","B-ALL","CLL","DLBCL","Mantle cell","Other lymphoid"], s:"Bone marrow/blood", se:95, sp:99},
+    "Signatera Genome": {n:6, t:["Breast","NSCLC","Melanoma","Kidney","CRC","Multi-solid"], s:"Blood", se:94, sp:100},
+    "Latitude": {n:1, t:["CRC"], s:"Blood", se:81, sp:97},
+    "CancerDetect": {n:3, t:["CRC","Breast","Gastric"], s:"Blood, 20 mL", se:61.9, sp:99.9},
+    "LymphoVista": {n:7, t:["DLBCL","Follicular","Mantle cell","Marginal zone","Burkitt","CNS","Hodgkin"], s:"Blood, 20 mL", se:100, sp:93},
+    "CancerVista": {n:17, t:["Bladder","Brain","Breast","Cervical","CRC","Esophageal","H&N","Kidney","Liver","Lung","Ovarian","Pancreas","Prostate","Skin","Gastric","Thyroid","Uterine"], s:"Blood, 20 mL", se:80, sp:96.7},
+    "CanCatch Custom": {n:4, t:["NSCLC","CRC","Esophageal","GIST"], s:"Blood, 16 mL", se:98.7, sp:99},
+    "Guardant360 Response": {n:4, t:["NSCLC","Bladder","Breast","GI"], s:"Blood"},
+    "Signatera IO Monitoring": {n:1, t:["Pan-solid"], s:"Blood"},
+    "NeXT Personal": {n:5, t:["Breast","CRC","NSCLC","Melanoma","Kidney"], s:"Blood"},
+    "Tempus xM for TRM": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "RaDaR": {n:5, t:["Breast","Melanoma","CRC","H&N","Lung"], s:"Blood"},
+    "FoundationOne Tracker (TRM)": {n:1, t:["Pan-solid"], s:"Blood"},
+    "FoundationOne Monitor": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "Northstar Response": {n:3, t:["CRC","Pancreas","GI"], s:"Blood"},
+    "Caris Assure (TRM)": {n:1, t:["Pan-cancer"], s:"Blood, 20 mL", se:93.8, sp:100},
+    "Reveal TRM": {n:1, t:["Pan-cancer"], s:"Blood, 20 mL"},
+    "Liquid Trace Monitoring": {n:1, t:["Pan-cancer"], s:"Blood, 10 mL"},
+    "xM for TRM": {n:1, t:["Pan-cancer"], s:"Blood"},
+    "clonoSEQ Assay (Kit)": {n:4, t:["MM","B-ALL","CLL","Mantle cell"], s:"Bone marrow/blood", se:95, sp:99},
+    "LymphoTrack Dx IGH": {n:3, t:["B-cell lymphoma","CLL","B-ALL"], s:"Bone marrow/blood", se:98, sp:99},
+    "BD OneFlow B-ALL MRD": {n:1, t:["B-ALL"], s:"Bone marrow", se:96, sp:95},
+    "MRDVision": {n:1, t:["Multi-solid"], s:"Blood", se:94, sp:99},
+    "Bladder EpiCheck": {n:1, t:["Bladder"], s:"Urine, 10 mL", se:67, sp:84},
+    "K-4CARE (MRD)": {n:1, t:["Pan-cancer"], s:"Tissue", se:99, sp:99},
+    "EasyM": {n:1, t:["MM"], s:"Blood, 0.1 mL", sp:100},
+    "Quest Flow Cytometry MRD": {n:1, t:["MM"], s:"Blood"},
+    "MyRisk": {n:8, t:["Breast","Ovarian","CRC","Endometrial","Pancreas","Prostate","Gastric","Melanoma"], s:"Blood/saliva", se:99.9, sp:99.9},
+    "Invitae Multi-Cancer Panel": {n:12, t:["Breast","Ovarian","Uterine","CRC","Gastric","Pancreas","Prostate","Melanoma","Thyroid","Kidney","Brain","Sarcoma"], s:"Blood/saliva", se:99.5, sp:99.9},
+    "CancerNext-Expanded": {n:9, t:["Breast","Ovarian","CRC","Uterine","Pancreas","Prostate","Kidney","Thyroid","Paraganglioma"], s:"Blood/saliva", se:99, sp:99.9},
+    "Empower Hereditary Cancer": {n:8, t:["Breast","Ovarian","Uterine","CRC","Gastric","Pancreas","Prostate","Melanoma"], s:"Blood/saliva", se:99, sp:99.9},
+    "Color Hereditary Cancer": {n:8, t:["Breast","Ovarian","Uterine","CRC","Melanoma","Pancreas","Prostate","Gastric"], s:"Saliva", se:99, sp:99},
+    "Comprehensive Hereditary Cancer": {n:7, t:["Breast","Ovarian","CRC","Endometrial","Pancreas","Prostate","Gastric"], s:"Blood", se:99, sp:99},
+    "VistaSeq Hereditary Cancer": {n:5, t:["Breast","Ovarian","CRC","Pancreas","Prostate"], s:"Blood/saliva", se:99, sp:99},
+    "xG / xG+ Hereditary Cancer": {n:6, t:["Breast","Ovarian","CRC","Pancreas","Prostate","Endometrial"], s:"Blood/saliva", se:99, sp:99.9},
+    "Comprehensive Common Cancer": {n:7, t:["Breast","Ovarian","CRC","Pancreas","Prostate","Uterine","Melanoma"], s:"Blood/saliva", se:99, sp:99.9},
+    "Full Comprehensive Cancer": {n:12, t:["Breast","Ovarian","CRC","Endometrial","Pancreas","Prostate","Gastric","Kidney","Thyroid","Brain","Sarcoma","Heme"], s:"Blood/saliva", se:99.9, sp:99.9},
+    "Invitae Hereditary Breast": {n:0, s:"Blood/saliva"},
+    "Invitae Hereditary Breast Guidelines": {n:0, s:"Blood/saliva"},
+    "Invitae BRCA1/2 STAT": {n:0, s:"Blood/saliva"},
+    "Invitae Hereditary Thyroid": {n:1, t:["Thyroid"], s:"Blood/saliva"},
+    "Invitae Hereditary Pancreatic": {n:1, t:["Pancreas"], s:"Blood/saliva"},
+    "VistaSeq Breast Cancer": {n:1, t:["Breast"], s:"Blood/saliva"},
+    "VistaSeq Colorectal Cancer": {n:1, t:["CRC"], s:"Blood/saliva"},
+    "VistaSeq Ovarian Cancer": {n:1, t:["Ovarian"], s:"Blood/saliva"},
+    "VistaSeq Endometrial Cancer": {n:1, t:["Endometrial"], s:"Blood/saliva"},
+    "VistaSeq Gastric Cancer": {n:1, t:["Gastric"], s:"Blood/saliva"},
+    "VistaSeq Pancreatic Cancer": {n:1, t:["Pancreas"], s:"Blood/saliva"},
+    "VistaSeq Prostate Cancer": {n:1, t:["Prostate"], s:"Blood/saliva"},
+    "VistaSeq Melanoma Cancer": {n:1, t:["Melanoma"], s:"Blood/saliva"},
+    "BRCAssure: BRCA1": {n:0, s:"Blood/saliva"},
+    "BRCAssure: BRCA2": {n:0, s:"Blood/saliva"},
+    "Full Comprehensive (Pan-Cancer)": {n:0, s:"Blood"},
+    "Gastric Cancer Panel": {n:1, t:["Gastric"], s:"Blood/saliva"},
+    "PTEN Hamartoma Syndrome": {n:0, s:"Blood/saliva"},
+    "FoundationOne Germline": {n:0, s:"Blood/saliva"},
+    "FoundationOne Germline More": {n:0, s:"Blood/saliva"},
+    "BRACAnalysis CDx": {n:0, s:"Blood/saliva"},
+    "23andMe BRCA1/BRCA2": {n:0, s:"Saliva"},
+    "AbsoluteDx": {n:5, t:["Breast","Prostate","CRC","Ovarian","Pancreas"], s:"Saliva"},
+    "Risk MAPS": {n:0, s:"Saliva"},
+    "Shield": {n:1, t:["CRC"], s:"Blood, 40 mL", se:83.1, sp:89.6},
+    "Galleri": {n:50, t:["Multi-cancer"], s:"Blood, 20 mL", se:51.5, sp:99.5},
+    "Cologuard Plus": {n:1, t:["CRC"], s:"Stool", se:93.9, sp:91},
+    "ColoSense": {n:1, t:["CRC"], s:"Stool", se:93, sp:88},
+    "Freenome CRC Blood Test": {n:1, t:["CRC"], s:"Blood", se:79.2, sp:91.5},
+    "FirstLook Lung": {n:1, t:["Lung"], s:"Blood, 1 mL", se:80, sp:58},
+    "HelioLiver": {n:1, t:["HCC"], s:"Blood, 10 mL", se:47.8, sp:88},
+    "Oncoguard Liver": {n:1, t:["HCC"], s:"Blood, 10 mL", se:70, sp:81.9},
+    "Shield MCD": {n:10, t:["Bladder","CRC","Esophageal","Gastric","Liver","Lung","Ovarian","Pancreas","Breast","Prostate"], s:"Blood, 40 mL", se:60, sp:98.5},
+    "EPISEEK": {n:60, t:["Multi-cancer"], s:"Blood, 20 mL", se:54, sp:99.5},
+    "ProVue Lung": {n:1, t:["Lung"], s:"Blood, 10 mL", se:85, sp:55},
+    "Signal-C": {n:1, t:["CRC"], s:"Blood", se:93, sp:92},
+    "IColocomf": {n:1, t:["CRC"], s:"Stool", se:95.3, sp:96.7},
+    "GALEAS Bladder": {n:1, t:["Bladder"], s:"Urine, 50 mL", se:90, sp:85},
+    "OverC MCED": {n:6, t:["CRC","Esophageal","Liver","Lung","Ovarian","Pancreas"], s:"Blood", se:69.1, sp:98.9},
+    "Cancerguard": {n:50, t:["Multi-cancer"], s:"Blood, 10 mL", se:64, sp:97.4},
+    "Freenome CRC (dev)": {n:1, t:["CRC"], s:"Blood"},
+    "Cologuard": {n:1, t:["CRC"], s:"Stool", se:92, sp:87},
+    "Epi proColon": {n:1, t:["CRC"], s:"Blood", se:68, sp:80},
+    "IColohunter": {n:1, t:["CRC"], s:"Blood", se:91.2, sp:92.4},
+    "IEsohunter": {n:1, t:["Esophageal"], s:"Blood, 10 mL", se:87.4, sp:93.3},
+    "IHepcomf": {n:1, t:["Liver"], s:"Blood, 10 mL", se:92.3, sp:93.4},
+    "IUrisure": {n:1, t:["Urothelial"], s:"Urine, 1.8 mL", se:93.9, sp:92},
+    "Avantect Pancreatic": {n:1, t:["Pancreas"], s:"Blood", se:68.3, sp:96.9},
+    "CancerDetect Oral": {n:2, t:["Oral SCC","Oropharyngeal"], s:"Saliva", se:90, sp:95},
+    "Trucheck Intelli": {n:9, t:["Adeno","Adenosquamous","CNS","GI","Melanoma","Mesothelioma","NET","SCC","Transitional"], s:"Blood, 10 mL", se:88.2, sp:96.3},
+    "OncoXPLORE+": {n:2, t:["Multi-solid","Heme"], s:"Blood", se:53.5, sp:99},
+    "MethylScan HCC": {n:1, t:["HCC"], s:"Blood, 10 mL", se:84.5, sp:92},
+    "SPOT-MAS": {n:10, t:["Breast","CRC","Gastric","Lung","Liver","Ovarian","Pancreas","Esophageal","H&N","Endometrial"], s:"Blood, 10 mL", se:70.8, sp:99.7},
+    "ClarityDX Prostate": {n:1, t:["Prostate"], s:"Blood", se:95, sp:35},
+    "OnkoSkan": {n:10, t:["CRC","Pancreas","Liver","Lung","Gastric","Kidney","Breast","Ovarian","NET","GBM"], s:"Blood"},
+  };
+
   // ── Helpers ──
   function statusOpacity(status) {
     if (!status) return 0.5;
@@ -401,11 +562,20 @@ In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screeni
       .style('cursor', 'pointer')
       .on('mouseover', function(event, d) {
         d3.select(this).attr('stroke', c.text).attr('stroke-width', 1.5);
-        CancerCharts.showTooltip(event,
-          `<strong>${d.data.name}</strong><br/>` +
-          `${d.data.vendor}<br/>` +
-          `<span style="opacity:0.7">${d.data.status}</span>`
-        );
+        const info = cancerInfo[d.data.name];
+        let html = `<strong>${d.data.name}</strong><br/>${d.data.vendor}<br/>` +
+          `<span style="opacity:0.7">${d.data.status}</span>`;
+        if (info) {
+          if (info.s) html += `<br/><span style="opacity:0.7">Sample:</span> ${info.s}`;
+          if (info.t && info.t.length) html += `<br/><span style="opacity:0.7">Cancers (${info.n}):</span> ${info.t.join(', ')}`;
+          if (info.se != null || info.sp != null) {
+            const parts = [];
+            if (info.se != null) parts.push(`Sens ${info.se}%`);
+            if (info.sp != null) parts.push(`Spec ${info.sp}%`);
+            html += `<br/>${parts.join(' · ')}`;
+          }
+        }
+        CancerCharts.showTooltip(event, html);
       })
       .on('mousemove', function(event) {
         CancerCharts.moveTooltip(event);
@@ -415,14 +585,38 @@ In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screeni
         CancerCharts.hideTooltip();
       });
 
-    // Tile labels
+    // Cancer count number (centered in tile)
+    leaves.append('text')
+      .attr('x', d => (d.x0 + d.x1) / 2)
+      .attr('y', d => (d.y0 + d.y1) / 2 + 1)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .text(d => {
+        const info = cancerInfo[d.data.name];
+        const w = d.x1 - d.x0, h = d.y1 - d.y0;
+        if (!info || info.n === 0 || w < 18 || h < 14) return '';
+        return info.n;
+      })
+      .attr('fill', c.bg)
+      .attr('font-size', d => {
+        const w = d.x1 - d.x0, h = d.y1 - d.y0;
+        const sz = Math.min(w, h);
+        if (sz > 30) return '12px';
+        if (sz > 22) return '10px';
+        return '8px';
+      })
+      .attr('font-weight', '700')
+      .attr('pointer-events', 'none');
+
+    // Tile name labels (below center, only if space)
     leaves.append('text')
       .attr('x', d => d.x0 + 3)
       .attr('y', d => d.y0 + 12)
-      .text(d => (d.x1 - d.x0) > 60 && (d.y1 - d.y0) > 16 ? d.data.name : '')
+      .text(d => (d.x1 - d.x0) > 60 && (d.y1 - d.y0) > 28 ? d.data.name : '')
       .attr('fill', c.bg)
-      .attr('font-size', '9px')
-      .attr('font-weight', '500')
+      .attr('font-size', '8px')
+      .attr('font-weight', '400')
+      .attr('opacity', 0.8)
       .attr('pointer-events', 'none')
       .each(function(d) {
         const textWidth = this.getComputedTextLength();
