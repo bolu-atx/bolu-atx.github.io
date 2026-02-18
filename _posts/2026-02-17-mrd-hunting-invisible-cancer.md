@@ -236,6 +236,37 @@ In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screeni
     var plotH = height - margin.top - margin.bottom;
     var g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+    // ── Company color mapping ──
+    function normalizeVendor(v) {
+      if (v.indexOf('Foundation') > -1) return 'Foundation Medicine';
+      if (v.indexOf('Natera') > -1) return 'Natera';
+      if (v.indexOf('Labcorp') > -1 || v.indexOf('Invitae') > -1) return 'Labcorp';
+      if (v.indexOf('Guardant') > -1) return 'Guardant Health';
+      if (v.indexOf('LIQOMICS') > -1) return 'LIQOMICS';
+      return v;
+    }
+
+    var vendorCounts = {};
+    mrdRocData.forEach(function(d) {
+      var nv = normalizeVendor(d.vendor);
+      vendorCounts[nv] = (vendorCounts[nv] || 0) + 1;
+    });
+
+    var topVendors = Object.keys(vendorCounts)
+      .filter(function(v) { return vendorCounts[v] >= 2; })
+      .sort(function(a, b) { return vendorCounts[b] - vendorCounts[a]; });
+
+    var vendorColors = {};
+    var palette = [c.blue, c.green, c.pink, c.purple, c.red];
+    topVendors.forEach(function(v, i) { vendorColors[v] = palette[i % palette.length]; });
+
+    function getVendorColor(vendor) {
+      return vendorColors[normalizeVendor(vendor)] || c.muted;
+    }
+
+    // ── Shape paths ──
+    var DIAMOND = 'M0,-7 L7,0 L0,7 L-7,0 Z';
+
     // x = 1 - specificity (FPR), y = sensitivity
     var x = d3.scaleLinear().domain([0, 20]).range([0, plotW]);
     var y = d3.scaleLinear().domain([50, 101]).range([plotH, 0]);
@@ -291,45 +322,60 @@ In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screeni
       .attr('font-size', 15).attr('font-weight', 600)
       .text('MRD Test Performance (Sensitivity vs Specificity)');
 
-    // Points
+    // ── Points ──
     mrdRocData.forEach(function(d) {
       var fpr = 100 - d.specificity;
-      var cx = x(fpr);
-      var cy = y(d.sensitivity);
-      var color = c[d.approach] || c.muted;
+      var px = x(fpr);
+      var py = y(d.sensitivity);
+      var color = getVendorColor(d.vendor);
+      var isNaive = d.approach === 'tumor-naive';
+
+      var point;
+      if (isNaive) {
+        point = g.append('path')
+          .attr('d', DIAMOND)
+          .attr('transform', 'translate(' + px + ',' + py + ')')
+          .attr('fill', color).attr('fill-opacity', 0.7)
+          .attr('stroke', color).attr('stroke-width', 1.5);
+      } else {
+        point = g.append('circle')
+          .attr('cx', px).attr('cy', py).attr('r', 7)
+          .attr('fill', color).attr('fill-opacity', 0.7)
+          .attr('stroke', color).attr('stroke-width', 1.5);
+      }
 
       if (d.fdaCleared) {
         g.append('path')
           .attr('d', CancerCharts.STAR_PATH)
-          .attr('transform', 'translate(' + cx + ',' + cy + ') scale(1.2)')
-          .attr('fill', c.yellow).attr('stroke', c.yellow).attr('stroke-width', 1)
-          .style('cursor', 'pointer')
-          .on('mouseover', function(event) {
-            CancerCharts.showTooltip(event, tooltipHtml(d));
-          })
-          .on('mousemove', function(event) { CancerCharts.moveTooltip(event); })
-          .on('mouseout', function() { CancerCharts.hideTooltip(); });
-      } else {
-        g.append('circle')
-          .attr('cx', cx).attr('cy', cy).attr('r', 7)
-          .attr('fill', color).attr('fill-opacity', 0.7)
-          .attr('stroke', color).attr('stroke-width', 1.5)
-          .style('cursor', 'pointer')
-          .on('mouseover', function(event) {
-            d3.select(this).attr('r', 10);
-            CancerCharts.showTooltip(event, tooltipHtml(d));
-          })
-          .on('mousemove', function(event) { CancerCharts.moveTooltip(event); })
-          .on('mouseout', function() {
-            d3.select(this).attr('r', 7);
-            CancerCharts.hideTooltip();
-          });
+          .attr('transform', 'translate(' + px + ',' + py + ') scale(1.8)')
+          .attr('fill', 'none').attr('stroke', c.yellow).attr('stroke-width', 2)
+          .style('pointer-events', 'none');
       }
+
+      point.style('cursor', 'pointer')
+        .on('mouseover', function(event) {
+          if (isNaive) {
+            d3.select(this).attr('transform', 'translate(' + px + ',' + py + ') scale(1.3)');
+          } else {
+            d3.select(this).attr('r', 10);
+          }
+          CancerCharts.showTooltip(event, tooltipHtml(d));
+        })
+        .on('mousemove', function(event) { CancerCharts.moveTooltip(event); })
+        .on('mouseout', function() {
+          if (isNaive) {
+            d3.select(this).attr('transform', 'translate(' + px + ',' + py + ')');
+          } else {
+            d3.select(this).attr('r', 7);
+          }
+          CancerCharts.hideTooltip();
+        });
     });
 
     function tooltipHtml(d) {
+      var color = getVendorColor(d.vendor);
       var html = '<strong>' + d.name + '</strong><br/>';
-      html += '<span style="color:' + c.muted + '">' + d.vendor + '</span><br/>';
+      html += '<span style="color:' + color + '">' + d.vendor + '</span><br/>';
       html += 'Sensitivity: ' + d.sensitivity + '%<br/>';
       html += 'Specificity: ' + d.specificity + '%<br/>';
       html += 'Approach: ' + d.approach.replace('tumor-informed', 'Tumor-informed').replace('tumor-naive', 'Tumor-agnostic') + '<br/>';
@@ -338,14 +384,47 @@ In **[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screeni
       return html;
     }
 
-    // Legend
-    var leg = svg.append('g').attr('transform', 'translate(' + (margin.left + 10) + ',' + (margin.top + 10) + ')');
-    leg.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 6).attr('fill', c['tumor-informed']);
-    leg.append('text').attr('x', 12).attr('y', 4).attr('fill', c.text).attr('font-size', 12).text('Tumor-informed');
-    leg.append('circle').attr('cx', 0).attr('cy', 20).attr('r', 6).attr('fill', c['tumor-naive']);
-    leg.append('text').attr('x', 12).attr('y', 24).attr('fill', c.text).attr('font-size', 12).text('Tumor-agnostic');
-    leg.append('path').attr('d', CancerCharts.STAR_PATH).attr('transform', 'translate(0,40) scale(0.8)').attr('fill', c.yellow);
-    leg.append('text').attr('x', 12).attr('y', 44).attr('fill', c.text).attr('font-size', 12).text('FDA Cleared');
+    // ── Legend (top-right) ──
+    var legX = plotW - 150;
+    var leg = g.append('g').attr('transform', 'translate(' + legX + ',0)');
+    var row = 0;
+    var lh = 16;
+
+    // Background (sized after building legend)
+    var legBg = leg.append('rect')
+      .attr('x', -8).attr('y', -8)
+      .attr('fill', c.bg).attr('fill-opacity', 0.85)
+      .attr('stroke', c.grid).attr('rx', 4);
+
+    // Company colors
+    topVendors.forEach(function(v) {
+      leg.append('circle').attr('cx', 5).attr('cy', row * lh).attr('r', 5).attr('fill', vendorColors[v]);
+      leg.append('text').attr('x', 16).attr('y', row * lh + 4).attr('fill', c.text).attr('font-size', 11).text(v);
+      row++;
+    });
+    leg.append('circle').attr('cx', 5).attr('cy', row * lh).attr('r', 5).attr('fill', c.muted);
+    leg.append('text').attr('x', 16).attr('y', row * lh + 4).attr('fill', c.text).attr('font-size', 11).text('Other');
+    row += 1.6;
+
+    // Shape: approach
+    leg.append('circle').attr('cx', 5).attr('cy', row * lh).attr('r', 5)
+      .attr('fill', 'none').attr('stroke', c.text).attr('stroke-width', 1.5);
+    leg.append('text').attr('x', 16).attr('y', row * lh + 4).attr('fill', c.text).attr('font-size', 11).text('Tumor-informed');
+    row++;
+    leg.append('path').attr('d', 'M0,-5 L5,0 L0,5 L-5,0 Z')
+      .attr('transform', 'translate(5,' + (row * lh) + ')')
+      .attr('fill', 'none').attr('stroke', c.text).attr('stroke-width', 1.5);
+    leg.append('text').attr('x', 16).attr('y', row * lh + 4).attr('fill', c.text).attr('font-size', 11).text('Tumor-agnostic');
+    row += 1.6;
+
+    // FDA cleared
+    leg.append('path').attr('d', CancerCharts.STAR_PATH)
+      .attr('transform', 'translate(5,' + (row * lh) + ') scale(0.8)')
+      .attr('fill', 'none').attr('stroke', c.yellow).attr('stroke-width', 2);
+    leg.append('text').attr('x', 16).attr('y', row * lh + 4).attr('fill', c.text).attr('font-size', 11).text('FDA Cleared');
+
+    // Size background to fit
+    legBg.attr('width', 162).attr('height', row * lh + 16);
   }
 
   // ── Chart 2: LoD Lollipop ─────────────────────────────────────────────
