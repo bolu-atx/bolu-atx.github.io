@@ -8,6 +8,7 @@ categories: biotech
 ---
 
 ![Cancer Detection Molecular Assays: A Crash Course for Code Monkeys](/assets/posts-media/cancer-detection.jpg)
+*TL;DR: 155 tests from 75 vendors now cover the full cancer timeline --- risk, screening, profiling, and recurrence monitoring --- but most are unregulated LDTs and the data is a mess.*
 
 There are 155 molecular cancer tests on the market right now. They come from 75 different vendors. Together, they generate 6,743 trackable data points -- turnaround times, sensitivity figures, FDA statuses, reimbursement codes, panel sizes. I spent the last few weeks pulling all of this data from [OpenOnco](https://openonco.org), an open-source database that tracks the molecular oncology testing landscape, and turning it into something navigable. What emerged is a map of an industry that is simultaneously hyper-specialized and deeply fragmented -- one where a handful of platform decisions made years ago now shape which patients get tested, which cancers get caught, and which treatments get matched.
 
