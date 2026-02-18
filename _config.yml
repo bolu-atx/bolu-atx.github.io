@@ -32,6 +32,9 @@ kramdown:
 plugins:
   - jekyll-paginate
 
+exclude:
+  - _drafts/openconco
+
 sass:
   style: expanded
   sourcemap: development
