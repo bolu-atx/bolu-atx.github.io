@@ -15,6 +15,8 @@ You have been declared cancer-free. The CT scans are clean. Your oncologist uses
 Part 2: MRD (this post) |
 [Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)*
 
+![The MRD Detection Pipeline: Searching for Needles in a Haystack of Blood & Errors](/assets/posts-media/mrd-infographic.jpg)
+
 ## The problem imaging cannot solve
 
 A CT scan cannot resolve a tumor smaller than about 5mm. That is roughly 100 million cells. By the time imaging detects a recurrence, the cancer has had months --- sometimes years --- to re-establish itself.
