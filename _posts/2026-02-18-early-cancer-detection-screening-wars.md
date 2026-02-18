@@ -7,7 +7,7 @@ author: bolu-atx
 categories: biotech
 ---
 
-Seventy percent of cancer deaths occur in organs with no screening guideline. Pancreatic cancer, ovarian cancer, liver cancer -- by the time symptoms appear, the survival window has closed. A blood test that catches 50 cancers at once sounds like science fiction. It is not. But the data tells a complicated story.
+Seventy percent of cancer deaths occur in organs with no screening guideline. Pancreatic cancer, ovarian cancer, liver cancer -- by the time symptoms appear, the survival window has closed. A blood test that catches 50 cancers at once sounds like science fiction. It is not. But as I dug into the [OpenOnco](https://openonco.org) data for this category, the story turned out to be more complicated than the headlines suggest.
 
 <!--more-->
 
@@ -16,15 +16,15 @@ Seventy percent of cancer deaths occur in organs with no screening guideline. Pa
 [Part 2: MRD](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html) |
 Part 3: Screening Wars (this post)*
 
-We covered the [landscape overview in Part 1](/biotech/2026/02/16/cancer-testing-landscape.html) and [MRD in Part 2](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html). Now we dig into the most publicly visible and commercially contested category: **Early Cancer Detection (ECD)**.
+I covered the [landscape overview in Part 1](/biotech/2026/02/16/cancer-testing-landscape.html) and [MRD in Part 2](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html). This final post digs into the most publicly visible and commercially contested category: **Early Cancer Detection (ECD)**.
 
 ## The screening gap
 
-Today the US medical system has established screening programs for exactly four cancers: colorectal (colonoscopy, stool tests), breast (mammography), cervical (Pap/HPV), and lung (low-dose CT for heavy smokers). These are the cancers where decades of randomized controlled trials proved that catching it early saves lives.
+As far as I can tell, the US medical system has established screening programs for exactly four cancers: colorectal (colonoscopy, stool tests), breast (mammography), cervical (Pap/HPV), and lung (low-dose CT for heavy smokers). These are the cancers where decades of randomized controlled trials proved that catching it early saves lives.
 
-But the top cancer killers tell a different story. Pancreatic cancer has an 12% five-year survival rate. Ovarian cancer is caught late in 60% of cases. Liver cancer incidence has tripled in the US since 1980. None of these have a recommended screening test for the general population.
+But the top cancer killers tell a different story. Pancreatic cancer has a 12% five-year survival rate. Ovarian cancer is caught late in 60% of cases. Liver cancer incidence has tripled in the US since 1980. None of these have a recommended screening test for the general population.
 
-This gap -- between what we *can* screen for and what actually kills people -- drives the entire ECD industry. The OpenOnco database now lists **31 ECD tests** across stool, blood, urine, and saliva modalities. Some are FDA-approved and covered by Medicare. Many are lab-developed tests operating in regulatory gray zones. And performance varies by an order of magnitude depending on what you measure and when you measure it.
+This gap -- between what we *can* screen for and what actually kills people -- is what drives the entire ECD industry. The OpenOnco database lists **31 ECD tests** across stool, blood, urine, and saliva modalities. Some are FDA-approved and covered by Medicare. Many are lab-developed tests operating in regulatory gray zones. And performance varies by an order of magnitude depending on what you measure and when you measure it.
 
 ## CRC screening: the most mature battleground
 
@@ -74,11 +74,11 @@ Every screening pathway converges on the same endpoint: if the test is positive,
 
 ## Sensitivity vs. specificity across the ECD landscape
 
-Before we go further, let's see the full picture. The scatter plot below places every ECD test with published performance data in ROC space -- sensitivity on the Y axis, false positive rate (1 - specificity) on the X axis. Upper-left is best. Gold stars mark FDA-approved tests.
+Before going further, here's the full picture. The scatter plot below places every ECD test with published performance data in ROC space -- sensitivity on the Y axis, false positive rate (1 - specificity) on the X axis. Upper-left is best. Gold stars mark FDA-approved tests.
 
 <div id="ecd-roc" style="width:100%;max-width:700px;margin:0 auto"></div>
 
-A few patterns jump out:
+A few patterns jumped out as I was putting this together:
 
 - **CRC stool-based tests cluster in the upper-left** -- high sensitivity, high specificity. This is the most mature modality.
 - **CRC blood-based tests trade sensitivity for compliance** -- they sit lower on the Y axis.
@@ -87,11 +87,11 @@ A few patterns jump out:
 
 ## The Stage I problem
 
-This is the chart that defines the entire ECD category.
+This is the chart that I think defines the entire ECD category.
 
 Every test in this space exists to answer one question: *can you catch cancer before it spreads?* Stage I means the tumor is localized -- often curable with surgery alone. Stage IV means metastatic -- often fatal regardless of treatment. The clinical value of a screening test is almost entirely determined by its Stage I sensitivity.
 
-And every single test shows a dramatic drop from Stage IV to Stage I detection. This is physics, not engineering failure. Early-stage tumors shed less DNA, fewer proteins, and fewer cells into the bloodstream. The signal-to-noise problem is immense.
+And every single test shows a dramatic drop from Stage IV to Stage I detection. From what I've read, this is basically physics, not engineering failure -- early-stage tumors shed less DNA, fewer proteins, and fewer cells into the bloodstream. The signal-to-noise problem is immense.
 
 <div id="ecd-stages" style="width:100%;max-width:700px;margin:0 auto"></div>
 
@@ -111,7 +111,7 @@ Two platforms are trying to solve the screening gap with a single blood test.
 
 ### Galleri (GRAIL)
 
-The most ambitious test in oncology. Galleri analyzes cfDNA methylation patterns to detect signals from 50+ cancer types -- including pancreatic, ovarian, and liver cancers that have no screening guideline. It also predicts the cancer's tissue of origin with 93% accuracy, telling your doctor where to look.
+Arguably the most ambitious test in oncology. Galleri analyzes cfDNA methylation patterns to detect signals from 50+ cancer types -- including pancreatic, ovarian, and liver cancers that have no screening guideline. It also predicts the cancer's tissue of origin with 93% accuracy, telling your doctor where to look.
 
 The specificity story is strong: 99.5%. In population screening, this matters enormously. Screen one million healthy people with a 99% specific test and you get 10,000 false positives -- each requiring expensive, anxiety-inducing follow-up imaging and biopsies. At 99.5%, you cut that to 5,000. Still a lot, but the math works better.
 
@@ -127,13 +127,13 @@ Launched September 2025 through Quest Diagnostics' 7,000-site network. Takes a d
 
 ### The MCED paradox
 
-High specificity is non-negotiable for population screening. If you screen 100 million Americans annually and your false positive rate is 2.6% (Cancerguard) instead of 0.5% (Galleri), that is 2.1 million additional false alarms per year. Each false alarm means imaging, possible biopsies, patient anxiety, and healthcare costs. But if your sensitivity for the earliest stages remains below 50%, you are missing the cancers that matter most.
+This is where the math gets interesting (and where my software brain perks up). High specificity is non-negotiable for population screening. If you screen 100 million Americans annually and your false positive rate is 2.6% (Cancerguard) instead of 0.5% (Galleri), that's 2.1 million additional false alarms per year. Each false alarm means imaging, possible biopsies, patient anxiety, and healthcare costs. But if your sensitivity for the earliest stages remains below 50%, you're missing the cancers that matter most.
 
-No MCED test has solved this paradox yet. The field is converging on a layered approach: MCED as a complement to existing single-cancer screening, not a replacement.
+No MCED test has solved this paradox yet. From what I can tell, the field is converging on a layered approach: MCED as a complement to existing single-cancer screening, not a replacement.
 
 ## Geographic availability: ECD's international dimension
 
-One of the most striking findings from the OpenOnco data is that ECD has the most international-only tests of any category. While MRD and CGP are dominated by US-based companies, the ECD space includes a significant non-US contingent.
+One of the more surprising things I found in the OpenOnco data is that ECD has the most international-only tests of any category. While MRD and CGP are dominated by US-based companies, the ECD space includes a significant non-US contingent.
 
 <div id="ecd-geo" style="width:100%;max-width:700px;margin:0 auto"></div>
 
@@ -147,7 +147,7 @@ This geographic fragmentation means the global ECD landscape looks very differen
 
 ## What is coming
 
-The next 12-18 months will reshape this category.
+Based on what I've seen in the data and filings, the next 12-18 months could reshape this category.
 
 **Galleri's PMA review** is the biggest regulatory event in ECD history. If the FDA approves an MCED test for population screening, it opens the floodgates for Medicare coverage and commercial payer adoption. Congressional bills (H.R. 2407, S. 2085) are already pending to mandate Medicare MCED coverage.
 
@@ -159,13 +159,15 @@ The next 12-18 months will reshape this category.
 
 ## Series conclusion
 
-Across the four pillars of cancer diagnostics -- CGP for profiling, HCT for inherited risk, MRD for recurrence monitoring, and ECD for early detection -- a pattern emerges. Every category is converging on the same patient: a person whose molecular profile is tracked continuously from inherited risk assessment through screening, diagnosis, treatment, and survivorship.
+I started this project because I stumbled onto OpenOnco and thought the dataset was too interesting not to explore. Three posts later, here's what stands out to me as a software person looking in from the outside.
 
-The technical barriers are falling. Sub-1 ppm MRD detection. 50-cancer blood tests. Stool RNA with 100% Stage I CRC sensitivity. The remaining barriers are regulatory (only 1 FDA-approved MRD test, zero approved MCED tests), economic (Medicare coverage drives adoption), and infrastructural (integrating results from a dozen tests into a coherent clinical workflow).
+Across the four pillars -- CGP for profiling, HCT for inherited risk, MRD for recurrence monitoring, and ECD for early detection -- every category seems to be converging on the same patient: a person whose molecular profile is tracked continuously from inherited risk assessment through screening, diagnosis, treatment, and survivorship.
 
-The data infrastructure problem is becoming as important as the assay technology. A patient who gets a Galleri MCED screen, a Cologuard Plus CRC screen, a Shield blood draw, and annual MRD monitoring after treatment is generating a stream of molecular data that no EHR system is designed to handle. The next wave of cancer diagnostics innovation may not come from the lab at all -- it may come from the data layer that connects everything together.
+The technical barriers are falling fast. Sub-1 ppm MRD detection. 50-cancer blood tests. Stool RNA with 100% Stage I CRC sensitivity. The remaining barriers are regulatory (only 1 FDA-approved MRD test, zero approved MCED tests), economic (Medicare coverage drives adoption), and infrastructural (integrating results from a dozen tests into a coherent clinical workflow).
 
-*All data in this series comes from [OpenOnco](https://openonco.org) (v. Feb 15, 2026) -- an open-access database of 155 cancer diagnostic tests, 75 vendors, and 6,743 data points.*
+That last one is where I think people like me might eventually have something to contribute. A patient who gets a Galleri MCED screen, a Cologuard Plus CRC screen, a Shield blood draw, and annual MRD monitoring after treatment is generating a stream of molecular data that no EHR system is designed to handle. The next wave of cancer diagnostics innovation may not come from the lab at all -- it may come from the data layer that connects everything together. That's a software problem.
+
+*All data in this series comes from [OpenOnco](https://openonco.org) (v. Feb 15, 2026) -- an open-access database of 155 cancer diagnostic tests, 75 vendors, and 6,743 data points. Domain research was done with the help of Claude and Gemini, cross-referenced against published papers and FDA filings. Corrections welcome -- I am learning in public here.*
 
 ---
 
