@@ -7,6 +7,9 @@ author: bolu-atx
 categories: biotech
 ---
 
+![The ECD Screening Wars: A Bioinformatician's Guide to Early Cancer Detection](/assets/posts-media/cancer-screening-wars.jpg)
+*TL;DR: 31 tests fight over stool vs. blood, single-cancer vs. multi-cancer, and sensitivity vs. compliance --- stool wins on accuracy, blood wins on uptake, and nobody has cracked Stage I detection for the cancers that kill the most.*
+
 Seventy percent of cancer deaths occur in organs with no screening guideline. Pancreatic cancer, ovarian cancer, liver cancer -- by the time symptoms appear, the survival window has closed. A blood test that catches 50 cancers at once sounds like science fiction. It is not. But as I dug into the [OpenOnco](https://openonco.org) data for this category, the story turned out to be more complicated than the headlines suggest.
 
 <!--more-->
