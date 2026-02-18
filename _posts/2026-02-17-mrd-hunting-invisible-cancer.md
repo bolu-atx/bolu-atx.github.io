@@ -114,7 +114,7 @@ The spread across the field is staggering: **three orders of magnitude** separat
 
 ## The leaders
 
-**Signatera (Natera)** is the de facto standard. 94% sensitivity, 98% specificity, validated in over 300,000 patients across 70+ cancer types. Natera submitted its PMA to the FDA in February 2026. With Signatera Genome (their WGS-based next-gen version), LoD drops to 1 ppm. Medicare covers Signatera for CRC and bladder cancer. Self-pay is $349; financial assistance brings it to $0--149.
+**Signatera (Natera)** is the de facto standard. 94% sensitivity, 98% specificity, validated in over 300,000 patients across 70+ cancer types. Natera submitted its PMA to the FDA in February 2026. With Signatera Genome (their WGS-based next-gen version), LoD drops to 1 ppm. Medicare covers Signatera for CRC and bladder cancer. Self-pay is \$349; financial assistance brings it to \$0--149.
 
 **NeXT Personal (Personalis)** posts the best raw numbers: 100% sensitivity, 99.9% specificity --- but from a smaller validation cohort (n=493). LoD of 1.7 ppm. The TRACERx lung cancer study published in *Cell* (December 2025) showed ctDNA-positive patients had 5x higher relapse risk. Personalis is positioning aggressively in biopharma partnerships.
 
@@ -136,7 +136,7 @@ The MRD market is not just a scientific race --- it is a legal and reimbursement
 
 **Coverage battles:** Medicare covers Signatera for colorectal and bladder cancer under specific CPT codes. But **Humana's liquid biopsy policy explicitly excludes Signatera** (CPT 0340U), and **Blue Cross Blue Shield of Michigan Policy 2002479** (effective January 1, 2026) lists MRD testing as investigational. UnitedHealthcare's 2026 Molecular Oncology Testing policy calls solid tumor MRD "unproven / not medically necessary." The gap between clinical evidence and payer acceptance remains wide.
 
-**Pricing:** Signatera lists at $349 self-pay with Natera's Patient Assistance Program offering financial assistance at $0--149 on an income-based scale, plus interest-free 12-month payment plans. Most other tests do not publish patient-facing pricing, leaving costs opaque until the explanation of benefits arrives.
+**Pricing:** Signatera lists at \$349 self-pay with Natera's Patient Assistance Program offering financial assistance at \$0--149 on an income-based scale, plus interest-free 12-month payment plans. Most other tests do not publish patient-facing pricing, leaving costs opaque until the explanation of benefits arrives.
 
 ## What's next
 
