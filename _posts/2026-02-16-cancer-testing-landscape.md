@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Cancer Testing in 2026: The Four Pillars of Molecular Oncology"
+title: "OpenOnco Assay Insights: The Four Pillars of Molecular Oncology"
 date: 2026-02-16 10:00:00 -0700
 tags: biotech data-analysis
 author: bolu-atx

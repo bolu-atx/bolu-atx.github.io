@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Cancer Testing in 2026: MRD — Hunting Invisible Cancer"
+title: "OpenOnco Assay Insights: MRD — Hunting Invisible Cancer"
 date: 2026-02-17 10:00:00 -0700
 tags: biotech data-analysis
 author: bolu-atx
@@ -47,8 +47,10 @@ The tradeoff: you're casting a wider net, which means slightly lower sensitivity
 graph LR
     A["Tumor Tissue<br/>(biopsy/resection)"] --> B["WES / WGS<br/>sequencing"]
     B --> C["Identify somatic<br/>mutations"]
-    C --> D["Design custom<br/>PCR panel<br/>(4-6 weeks)"]
+    C --> D["Custom PCR panel<br/>(e.g. Signatera)"]
+    C --> D2["Hybrid capture /<br/>enrichment panel<br/>(e.g. Phased, MRDetect)"]
     D --> E["Serial blood<br/>draws"]
+    D2 --> E
     E --> F{"ctDNA<br/>detected?"}
     F -->|Yes| G["Recurrence<br/>likely"]
     F -->|No| H["Continue<br/>monitoring"]
@@ -60,7 +62,7 @@ graph LR
     classDef progress fill:none,stroke:#fbbf24,stroke-width:2px
     class A input
     class B,C highlight
-    class D progress
+    class D,D2 progress
     class E input
     class F highlight
     class G negative
