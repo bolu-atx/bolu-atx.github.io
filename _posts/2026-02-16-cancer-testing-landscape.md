@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "OpenOnco Assay Insights: The Four Pillars of Molecular Oncology"
+title: "Cancer Testing in 2026: The Four Pillars of Molecular Oncology"
 date: 2026-02-16 10:00:00 -0700
 tags: biotech data-analysis
 author: bolu-atx
@@ -11,7 +11,7 @@ I stumbled onto [OpenOnco](https://openonco.org) a few weeks ago and couldn't st
 
 I am not an assay scientist. Most of the domain context in this series comes from hours of research with the help of Claude and Gemini, cross-referenced against the OpenOnco dataset, published papers, and FDA filings. Think of this as a software person's field guide to molecular oncology testing -- what I found when I tried to make sense of the landscape, with all the caveats that implies.
 
-This is the first post in a three-part series. Part 1 (this post) maps the four categories of cancer molecular testing and introduces the dataset. Part 2 dives into MRD -- the fastest-moving category where a single test (Signatera) dominates reimbursement while 43 competitors fight for clinical evidence. Part 3 covers the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer, and the FDA's unprecedented approval streak in 2024.
+This is the first post in a three-part series. Part 1 (this post) maps the four categories of cancer molecular testing and introduces the dataset. Part 2 dives into Minimal Residual Disease (MRD) -- the fastest-moving category where a single test (Signatera) dominates reimbursement while 43 competitors fight for clinical evidence. Part 3 covers the early cancer detection wars -- blood vs. stool, single-cancer vs. multi-cancer, and the FDA's unprecedented approval streak in 2024.
 
 <!--more-->
 
