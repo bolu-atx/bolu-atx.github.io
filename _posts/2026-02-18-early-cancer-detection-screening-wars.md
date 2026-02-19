@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Cancer Testing in 2026: The Screening Wars"
+title: "OpenOnco Assay Insights: The Screening Wars"
 date: 2026-02-18 10:00:00 -0700
 tags: biotech data-analysis
 author: bolu-atx
