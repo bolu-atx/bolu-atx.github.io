@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "OpenOnco Assay Insights: The Screening Wars"
+title: "Cancer Testing in 2026: The Screening Wars"
 date: 2026-02-18 10:00:00 -0700
 tags: biotech data-analysis
 author: bolu-atx
@@ -26,7 +26,7 @@ But the top cancer killers tell a different story. Pancreatic cancer has a 12% f
 
 This gap -- between what we *can* screen for and what actually kills people -- is what drives the entire ECD industry. The OpenOnco database lists **31 ECD tests** across stool, blood, urine, and saliva modalities. Some are FDA-approved and covered by Medicare. Many are lab-developed tests operating in regulatory gray zones. And performance varies by an order of magnitude depending on what you measure and when you measure it.
 
-## CRC screening: the most mature battleground
+## Colorectal cancer (CRC) screening: the most mature battleground
 
 Colorectal cancer has the most diagnostic competition of any cancer type, and for good reason. It is the second-leading cause of cancer death in the US, but it is also one of the most preventable -- if you catch it early or at the precancerous polyp stage.
 
@@ -82,7 +82,7 @@ A few patterns jumped out as I was putting this together:
 
 - **CRC stool-based tests cluster in the upper-left** -- high sensitivity, high specificity. This is the most mature modality.
 - **CRC blood-based tests trade sensitivity for compliance** -- they sit lower on the Y axis.
-- **MCED tests push specificity to extremes** (Galleri at 99.5%, OverC at 98.9%) because when you screen millions of healthy people for dozens of cancers, even a 1% false positive rate generates an unacceptable number of false alarms.
+- **Multi-Cancer Early Detection (MCED) tests push specificity to extremes** (Galleri at 99.5%, OverC at 98.9%) because when you screen millions of healthy people for dozens of cancers, even a 1% false positive rate generates an unacceptable number of false alarms.
 - **Lung tests have notably lower specificity** -- FirstLook Lung at 58%, ProVue Lung at 55% -- because they are designed as pre-LDCT triage tools, not standalone screening tests.
 
 ## The Stage I problem
@@ -111,7 +111,7 @@ Two platforms are trying to solve the screening gap with a single blood test.
 
 ### Galleri (GRAIL)
 
-Arguably the most ambitious test in oncology. Galleri analyzes cfDNA methylation patterns to detect signals from 50+ cancer types -- including pancreatic, ovarian, and liver cancers that have no screening guideline. It also predicts the cancer's tissue of origin with 93% accuracy, telling your doctor where to look.
+Arguably the most ambitious test in oncology. Galleri analyzes cell-free DNA (cfDNA) methylation patterns to detect signals from 50+ cancer types -- including pancreatic, ovarian, and liver cancers that have no screening guideline. It also predicts the cancer's tissue of origin with 93% accuracy, telling your doctor where to look.
 
 The specificity story is strong: 99.5%. In population screening, this matters enormously. Screen one million healthy people with a 99% specific test and you get 10,000 false positives -- each requiring expensive, anxiety-inducing follow-up imaging and biopsies. At 99.5%, you cut that to 5,000. Still a lot, but the math works better.
 
@@ -163,7 +163,7 @@ Based on what I've seen in the data and filings, the next 12-18 months could res
 
 I started this project because I stumbled onto OpenOnco and thought the dataset was too interesting not to explore. Three posts later, here's what stands out to me as a software person looking in from the outside.
 
-Across the four pillars -- CGP for profiling, HCT for inherited risk, MRD for recurrence monitoring, and ECD for early detection -- every category seems to be converging on the same patient: a person whose molecular profile is tracked continuously from inherited risk assessment through screening, diagnosis, treatment, and survivorship.
+Across the four pillars -- Comprehensive Genomic Profiling (CGP) for profiling, Hereditary Cancer Testing (HCT) for inherited risk, Minimal Residual Disease (MRD) for recurrence monitoring, and ECD for early detection -- every category seems to be converging on the same patient: a person whose molecular profile is tracked continuously from inherited risk assessment through screening, diagnosis, treatment, and survivorship.
 
 The technical barriers are falling fast. Sub-1 ppm MRD detection. 50-cancer blood tests. Stool RNA with 100% Stage I CRC sensitivity. The remaining barriers are regulatory (only 1 FDA-approved MRD test, zero approved MCED tests), economic (Medicare coverage drives adoption), and infrastructural (integrating results from a dozen tests into a coherent clinical workflow).
 

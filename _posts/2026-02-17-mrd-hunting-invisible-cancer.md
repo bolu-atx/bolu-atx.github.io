@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "OpenOnco Assay Insights: MRD — Hunting Invisible Cancer"
+title: "Cancer Testing in 2026: MRD — Hunting Invisible Cancer"
 date: 2026-02-17 10:00:00 -0700
 tags: biotech data-analysis
 author: bolu-atx
 categories: biotech
 ---
 
-You've been declared cancer-free. The CT scans are clean. Your oncologist uses words like "complete response." But somewhere in your body, a few thousand cells may have survived chemotherapy, evaded the immune system, and are quietly dividing. Of the 44 tests on the market designed to find them, only one has FDA clearance. As I dug into the [OpenOnco](https://openonco.org) data for this category, MRD turned out to be the most fascinating corner of the landscape -- a field exploding with innovation, locked in patent wars, and racing toward a regulatory reckoning.
+You've been declared cancer-free. The CT scans are clean. Your oncologist uses words like "complete response." But somewhere in your body, a few thousand cells may have survived chemotherapy, evaded the immune system, and are quietly dividing. Of the 44 tests on the market designed to find them, only one has FDA clearance. As I dug into the [OpenOnco](https://openonco.org) data for this category, Minimal Residual Disease (MRD) turned out to be the most fascinating corner of the landscape -- a field exploding with innovation, locked in patent wars, and racing toward a regulatory reckoning.
 
 <!--more-->
 
@@ -121,7 +121,7 @@ Based on the data, a few tests stood out. I am not endorsing any of these -- I'm
 
 **clonoSEQ (Adaptive Biotechnologies)** is the only FDA-cleared MRD test, authorized via De Novo in September 2018 for multiple myeloma and B-ALL, expanded to CLL in 2020. It uses immunosequencing rather than ctDNA, tracking rearranged immunoglobulin or T-cell receptor gene sequences in bone marrow at a sensitivity of 10^-6 (one cell in a million). CE-IVDR certified in August 2024. The limitation: it only works for hematologic cancers with clonal rearrangements.
 
-**Reveal MRD (Guardant Health)** is the tumor-agnostic leader for solid tumors. 81% sensitivity, 98% specificity. No tissue required, results in 7--10 days. The COSMOS study validated its utility for predicting CRC recurrence. For patients who can't provide tumor tissue or need rapid results, Reveal seems like the pragmatic choice --- trading some sensitivity for accessibility.
+**Reveal MRD (Guardant Health)** is the tumor-agnostic leader for solid tumors. 81% sensitivity, 98% specificity. No tissue required, results in 7--10 days. The COSMOS study validated its utility for predicting colorectal cancer (CRC) recurrence. For patients who can't provide tumor tissue or need rapid results, Reveal seems like the pragmatic choice --- trading some sensitivity for accessibility.
 
 ## The regulatory gap
 
