@@ -169,7 +169,7 @@ The technical barriers are falling fast. Sub-1 ppm MRD detection. 50-cancer bloo
 
 That last one is where I think people like me might eventually have something to contribute. A patient who gets a Galleri MCED screen, a Cologuard Plus CRC screen, a Shield blood draw, and annual MRD monitoring after treatment is generating a stream of molecular data that no EHR system is designed to handle. The next wave of cancer diagnostics innovation may not come from the lab at all -- it may come from the data layer that connects everything together. That's a software problem.
 
-*All data in this series comes from [OpenOnco](https://openonco.org) (v. Feb 15, 2026) -- an open-access database of 155 cancer diagnostic tests, 75 vendors, and 6,743 data points. Domain research was done with the help of Claude and Gemini, cross-referenced against published papers and FDA filings. Corrections welcome -- I am learning in public here.*
+*All data in this series comes from [OpenOnco](https://openonco.org) (v. Feb 15, 2026), an open-access database created by Alex Dickinson -- 155 cancer diagnostic tests, 75 vendors, and 6,743 data points. Domain research was done with the help of Claude and Gemini, cross-referenced against published papers and FDA filings. Corrections welcome -- I am learning in public here.*
 
 ---
 
