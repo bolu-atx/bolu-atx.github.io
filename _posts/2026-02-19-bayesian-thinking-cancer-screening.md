@@ -377,8 +377,8 @@ A few things stand out:
     var container = d3.select('#ppv-curves');
     container.selectAll('*').remove();
 
-    var margin = { top: 35, right: 25, bottom: 50, left: 55 };
-    var width = 700, height = 440;
+    var margin = { top: 52, right: 25, bottom: 50, left: 55 };
+    var width = 700, height = 457;
     ppvInnerW = width - margin.left - margin.right;
     ppvInnerH = height - margin.top - margin.bottom;
 
@@ -441,6 +441,29 @@ A few things stand out:
       .attr('font-size', 15).attr('font-weight', 600)
       .text('PPV vs. Prevalence at Different Specificity Levels');
 
+    // Legend below title
+    var specLegend = [
+      { label: '90%', color: c.muted },
+      { label: '95%', color: c.yellow },
+      { label: '99%', color: c.blue },
+      { label: '99.5%', color: c.green },
+      { label: '99.9%', color: c.pink }
+    ];
+    var lgG = svg.append('g')
+      .attr('transform', 'translate(' + (margin.left + ppvInnerW / 2) + ',32)');
+    var lgSpacing = 80;
+    specLegend.forEach(function(sl, i) {
+      var lx = (i - (specLegend.length - 1) / 2) * lgSpacing;
+      lgG.append('line')
+        .attr('x1', lx - 18).attr('x2', lx - 4)
+        .attr('y1', 0).attr('y2', 0)
+        .attr('stroke', sl.color).attr('stroke-width', 2.5);
+      lgG.append('text')
+        .attr('x', lx).attr('y', 4)
+        .attr('fill', sl.color).attr('font-size', 10).attr('font-weight', 600)
+        .text(sl.label);
+    });
+
     // Content group for curves + data points (cleared on update)
     ppvSvgG = g.append('g').attr('class', 'ppv-content');
 
@@ -486,15 +509,6 @@ A few things stand out:
         .attr('stroke-width', 2)
         .attr('stroke-opacity', 0.85);
 
-      // Label at right end
-      var lastPt = data[data.length - 1];
-      ppvSvgG.append('text')
-        .attr('x', ppvX(lastPt.prev) + 4)
-        .attr('y', ppvY(lastPt.ppv) + 4)
-        .attr('fill', sl.color)
-        .attr('font-size', 10)
-        .attr('font-weight', 600)
-        .text(sl.label);
     });
 
     // Overlay real test data points
