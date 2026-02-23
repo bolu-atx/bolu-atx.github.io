@@ -296,6 +296,8 @@ Not all MRD tests are created equal. The chart below shows PPV and NPV for five 
 
 Notice how sensitivity differences map directly to NPV gaps. NeXT Personal's 100% analytical sensitivity gives it a perfect NPV -- every negative is a true negative. Drop to Reveal's 81% sensitivity and NPV falls to around 86% at 40% recurrence, meaning roughly 1 in 7 "all clear" results are wrong. For a cancer patient deciding whether to skip additional chemo, that gap is the difference between confidence and anxiety.
 
+*A few caveats on these numbers. NeXT Personal's 100% sensitivity comes from a validation cohort of n=493 -- impressive but small; larger clinical cohorts are ongoing. Signatera's 94% is a longitudinal/surveillance figure that varies by cancer type (CRC 88-93%, bladder 99%, lung 80-99%). Oncodetect's 91%/94% are the surveillance monitoring values from the Alpha-CORRECT CRC trial; the post-surgical landmark timepoint is lower (78%/80%). Reveal's 81% is the COSMOS 2024 longitudinal figure for stage II+ CRC; earlier landmark data showed 55-63%. All numbers from [OpenOnco](https://openonco.org) (v. Feb 15, 2026).*
+
 ## Serial negative tests: the power of re-monitoring
 
 In screening, we saw that consecutive *positive* tests drive PPV toward certainty. In MRD monitoring, the mirror image matters: consecutive *negative* results drive the posterior probability of residual disease toward zero. Each negative updates the prior downward:
