@@ -7,7 +7,7 @@ author: bolu-atx
 categories: biotech
 ---
 
-I stumbled onto [OpenOnco](https://openonco.org) a few weeks ago and couldn't stop scrolling. It's an open-source database that catalogs the molecular oncology testing landscape -- 155 tests, 75 vendors, 6,743 trackable data points covering everything from turnaround times to FDA statuses to reimbursement codes. For someone like me -- a software engineer who has spent time adjacent to bioinformatics but has never designed an assay -- it was a goldmine. I could finally see the shape of an industry I'd been curious about for years.
+I stumbled onto [OpenOnco](https://openonco.org) a few weeks ago and couldn't stop scrolling. It's an open-source database created by [Alex Dickinson](https://openonco.org) that catalogs the molecular oncology testing landscape -- 155 tests, 75 vendors, 6,743 trackable data points covering everything from turnaround times to FDA statuses to reimbursement codes. For someone like me -- a software engineer who has spent time adjacent to bioinformatics but has never designed an assay -- it was a goldmine. I could finally see the shape of an industry I'd been curious about for years.
 
 I am not an assay scientist. Most of the domain context in this series comes from hours of research with the help of Claude and Gemini, cross-referenced against the OpenOnco dataset, published papers, and FDA filings. Think of this as a software person's field guide to molecular oncology testing -- what I found when I tried to make sense of the landscape, with all the caveats that implies.
 
