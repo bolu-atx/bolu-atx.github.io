@@ -105,6 +105,22 @@ When the prior is very low (rare disease), even strong evidence (a 99% specific 
 .bayes-stat .stat-detail {
   font-size: 0.8rem; color: var(--color-ink-muted); margin-top: 0.3rem;
 }
+.bayes-stat-pair {
+  display: flex; gap: 1rem; margin: 0.8rem 0 1.2rem;
+}
+.bayes-stat-pair .bayes-stat { flex: 1; margin: 0; }
+.preset-btns {
+  display: flex; gap: 0.5rem; margin: 0.6rem 0 0.2rem;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  padding: 0.3rem 0.75rem; border-radius: 6px; border: 1.5px solid var(--color-accent);
+  background: transparent; color: var(--color-accent); font-family: var(--font-mono);
+  font-size: 0.78rem; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.preset-btn:hover, .preset-btn.active {
+  background: var(--color-accent); color: var(--color-paper);
+}
 </style>
 
 ## The 1000 people
@@ -195,7 +211,7 @@ A few things stand out:
 - **CRC blood tests** (Shield, Cologuard Plus) have low PPV despite strong sensitivity because CRC-specific prevalence (~0.5%) is lower than combined all-cancer prevalence (~1.4%), and their specificities (89.6%, 91%) allow more false positives through.
 - **Galleri for pancreatic cancer** -- arguably the cancer where early detection would save the most lives -- has a PPV of about 1.3%. In a population of 100,000 people, a positive Galleri result for pancreatic cancer is wrong 99 times out of 100. This is the base-rate wall.
 
-## What this means
+## What this means for screening
 
 **The MCED paradox from Part 3 is mathematically inevitable.** When I wrote about Galleri's 51.5% sensitivity and Cancerguard's 64% sensitivity, it sounded like the real bottleneck was catching more cancers. But Bayes' theorem reveals that the binding constraint for population screening is specificity, not sensitivity. Improving Galleri's sensitivity from 51.5% to 90% while keeping specificity at 99.5% would only raise its all-cancer PPV from ~59% to ~72%. Improving its specificity from 99.5% to 99.9% at the same 51.5% sensitivity would raise PPV from ~59% to ~88%.
 
@@ -205,10 +221,128 @@ A few things stand out:
 
 ---
 
-And because no post in this series is complete without a Gemini-drawn xkcd-style cheat sheet -- here's the Bayesian reality of liquid biopsy screening on a napkin.
+## When the prior flips: MRD monitoring
 
-![The Bayesian Reality of Liquid Biopsy Screening: Why 99% Accuracy is a Clinical Disaster in Oncology](/assets/posts-media/ppv-in-tests.jpg)
-*TL;DR: A 99% accurate test screening a low-prevalence population yields a 9% PPV -- for every true cancer detected, ~10 healthy people get false alarms. The fix isn't better sensitivity; it's pushing specificity past 99.9%, combining orthogonal assays, filtering biological noise like CHIP, and never trusting AUROC alone when prevalence is low.*
+Everything above assumes we are screening healthy people where the prior is low -- 0.01% for pancreatic cancer, 1.4% for any cancer. Now flip the scenario entirely. A Stage III colorectal cancer patient finishes chemo. Historical data says roughly 40% of these patients will relapse within three years. The prior is not 1.4%. It is **40%**.
+
+This is the world of **Minimal Residual Disease (MRD)** testing from [Part 2](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html). The question is no longer "does this healthy person have cancer?" but "does this treated cancer patient still have microscopic disease?" And because the prior is high, the entire Bayesian calculus inverts.
+
+When the prior is high, PPV is already strong -- a positive MRD result at 40% prior and 98% specificity gives a PPV above 95%. The clinical anxiety is not "is this positive real?" but rather "can I trust a negative?" This is still Bayes' theorem, but now the evidence $E$ is a *negative* test result. Earlier we asked $P(disease \mid positive)$ and got PPV. Now we ask $P(disease\text{-}free \mid negative)$:
+
+$$
+P(\neg H \mid E^-) = \frac{P(E^- \mid \neg H) \cdot P(\neg H)}{P(E^- \mid \neg H) \cdot P(\neg H) + P(E^- \mid H) \cdot P(H)}
+$$
+
+The terms map to the same clinical quantities, just flipped: $P(E^- \mid \neg H)$ is **specificity** (healthy people correctly testing negative), $P(E^- \mid H)$ is **1 - sensitivity** (sick people missed), $P(\neg H)$ is $1 - prevalence$. Substituting gives us the **Negative Predictive Value**:
+
+$$
+NPV = \frac{Spec \times (1 - Prev)}{Spec \times (1 - Prev) + (1 - Sens) \times Prev}
+$$
+
+The Alpha-CORRECT trial showed this in action: ctDNA-negative patients had 96.1% three-year relapse-free survival versus 54.5% for ctDNA-positive patients (HR 9.6). A negative MRD test is powerfully reassuring -- but only if sensitivity is high enough.
+
+<div style="max-width:700px;margin:0 auto">
+<div class="bayes-controls">
+  <div class="bayes-slider-row">
+    <label for="mrd-prev">Prior</label>
+    <input type="range" id="mrd-prev" min="0.1" max="60" step="0.1" value="40">
+    <span class="slider-val" id="mrd-prev-val">40%</span>
+  </div>
+  <div class="bayes-slider-row">
+    <label for="mrd-sens">Sensitivity</label>
+    <input type="range" id="mrd-sens" min="50" max="100" step="1" value="94">
+    <span class="slider-val" id="mrd-sens-val">94%</span>
+  </div>
+  <div class="bayes-slider-row">
+    <label for="mrd-spec">Specificity</label>
+    <input type="range" id="mrd-spec" min="50" max="100" step="0.5" value="98">
+    <span class="slider-val" id="mrd-spec-val">98%</span>
+  </div>
+  <div class="preset-btns">
+    <button class="preset-btn" data-prev="1.4" data-sens="80" data-spec="99">Screening (1.4%)</button>
+    <button class="preset-btn active" data-prev="40" data-sens="94" data-spec="98">MRD (40%)</button>
+  </div>
+</div>
+<div class="bayes-stat-pair">
+  <div class="bayes-stat">
+    <span class="stat-label">Positive Predictive Value</span>
+    <span class="stat-value" id="mrd-ppv-value">--</span>
+    <div class="stat-detail" id="mrd-ppv-detail"></div>
+  </div>
+  <div class="bayes-stat">
+    <span class="stat-label">Negative Predictive Value</span>
+    <span class="stat-value" id="mrd-npv-value">--</span>
+    <div class="stat-detail" id="mrd-npv-detail"></div>
+  </div>
+</div>
+</div>
+
+Hit the preset buttons to toggle between screening and MRD contexts. Same Bayes' theorem, same formula -- radically different clinical story. At screening prevalence, PPV collapses and a positive means almost nothing. At MRD prevalence, PPV is near-certain and the question becomes whether NPV is high enough to safely de-escalate treatment.
+
+## The MRD test landscape
+
+Not all MRD tests are created equal. The chart below shows PPV and NPV for five commercial MRD assays at an adjustable recurrence rate. The tests are sorted by NPV, because that is the metric that matters most in MRD -- can a negative result actually reassure you?
+
+<div style="max-width:700px;margin:0 auto">
+<div class="bayes-controls">
+  <div class="bayes-slider-row">
+    <label for="mrd-land-prev">Recurrence</label>
+    <input type="range" id="mrd-land-prev" min="5" max="60" step="1" value="40">
+    <span class="slider-val" id="mrd-land-prev-val">40%</span>
+  </div>
+</div>
+<div id="mrd-landscape"></div>
+</div>
+
+Notice how sensitivity differences map directly to NPV gaps. NeXT Personal's 100% analytical sensitivity gives it a perfect NPV -- every negative is a true negative. Drop to Reveal's 81% sensitivity and NPV falls to around 86% at 40% recurrence, meaning roughly 1 in 7 "all clear" results are wrong. For a cancer patient deciding whether to skip additional chemo, that gap is the difference between confidence and anxiety.
+
+## Serial negative tests: the power of re-monitoring
+
+In screening, we saw that consecutive *positive* tests drive PPV toward certainty. In MRD monitoring, the mirror image matters: consecutive *negative* results drive the posterior probability of residual disease toward zero. Each negative updates the prior downward:
+
+$$
+P(disease \mid negative) = \frac{(1 - Sens) \times P(disease)}{(1 - Sens) \times P(disease) + Spec \times (1 - P(disease))}
+$$
+
+This is why MRD monitoring is not a single test but a longitudinal program -- blood draws every 3-6 months for years. A single negative result at 94% sensitivity still leaves meaningful residual uncertainty. But three or four consecutive negatives compound the evidence, each one shrinking the posterior further.
+
+<div style="max-width:700px;margin:0 auto">
+<div class="bayes-controls">
+  <div class="bayes-slider-row">
+    <label for="sn-prev">Prior</label>
+    <input type="range" id="sn-prev" min="1" max="60" step="1" value="40">
+    <span class="slider-val" id="sn-prev-val">40%</span>
+  </div>
+  <div class="bayes-slider-row">
+    <label for="sn-sens">Sensitivity</label>
+    <input type="range" id="sn-sens" min="50" max="100" step="1" value="94">
+    <span class="slider-val" id="sn-sens-val">94%</span>
+  </div>
+  <div class="bayes-slider-row">
+    <label for="sn-spec">Specificity</label>
+    <input type="range" id="sn-spec" min="50" max="100" step="0.5" value="98">
+    <span class="slider-val" id="sn-spec-val">98%</span>
+  </div>
+</div>
+<div id="serial-neg"></div>
+</div>
+
+At the defaults (40% prior, 94% sensitivity), a single negative drops the probability of residual disease from 40% to about 3.9%. A second negative pushes it below 0.3%. By the fourth consecutive negative, you are well under 0.01%. This is the mathematical case for serial MRD monitoring -- and why ctDNA-guided approaches show a median 1.4-month lead time over conventional imaging.
+
+For MRD monitoring, sensitivity is the binding constraint -- exactly the mirror of screening. Every percentage point of sensitivity translates directly into NPV, the confidence a patient and their oncologist can place in a negative result. This is why the MRD assays from [Part 2](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html) compete on sensitivity (81% to 100%), and why serial monitoring compounds the benefit of even moderate sensitivity into strong cumulative evidence.
+
+## The same theorem, opposite constraints
+
+Bayes' theorem is one equation, but it produces two completely different clinical stories depending on the prior. For population screening where the prior is low, specificity is everything -- false positives overwhelm true positives, and PPV is the metric that matters. For MRD monitoring where the prior is high, sensitivity takes over -- false negatives erode trust in a clean result, and NPV becomes the metric that matters. And in both contexts, serial testing is the great equalizer: consecutive positives rescue a weak PPV, consecutive negatives rescue a weak NPV, each round compounding the evidence through the same Bayesian update.
+
+The practical upshot: when evaluating any cancer test, the first question is not "how accurate is it?" but "what is the prior?" A 99% accurate test is a clinical disaster for pancreatic screening and a clinical triumph for post-chemo MRD monitoring. The test did not change. The prior did.
+
+---
+
+And because no post in this series is complete without a Gemini-drawn xkcd-style cheat sheet -- here's Bayes' theorem in oncology on a napkin.
+
+![The Prior Is Everything: Screening vs. MRD Monitoring — same 99% test, opposite clinical stories](/assets/posts-media/mrd-vs-mced-xkcd.jpg)
+*TL;DR: The prior is everything. Screening healthy people (low prior)? False positives swamp true positives, specificity is king, and PPV is your metric. Monitoring a post-chemo patient (high prior)? False negatives erode trust in a clean result, sensitivity is king, and NPV is your metric. Same test, same 99% -- opposite constraints, opposite failure modes. Serial testing rescues both.*
 
 *Companion to the cancer diagnostics series:
 [Part 1: The Four Pillars](/biotech/2026/02/16/cancer-testing-landscape.html) |
@@ -827,6 +961,338 @@ Data from [OpenOnco](https://openonco.org) (v. Feb 15, 2026).*
   }
 
   // ============================================================
+  // Shared: NPV & Negative Update Utilities
+  // ============================================================
+
+  function npv(prev, sens, spec) {
+    var num = spec * (1 - prev);
+    var den = num + (1 - sens) * prev;
+    return den === 0 ? 1 : num / den;
+  }
+
+  function negUpdate(prev, sens, spec) {
+    var num = (1 - sens) * prev;
+    var den = num + spec * (1 - prev);
+    return den === 0 ? 0 : num / den;
+  }
+
+  // ============================================================
+  // Chart 5: MRD Dual PPV/NPV Display
+  // ============================================================
+
+  function drawMrdDual() {
+    updateMrdDual();
+  }
+
+  function updateMrdDual() {
+    var prev = sliderVal('mrd-prev') / 100;
+    var sens = sliderVal('mrd-sens') / 100;
+    var spec = sliderVal('mrd-spec') / 100;
+
+    var ppvVal = ppv(prev, sens, spec) * 100;
+    var npvVal = npv(prev, sens, spec) * 100;
+
+    setDisplay('mrd-ppv-value', ppvVal.toFixed(1) + '%');
+    setDisplay('mrd-npv-value', npvVal.toFixed(1) + '%');
+    setDisplay('mrd-ppv-detail',
+      'If positive, ' + ppvVal.toFixed(1) + '% chance of disease');
+    setDisplay('mrd-npv-detail',
+      'If negative, ' + npvVal.toFixed(1) + '% chance disease-free');
+    setDisplay('mrd-prev-val', sliderVal('mrd-prev') + '%');
+    setDisplay('mrd-sens-val', sliderVal('mrd-sens') + '%');
+    setDisplay('mrd-spec-val', sliderVal('mrd-spec') + '%');
+  }
+
+  function wireMrdPresets() {
+    var btns = document.querySelectorAll('.preset-btn');
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        var prevEl = document.getElementById('mrd-prev');
+        var sensEl = document.getElementById('mrd-sens');
+        var specEl = document.getElementById('mrd-spec');
+        if (prevEl) prevEl.value = btn.dataset.prev;
+        if (sensEl) sensEl.value = btn.dataset.sens;
+        if (specEl) specEl.value = btn.dataset.spec;
+        updateMrdDual();
+      });
+    });
+  }
+
+  // ============================================================
+  // Chart 6: MRD Test Landscape (Grouped Horizontal Bars)
+  // ============================================================
+
+  function drawMrdLandscape() {
+    var c = CancerCharts.getColors();
+    var container = d3.select('#mrd-landscape');
+    container.selectAll('*').remove();
+
+    var prev = sliderVal('mrd-land-prev') / 100;
+    setDisplay('mrd-land-prev-val', sliderVal('mrd-land-prev') + '%');
+
+    var tests = [
+      { name: 'NeXT Personal', sens: 1.00, spec: 0.999 },
+      { name: 'Signatera', sens: 0.94, spec: 0.98 },
+      { name: 'clonoSEQ', sens: 0.95, spec: 0.99 },
+      { name: 'Oncodetect', sens: 0.91, spec: 0.94 },
+      { name: 'Reveal', sens: 0.81, spec: 0.98 }
+    ];
+
+    tests.forEach(function(t) {
+      t.ppv = ppv(prev, t.sens, t.spec) * 100;
+      t.npv = npv(prev, t.sens, t.spec) * 100;
+    });
+    tests.sort(function(a, b) { return b.npv - a.npv; });
+
+    var margin = { top: 35, right: 55, bottom: 40, left: 120 };
+    var barGroupH = 36;
+    var barH = 14;
+    var width = 700;
+    var innerW = width - margin.left - margin.right;
+    var innerH = tests.length * barGroupH;
+    var height = innerH + margin.top + margin.bottom;
+
+    var svg = container.append('svg')
+      .attr('viewBox', '0 0 ' + width + ' ' + height)
+      .style('width', '100%')
+      .style('font-family', 'inherit');
+
+    var g = svg.append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var x = d3.scaleLinear().domain([0, 100]).range([0, innerW]);
+
+    // Grid
+    g.append('g').selectAll('line')
+      .data(x.ticks(5)).enter().append('line')
+      .attr('x1', function(d) { return x(d); })
+      .attr('x2', function(d) { return x(d); })
+      .attr('y1', 0).attr('y2', innerH)
+      .attr('stroke', c.grid).attr('stroke-dasharray', '3,3');
+
+    // 95% reference line
+    g.append('line')
+      .attr('x1', x(95)).attr('x2', x(95))
+      .attr('y1', -5).attr('y2', innerH + 5)
+      .attr('stroke', c.pink)
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '6,4');
+    g.append('text')
+      .attr('x', x(95) + 4).attr('y', -8)
+      .attr('fill', c.pink).attr('font-size', 10)
+      .attr('font-style', 'italic').text('95%');
+
+    // X axis
+    g.append('g').attr('transform', 'translate(0,' + innerH + ')')
+      .call(d3.axisBottom(x).ticks(5).tickFormat(function(d) { return d + '%'; }))
+      .call(function(g) {
+        g.selectAll('text').attr('fill', c.text);
+        g.selectAll('line,path').attr('stroke', c.muted);
+      });
+
+    tests.forEach(function(t, i) {
+      var yOff = i * barGroupH;
+
+      // Row label
+      g.append('text')
+        .attr('x', -8).attr('y', yOff + barGroupH / 2 + 3)
+        .attr('text-anchor', 'end').attr('fill', c.text)
+        .attr('font-size', 11).text(t.name);
+
+      // PPV bar (top)
+      g.append('rect')
+        .attr('x', 0).attr('y', yOff + 2)
+        .attr('width', x(t.ppv)).attr('height', barH)
+        .attr('fill', c.green).attr('fill-opacity', 0.8).attr('rx', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event) {
+          CancerCharts.showTooltip(event,
+            '<strong>' + t.name + '</strong>' +
+            '<br/>Sens: ' + (t.sens * 100).toFixed(1) + '% · Spec: ' + (t.spec * 100).toFixed(1) + '%' +
+            '<br/>PPV: ' + t.ppv.toFixed(1) + '% · NPV: ' + t.npv.toFixed(1) + '%');
+        })
+        .on('mousemove', CancerCharts.moveTooltip)
+        .on('mouseout', CancerCharts.hideTooltip);
+
+      g.append('text')
+        .attr('x', x(t.ppv) + 4).attr('y', yOff + 2 + barH / 2 + 4)
+        .attr('fill', c.green).attr('font-size', 10).attr('font-weight', 600)
+        .text(t.ppv.toFixed(1) + '%');
+
+      // NPV bar (bottom)
+      g.append('rect')
+        .attr('x', 0).attr('y', yOff + 2 + barH + 2)
+        .attr('width', x(t.npv)).attr('height', barH)
+        .attr('fill', c.blue).attr('fill-opacity', 0.8).attr('rx', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event) {
+          CancerCharts.showTooltip(event,
+            '<strong>' + t.name + '</strong>' +
+            '<br/>Sens: ' + (t.sens * 100).toFixed(1) + '% · Spec: ' + (t.spec * 100).toFixed(1) + '%' +
+            '<br/>PPV: ' + t.ppv.toFixed(1) + '% · NPV: ' + t.npv.toFixed(1) + '%');
+        })
+        .on('mousemove', CancerCharts.moveTooltip)
+        .on('mouseout', CancerCharts.hideTooltip);
+
+      g.append('text')
+        .attr('x', x(t.npv) + 4).attr('y', yOff + 2 + barH + 2 + barH / 2 + 4)
+        .attr('fill', c.blue).attr('font-size', 10).attr('font-weight', 600)
+        .text(t.npv.toFixed(1) + '%');
+    });
+
+    // Title
+    svg.append('text').attr('x', margin.left + innerW / 2).attr('y', 18)
+      .attr('text-anchor', 'middle').attr('fill', c.text)
+      .attr('font-size', 15).attr('font-weight', 600)
+      .text('MRD Test Landscape: PPV & NPV');
+
+    // Legend
+    var lgG = svg.append('g')
+      .attr('transform', 'translate(' + (margin.left + innerW / 2) + ',' + (height - 6) + ')');
+    lgG.append('rect').attr('x', -60).attr('y', -8).attr('width', 10).attr('height', 10)
+      .attr('fill', c.green).attr('fill-opacity', 0.8).attr('rx', 2);
+    lgG.append('text').attr('x', -46).attr('y', 1)
+      .attr('fill', c.text).attr('font-size', 11).text('PPV');
+    lgG.append('rect').attr('x', 10).attr('y', -8).attr('width', 10).attr('height', 10)
+      .attr('fill', c.blue).attr('fill-opacity', 0.8).attr('rx', 2);
+    lgG.append('text').attr('x', 24).attr('y', 1)
+      .attr('fill', c.text).attr('font-size', 11).text('NPV');
+  }
+
+  // ============================================================
+  // Chart 7: Serial Negative Updating
+  // ============================================================
+
+  function drawSerialNeg() {
+    var c = CancerCharts.getColors();
+    var container = d3.select('#serial-neg');
+    container.selectAll('*').remove();
+
+    var margin = { top: 35, right: 60, bottom: 40, left: 120 };
+    var width = 700, height = 320;
+    var innerW = width - margin.left - margin.right;
+    var innerH = height - margin.top - margin.bottom;
+
+    var svg = container.append('svg')
+      .attr('viewBox', '0 0 ' + width + ' ' + height)
+      .style('width', '100%')
+      .style('font-family', 'inherit');
+
+    svg.append('text').attr('x', margin.left + innerW / 2).attr('y', 18)
+      .attr('text-anchor', 'middle').attr('fill', c.text)
+      .attr('font-size', 15).attr('font-weight', 600)
+      .text('Serial Negative Tests: Residual Disease Probability');
+
+    var g = svg.append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var labels = ['Prior', 'After Test 1 (neg)', 'After Test 2 (neg)',
+                  'After Test 3 (neg)', 'After Test 4 (neg)'];
+    var y = d3.scaleBand().domain(labels).range([0, innerH]).padding(0.2);
+    var x = d3.scaleLinear().domain([0, 100]).range([0, innerW]);
+
+    // Grid
+    g.append('g').selectAll('line')
+      .data(x.ticks(5)).enter().append('line')
+      .attr('x1', function(d) { return x(d); })
+      .attr('x2', function(d) { return x(d); })
+      .attr('y1', 0).attr('y2', innerH)
+      .attr('stroke', c.grid).attr('stroke-dasharray', '3,3');
+
+    // X axis
+    g.append('g').attr('transform', 'translate(0,' + innerH + ')')
+      .call(d3.axisBottom(x).ticks(5).tickFormat(function(d) { return d + '%'; }))
+      .call(function(g) {
+        g.selectAll('text').attr('fill', c.text);
+        g.selectAll('line,path').attr('stroke', c.muted);
+      });
+
+    // Row labels
+    labels.forEach(function(label) {
+      g.append('text')
+        .attr('x', -10)
+        .attr('y', y(label) + y.bandwidth() / 2 + 4)
+        .attr('text-anchor', 'end')
+        .attr('fill', c.text)
+        .attr('font-size', 12)
+        .text(label);
+    });
+
+    // Bars
+    var barColors = [c.pink, c.yellow, c.green, c.blue, c.purple];
+    labels.forEach(function(label, i) {
+      g.append('rect')
+        .attr('class', 'sn-bar-' + i)
+        .attr('x', 0)
+        .attr('y', y(label))
+        .attr('height', y.bandwidth())
+        .attr('width', 0)
+        .attr('fill', barColors[i])
+        .attr('fill-opacity', 0.8)
+        .attr('rx', 3);
+
+      g.append('text')
+        .attr('class', 'sn-label-' + i)
+        .attr('x', 0)
+        .attr('y', y(label) + y.bandwidth() / 2 + 5)
+        .attr('fill', c.text)
+        .attr('font-size', 12)
+        .attr('font-weight', 600)
+        .text('');
+    });
+
+    container.node().__snG = g;
+    container.node().__snX = x;
+
+    updateSerialNeg();
+  }
+
+  function updateSerialNeg() {
+    var container = d3.select('#serial-neg');
+    var node = container.node();
+    if (!node || !node.__snG) return;
+
+    var g = node.__snG;
+    var x = node.__snX;
+
+    var prior = sliderVal('sn-prev') / 100;
+    var sens = sliderVal('sn-sens') / 100;
+    var spec = sliderVal('sn-spec') / 100;
+
+    var probs = [prior];
+    for (var i = 0; i < 4; i++) {
+      probs.push(negUpdate(probs[i], sens, spec));
+    }
+
+    probs.forEach(function(p, i) {
+      var pPct = p * 100;
+      g.select('.sn-bar-' + i)
+        .transition().duration(300)
+        .attr('width', x(pPct));
+
+      g.select('.sn-label-' + i)
+        .transition().duration(300)
+        .attr('x', x(pPct) + 6)
+        .tween('text', function() {
+          var that = d3.select(this);
+          var current = parseFloat(that.text()) || 0;
+          var interp = d3.interpolateNumber(current, pPct);
+          return function(t) {
+            var val = interp(t);
+            that.text(val < 0.01 ? '<0.01%' : val < 0.1 ? val.toFixed(3) + '%' : val.toFixed(1) + '%');
+          };
+        });
+    });
+
+    setDisplay('sn-prev-val', sliderVal('sn-prev') + '%');
+    setDisplay('sn-sens-val', sliderVal('sn-sens') + '%');
+    setDisplay('sn-spec-val', sliderVal('sn-spec') + '%');
+  }
+
+  // ============================================================
   // Init, Sliders, Theme Change
   // ============================================================
 
@@ -835,6 +1301,9 @@ Data from [OpenOnco](https://openonco.org) (v. Feb 15, 2026).*
     drawPPVCurves();
     drawBayesUpdate();
     drawRealityCheck();
+    drawMrdDual();
+    drawMrdLandscape();
+    drawSerialNeg();
   }
 
   function wireSliders() {
@@ -849,6 +1318,20 @@ Data from [OpenOnco](https://openonco.org) (v. Feb 15, 2026).*
     ['bu-prev', 'bu-sens', 'bu-spec'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', updateBayesUpdate);
+    });
+
+    ['mrd-prev', 'mrd-sens', 'mrd-spec'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateMrdDual);
+    });
+    wireMrdPresets();
+
+    var mrdLandEl = document.getElementById('mrd-land-prev');
+    if (mrdLandEl) mrdLandEl.addEventListener('input', drawMrdLandscape);
+
+    ['sn-prev', 'sn-sens', 'sn-spec'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateSerialNeg);
     });
   }
 
