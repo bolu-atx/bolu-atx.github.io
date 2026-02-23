@@ -7,7 +7,7 @@ icon: user
 
 <img class="profile-pic" src="/assets/images/profile_photo.png">
 
-Hi, I'm Bo. I build software and algorithms for DNA sequencers — I like the part where math on a whiteboard turns into something that ships in a real instrument. My background wanders through chemical engineering, process control, industrial ML, and genomics.
+Hi, I'm Bo. I build software and algorithms for systems that deal with the real world — sequencers, assay platforms, and reactors. I like the part where math on a whiteboard turns into something that ships in a real instrument. My background wanders through chemical engineering, process control, industrial ML, and genomics.
 
 I learn best by building things from scratch and then writing about them. The topics jump around — C++ template metaprogramming one month, Bayesian statistics the next — but the thread is always the same: pick something I don't fully understand, dig until I do, and write it up clearly enough that it sticks.
 
