@@ -205,12 +205,16 @@ A few things stand out:
 
 ---
 
-*Companion to the 3-part cancer diagnostics series:
+And because no post in this series is complete without a Gemini-drawn xkcd-style cheat sheet -- here's the Bayesian reality of liquid biopsy screening on a napkin.
+
+![The Bayesian Reality of Liquid Biopsy Screening: Why 99% Accuracy is a Clinical Disaster in Oncology](/assets/posts-media/ppv-in-tests.jpg)
+*TL;DR: A 99% accurate test screening a low-prevalence population yields a 9% PPV -- for every true cancer detected, ~10 healthy people get false alarms. The fix isn't better sensitivity; it's pushing specificity past 99.9%, combining orthogonal assays, filtering biological noise like CHIP, and never trusting AUROC alone when prevalence is low.*
+
+*Companion to the cancer diagnostics series:
 [Part 1: The Four Pillars](/biotech/2026/02/16/cancer-testing-landscape.html) |
 [Part 2: MRD](/biotech/2026/02/17/mrd-hunting-invisible-cancer.html) |
-[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html)*
-
-*Data from [OpenOnco](https://openonco.org) (v. Feb 15, 2026). Prevalence estimates are approximate annual incidence rates for age 50+ screening populations and may differ from study-specific cohort prevalences.*
+[Part 3: Screening Wars](/biotech/2026/02/18/early-cancer-detection-screening-wars.html).
+Data from [OpenOnco](https://openonco.org) (v. Feb 15, 2026).*
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="/assets/js/cancer-charts.js"></script>
