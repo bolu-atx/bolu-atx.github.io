@@ -135,6 +135,14 @@ The harder-to-automate position seems to be "I understand *both* X and Y and can
 
 This isn't new advice — "T-shaped people" has been a hiring cliché for decades. What might be new is that the horizontal bar of the T matters more than ever, because the vertical bar (deep single-domain execution) is exactly what's getting commoditized.
 
+### If you've got an idea, now is the time
+
+Here's the flip side of everything I described above: the same forces that make the macro picture scary make the micro picture *incredibly* fertile. The cost of building something just fell off a cliff. A product that would have taken a team of five engineers six months can now be prototyped by one person in a weekend. The barriers to entry haven't been this low since the early web.
+
+If you've been sitting on an idea — a tool, a service, a business — the calculus has changed. The incumbents you'd be competing against are slow, bloated, and mid-reorganization. Their AI strategy is a slide deck and a committee. You, with a laptop and an agent, can ship before they've finished their quarterly planning cycle.
+
+This isn't "move fast and break things" startup romanticism. It's a structural observation: during periods of disruption, the advantage tilts toward small, fast, and opinionated. The big companies are busy figuring out how to cut costs with AI. The opportunity is in figuring out how to *create something new* with it. Disrupt or be disrupted — except right now, the disrupting is cheaper and more accessible than it's ever been.
+
 ### Be willing to change your mind
 
 The hardest part of adaptation isn't learning new skills. It's letting go of identity attached to old ones.
