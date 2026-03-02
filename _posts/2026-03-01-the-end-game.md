@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The End Game"
+title: "The AI End Game"
 date: 2026-03-01 10:00:00 -0700
 tags: ai machine-learning economics
 author: bolu-atx
@@ -112,6 +112,14 @@ The most speculative phase — and honestly, trying to predict 2035 from 2026 fe
 The idea: labor becomes structurally decoupled from survival. Not because we solved poverty, but because the economy simply wouldn't need most human labor to function. Wealth would be generated through capital ownership (compute, IP, data) or strategic intent (deciding *what to build*, not building it).
 
 The counterintuitive punchline: in a world where AI provides personalized everything to everyone, the true luxury might become *human inefficiency*. A meal cooked slowly by a person. A letter written by hand. A doctor who spends an hour with you when the AI diagnosis took 30 seconds. The scarce resource wouldn't be intelligence — it would be the willingness to be present, accountable, and slow.
+
+## What Does This All Mean?
+
+Change is coming, whether you like it or not. Sticking your head in the sand like an ostrich is not the solution. Due to the exponential nature of these breakthroughs, this change will be incredibly fast. We are likely facing a painful transition period before we reach the next equilibrium—think of it as a sigmoidal curve where the vertical ascent is steep and disorienting.
+
+Within this transition, the fundamental structures of our society are being tested. Everything from labor and economics to how we build products and provide services at scale is being rewritten. In this chaotic, high-entropy process of finding the next equilibrium, everything will be amplified: the inequality, the successes, the failures, the pain, and the joy.
+
+To make matters more complex, this AI shift coincides with major historical cycles. As Ray Dalio observes regarding the American empire cycle, and with the geopolitical power cycle shifting as China challenges US hegemony, this technological transition will be all the more turbulent. We are navigating a technological revolution during a period of profound global restructuring.
 
 ## So What Do You Actually Do?
 
