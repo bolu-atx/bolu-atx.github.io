@@ -113,20 +113,6 @@ The idea: labor becomes structurally decoupled from survival. Not because we sol
 
 The counterintuitive punchline: in a world where AI provides personalized everything to everyone, the true luxury might become *human inefficiency*. A meal cooked slowly by a person. A letter written by hand. A doctor who spends an hour with you when the AI diagnosis took 30 seconds. The scarce resource wouldn't be intelligence — it would be the willingness to be present, accountable, and slow.
 
-## The Buyer Paradox
-
-There's a question buried in the Ghost GDP loop that nags at me: if workers are also consumers, and workers are being displaced, who buys the output?
-
-One possible answer is that the economy doesn't collapse — it restructures around different buyer categories:
-
-**The M2M Market.** Agents transacting with agents. Company A's procurement bot negotiates with Company B's supply bot, optimizing for capital-owner returns. This already happens in programmatic advertising and algorithmic trading; it could simply expand to everything else. Humans wouldn't be in the loop because they wouldn't need to be.
-
-**The Post-Labor Consumer.** Sustained by whatever redistribution mechanism emerges — UBI, "Proof of Personhood" credits, expanded social programs. This group would consume the commodity tier: near-zero-cost goods produced by the Synthetic Sphere. The material standard of living might actually be quite high, even if economic agency is limited.
-
-**The Elite/Specialist Market.** High-stakes exchange built on proprietary data, human brand, and what you might call "Proof of Liability" — the legal and moral necessity of having a *person* responsible for outcomes. A surgeon, a fiduciary, a diplomat. The AI advises; the human signs the document.
-
-I'm not confident in any of these categories — they're mental models, not predictions. But the underlying question feels urgent: the transition between "how things work now" and "how things might work next" could be smooth or it could be chaotic, and I think we'll only know in retrospect which one we got.
-
 ## So What Do You Actually Do?
 
 I've spent a lot of words on scenarios that might not happen, timelines that are probably wrong, and frameworks borrowed from an AI model. If you're feeling a little dizzy, that's appropriate — I am too. The honest answer is that nobody really knows how this plays out.
