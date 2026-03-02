@@ -21,7 +21,9 @@ I don't know if Dorsey is right about the timeline. Maybe it's two years, not on
 
 What strikes me most is the pace. I've been in tech for over a decade and I can't remember a period where the ground moved this fast. By the time you finish processing one development — a new model release, a wave of layoffs, a startup that didn't exist six months ago eating an incumbent's lunch — three more have happened. It feels like trying to read a book while someone keeps turning the pages.
 
+
 <!--more-->
+
 
 ## The Citrini Thesis: Ghost GDP
 
@@ -172,3 +174,8 @@ We're living through something that I think people will study in textbooks — o
 ---
 
 *Sources: Citrini Research, ["The 2028 Global Intelligence Crisis"](https://www.citriniresearch.com/p/2028gic) (Feb 2026). Block/Jack Dorsey layoff announcement and shareholder letter. Oxford Economics report on AI-related layoffs (Jan 2026).*
+
+
+As always, I asked Gemini to generate an infographic TLDR: 
+
+![The AI Employment Transition — a speculative map](/assets/posts-media/ai-end-game-xkcd.jpg)
