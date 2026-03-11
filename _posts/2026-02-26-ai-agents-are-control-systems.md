@@ -7,56 +7,104 @@ author: bolu-atx
 categories: machine-learning
 ---
 
-Back in grad school, I built a linear state-space MPC controller for my control theory class -- the classic quadratic-cost-over-a-finite-horizon setup. You model the plant dynamics as $x_{k+1} = Ax_k + Bu_k$, define a cost function that penalizes deviations from your target state and excessive control effort, then solve a quadratic program at each timestep to get the optimal sequence of future inputs. But here's the key: you only apply the *first* input. Then you measure the new state, shift the horizon forward, and solve the whole thing again from scratch.
+Suppose your coding agent sees three failing tests, opens the wrong file, makes an edit that fixes one failure and creates two new ones, runs the tests again, notices the blast radius, backs up, and tries a narrower patch.
 
-The professor called this "receding horizon control." At the time I thought it was a neat trick for keeping chemical reactors from exploding. A decade later, I'm watching Claude Code do *exactly the same thing* -- observe state, predict outcomes, pick the best next action, re-evaluate -- except the "plant" is a codebase and the "control inputs" are bash commands.
+That is not "just inference." That's a feedback loop.
 
-This isn't a metaphor. It's the same math.
+More specifically: it's an iterative policy acting on a partially observed environment, using fresh observations to update its next move. If you come from ML, that's already enough to make the control-theory comparison useful. You don't need to believe an LLM agent is literally an industrial controller. You just need to notice that once the model is embedded in a tool-use loop, the thing you're evaluating is no longer a one-shot predictor. It's a dynamical system.
+
+That shift matters because it changes what "good" means.
+
+- A good base model is not automatically a good closed-loop agent.
+- A bad planner can destabilize a strong model.
+- A weak verifier can make a bad agent look competent for a surprisingly long time.
+- Most real failures are not "wrong answer once." They're oscillation, drift, and local hacks that look good for two steps and bad for twenty.
+
+That is the part I think control gives us: not fancy vocabulary, but a cleaner way to talk about what these systems are doing, where they fail, and what to optimize.
 
 <!--more-->
 
-## The Mapping: MPC Concepts in Agent Architectures
+## The Useful Claim, Stripped Down
 
-Let's make the translation explicit. Every component of a Model Predictive Controller has a direct counterpart in an AI coding agent:
+Here's the claim in plain English:
 
-| MPC Concept | Agent Equivalent | What It Means |
+> An agent is a controller wrapped around a world model and a set of actuators.
+
+The "world model" is the LLM's learned prior over how code, shells, APIs, and people behave. The "actuators" are tool calls: edit a file, run a command, open a browser tab, send a message, call a retriever. The "plant" is the external environment those actions hit: the repo, the compiler, the test suite, the network, the human user.
+
+Once you wire those pieces together, the loop looks like this:
+
+1. Observe the current state as imperfectly as you can.
+2. Predict what a few candidate actions will do.
+3. Pick one action.
+4. Execute it in the real world.
+5. Measure the result.
+6. Repeat until you hit the goal, a budget, or a failure condition.
+
+That is the control lens. Not "LLMs secretly solve Riccati equations." Just: this is a closed-loop sequential decision system, so the right questions are now about feedback, stability, observability, horizon length, and cost shaping.
+
+## The Mapping That Actually Matters
+
+You can map the usual control terms onto agent systems pretty directly:
+
+| Control idea | Agent analogue | Why it matters |
 |:---|:---|:---|
-| **Plant** | Execution environment | The bash shell, Python REPL, or IDE where actions get executed |
-| **State vector** $x(t)$ | Context window | Everything the agent currently "knows" -- files read, errors seen, plan state |
-| **Internal model** $f$ | LLM world model | The model's learned ability to predict what happens when you run a command |
-| **Control input** $u(t)$ | Tool call / generated token | The specific action the agent takes to change the environment |
-| **Prediction horizon** $N$ | Planning depth | How many steps ahead the agent reasons before committing |
-| **Stage cost** $\ell$ | Process reward model | How good or bad each intermediate step looks |
-| **Terminal cost** $V_f$ | Outcome reward model | Did the final result actually satisfy the user's goal? |
-| **Moving Horizon Estimation** | Context folding / compaction | Compressing old history into a summary so the window doesn't overflow |
+| Plant | External environment | Repo, shell, browser, APIs, user |
+| State | Working state | Files read, diffs applied, errors observed, plan status |
+| Observation | Context | What the model can currently see about that state |
+| Controller | Agent policy | The logic that chooses the next action |
+| Action | Tool call | Edit, search, test, browse, ask, terminate |
+| Dynamics | Environment response | What actually happens after the action |
+| Cost | Reward / penalties | Time, tokens, failures, broken tests, user dissatisfaction |
+| Horizon | Planning depth | How far ahead the agent reasons before acting |
 
-The core MPC optimization problem is:
+The important caveat is that this mapping is not exact. Classical control usually assumes a cleaner state representation, known dynamics, and explicit costs. Agents have none of that. Their state is messy, partially latent, and partly summarized in natural language. Their dynamics are a mix of code semantics, tool behavior, and model beliefs. Their cost function is often implicit and badly specified.
+
+But "messy control problem" is still a control problem.
+
+## Why Receding Horizon Is the Right Mental Model
+
+The most useful control analogy here is model predictive control, or MPC.
+
+In MPC, you simulate a few steps ahead, pick the best action sequence, execute only the first action, then re-plan from the new measured state. That last part is the whole game. You don't commit to your full rollout because the world is going to surprise you.
+
+That is exactly how good agents behave.
+
+They do not decide on a 20-step plan and then march through it blindly. They sketch a trajectory, take one action, look at the new evidence, and update. If the test output or file contents disagree with the model's prediction, the plan should change immediately.
+
+The standard finite-horizon objective is:
 
 $$
 \min_{u_0, \ldots, u_{N-1}} \sum_{k=0}^{N-1} \ell(x_k, u_k) + V_f(x_N)
 $$
 
+subject to
+
 $$
-\text{subject to} \quad x_{k+1} = f(x_k, u_k)
+x_{k+1} = f(x_k, u_k)
 $$
 
-In plain English: find the sequence of actions that minimizes total cost (bad intermediate states + bad final outcome), subject to the constraint that each state follows from the previous one through the system dynamics.
+In agent terms, that says: choose a sequence of candidate actions that trades off short-term cost against long-term task completion, given your current guess about how the environment will respond.
 
-For a coding agent, this translates to: *find the sequence of tool calls that minimizes wasted effort and errors, subject to the constraint that each state of the codebase follows logically from the previous edit*. The LLM's "world model" -- its understanding of how code, compilers, and file systems behave -- serves as $f$. The reward signal (did the tests pass? did the user accept the change?) serves as $\ell$ and $V_f$.
+The practical translation is less glamorous:
 
-## The Agentic Loop = Receding Horizon Control
+- don't optimize only for the next token
+- don't optimize only for the final answer
+- optimize for trajectories
 
-Let's look at how real agents implement this.
+That means the unit of evaluation is not "was this thought good?" It's "did this loop move the system toward the goal?"
 
-### Claude Code's Recursive Loop
+## A Coding Agent Really Does Run a Receding-Horizon Loop
 
-Claude Code runs a tight five-step cycle that maps directly onto the MPC control loop:
+If you look at real coding agents, the loop has the same shape:
 
-1. **Normalize** -- compact and summarize the conversation history (= Moving Horizon Estimation)
-2. **Infer** -- the LLM generates its predicted response given the current state (= forward prediction)
-3. **Detect tool use** -- pause if the model wants to invoke a tool (= compute optimal control action)
-4. **Execute** -- run the tool and collect output (= apply first control action)
-5. **Recurse** -- feed results back, re-enter the loop (= shift horizon, re-solve)
+1. compress or normalize state
+2. infer the next move
+3. detect whether that move needs a tool
+4. execute the tool
+5. feed the result back into the next iteration
+
+That is not a metaphor in the hand-wavy sense. The implementation details differ, but architecturally it's the same receding-horizon pattern: estimate, act, observe, re-plan.
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="/assets/js/control-charts.js"></script>
@@ -95,7 +143,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
     var g = svg.append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    // Data: actual trajectory with disturbances
     var totalSteps = 20;
     var horizonLen = 5;
     var actual = [1.0];
@@ -103,7 +150,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
     for (var i = 1; i <= totalSteps; i++) {
       var prev = actual[i - 1];
       var decay = prev * 0.92 + rng();
-      // Disturbance events at steps 6 and 14
       if (i === 6) decay = prev + 0.18;
       if (i === 14) decay = prev + 0.14;
       actual.push(Math.max(0.02, Math.min(1.2, decay)));
@@ -112,7 +158,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
     var x = d3.scaleLinear().domain([0, totalSteps]).range([0, innerW]);
     var y = d3.scaleLinear().domain([0, 1.25]).range([innerH, 0]);
 
-    // Grid
     y.ticks(5).forEach(function(v) {
       g.append('line')
         .attr('x1', 0).attr('x2', innerW)
@@ -120,7 +165,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
         .attr('stroke', c.grid).attr('stroke-width', 0.5);
     });
 
-    // Axes
     g.append('g')
       .attr('transform', 'translate(0,' + innerH + ')')
       .call(d3.axisBottom(x).ticks(10).tickSize(-4))
@@ -134,7 +178,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
       .call(function(g) { g.selectAll('.tick line').attr('stroke', c.muted); })
       .call(function(g) { g.selectAll('.tick text').attr('fill', c.text).attr('font-size', '11px'); });
 
-    // Axis labels
     svg.append('text')
       .attr('x', margin.left + innerW / 2).attr('y', height - 6)
       .attr('text-anchor', 'middle').attr('fill', c.text).attr('font-size', '12px')
@@ -143,9 +186,8 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
       .attr('transform', 'rotate(-90)')
       .attr('x', -(margin.top + innerH / 2)).attr('y', 14)
       .attr('text-anchor', 'middle').attr('fill', c.text).attr('font-size', '12px')
-      .text('Semantic distance to goal');
+      .text('Distance to goal proxy');
 
-    // Elements that update per step
     var horizonRect = g.append('rect')
       .attr('fill', c.horizon).attr('opacity', 0.15)
       .attr('rx', 3);
@@ -168,11 +210,10 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
       .attr('fill', c.text).attr('font-size', '11px').attr('text-anchor', 'middle');
 
     var line = d3.line()
-      .x(function(d, i) { return x(d[0]); })
-      .y(function(d, i) { return y(d[1]); })
+      .x(function(d) { return x(d[0]); })
+      .y(function(d) { return y(d[1]); })
       .curve(d3.curveMonotoneX);
 
-    // Legend
     var legendData = [
       { color: c.actual, dash: '', label: 'Actual trajectory' },
       { color: c.planned, dash: '6,4', label: 'Planned (horizon)' },
@@ -200,7 +241,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
         .attr('fill', c.text).attr('font-size', '11px').text(item.label);
     });
 
-    // Replay button
     var btnG = svg.append('g')
       .attr('transform', 'translate(' + (width - 70) + ',' + (height - 24) + ')')
       .style('cursor', 'pointer')
@@ -212,7 +252,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
       .attr('x', 28).attr('y', 15).attr('text-anchor', 'middle')
       .attr('fill', c.muted).attr('font-size', '11px').text('Replay');
 
-    // Animate step by step
     var currentStep = 0;
 
     function drawStep() {
@@ -222,19 +261,16 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
         return;
       }
 
-      // Actual path up to current step
       var actualData = [];
       for (var i = 0; i <= currentStep; i++) {
         actualData.push([i, actual[i]]);
       }
       actualPath.attr('d', line(actualData));
 
-      // Current dot
       stepDot.attr('cx', x(currentStep)).attr('cy', y(actual[currentStep]));
       stepLabel.attr('x', x(currentStep)).attr('y', y(actual[currentStep]) - 12)
         .text('step ' + currentStep);
 
-      // Horizon window
       var hStart = currentStep;
       var hEnd = Math.min(currentStep + horizonLen, totalSteps);
       horizonRect
@@ -242,7 +278,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
         .attr('width', x(hEnd) - x(hStart))
         .attr('height', innerH);
 
-      // Planned trajectory within horizon (smooth decay from current)
       if (currentStep < totalSteps) {
         var plannedData = [];
         var pVal = actual[currentStep];
@@ -253,7 +288,6 @@ Claude Code runs a tight five-step cycle that maps directly onto the MPC control
         plannedPath.attr('d', line(plannedData));
       }
 
-      // Disturbance markers
       disturbanceGroup.selectAll('*').remove();
       [6, 14].forEach(function(dStep) {
         if (dStep <= currentStep) {
@@ -297,10 +331,10 @@ graph LR
 
     subgraph Agent["Agent Cycle"]
         direction LR
-        B1["normalize<br/>context"] --> B2["LLM<br/>inference"]
-        B2 --> B3["detect<br/>tool call"]
+        B1["summarize<br/>state"] --> B2["infer next<br/>move"]
+        B2 --> B3["select<br/>tool"]
         B3 --> B4["execute<br/>tool"]
-        B4 --> B5["recurse<br/>with result"]
+        B4 --> B5["update plan<br/>with result"]
         B5 --> B1
     end
 
@@ -317,59 +351,61 @@ graph LR
     class A5,B5 result
 ```
 
-The structure is isomorphic. The agent only returns control to the user when it decides the objective is met or when it hits a compute budget (the `maxTurns` cap -- analogous to a hard constraint on total actuation effort). Between those endpoints, it's a closed-loop controller running autonomously.
+What does that buy you?
 
-### The Bellman Connection
+For me, three things:
 
-This loop is doing something deeper than it first appears. In optimal control, the Bellman equation defines the best possible cost-to-go from any state:
+1. It tells you why single-step evals are not enough. A model can look great at choosing the next action and still be terrible over 30 steps because its errors compound.
+2. It tells you why verifiers matter so much. Fast, high-signal feedback is what keeps the loop from drifting.
+3. It tells you why planning depth is a resource. Too short and the agent thrashes. Too long and it hallucinates a brittle plan that reality invalidates immediately.
 
-$$
-V^*(x) = \min_u \Big[\ell(x, u) + V^*\big(f(x, u)\big)\Big]
-$$
+## Context Management Is State Estimation
 
-This says: the optimal value of being in state $x$ equals the cost of the best immediate action plus the optimal value of wherever that action takes you. It's recursive all the way down.
+The second useful control analogy is state estimation.
 
-MPC *approximates* this by rolling the dynamics forward $N$ steps and optimizing over that finite window. Pure RL tries to learn $V^\ast$ globally from data. The agentic loop does a bit of both: the LLM's pre-training gives it an implicit $V^\ast$ (it "knows" what good code looks like), while the receding-horizon structure gives it the MPC-style finite lookahead to course-correct in real time.
+An agent never sees the full environment directly. It sees shell output, diffs, logs, snippets, summaries, and maybe the user's last message. That is an observation stream, not ground truth. The agent has to compress those observations into an internal state that is good enough for the next action.
 
-### Devin's State-Passing Planner
+That is why context management matters so much. Summaries are not just token-budget hacks. They are your state estimator.
 
-Devin (and its open-source counterpart OpenHands) takes the MPC analogy even more literally. At every iteration, a planner function evaluates the current state vector -- working directory, open files, remaining step budget -- and decides whether to query the model, invoke a tool, or terminate. This is an explicit discrete-time MPC controller, with the state vector defined as a struct rather than a context window.
+In classical control, moving horizon estimation keeps a recent window of observations plus a compact summary of older history. Agent systems do the same thing when they summarize prior steps, fold resolved subtasks into a short note, or carry forward only the facts that still constrain the future.
 
-### The Ralph Wiggum Loop: Degenerate MPC
+When that summary is bad, the controller acts on the wrong state. You see this immediately in practice:
 
-And then there's the Ralph Wiggum loop -- the stubbornly persistent pattern where you feed a fresh agent instance the same static prompt, let it try, check if the tests pass, and if not, feed the error logs to a *new* fresh instance. No memory. No prediction. No planning horizon. Just brute-force persistence verified by deterministic tests.
+- the agent forgets which file it already modified
+- it reopens a bug it had already fixed
+- it keeps debugging an error that no longer exists
+- it starts planning around stale assumptions from 20 turns ago
 
-In control theory terms, this is a degenerate MPC with $N = 0$: zero prediction horizon, no internal model, pure reactive feedback. It works surprisingly well for tasks with strong external verifiers (compilers, test suites) because those verifiers act as a perfect cost function. But without a prediction horizon, it has no formal convergence guarantee. It's the control-theoretic equivalent of closing your eyes and repeatedly stomping the gas pedal until you're pointed in the right direction. Sometimes you get there. Sometimes you spin.
+That is not just "context window pressure." It is a state-estimation failure.
 
-## Context Folding = Moving Horizon Estimation
+This is also where a lot of current agent work feels more like systems engineering than pure modeling. Better summarization, better scratchpads, better memory schemas, better subtask boundaries, better retrieval, better tool output formatting: all of these improve the quality of the state estimate the policy is acting on.
 
-Every Transformer-based LLM has a hard context limit. As the working history fills with code, error logs, and intermediate reasoning, performance degrades -- a phenomenon known as "context rot." It's the informational equivalent of mechanical friction: the more history you drag along, the harder it is to move forward.
+## Failure Modes Look Like Control Problems Too
 
-In classical control, the dual problem to MPC is Moving Horizon Estimation. Instead of looking *forward* to plan optimal actions, MHE looks *backward* over a sliding window to estimate the current state from noisy observations. The math:
+Once you view the loop as a dynamical system, the common failure modes stop looking random.
 
-$$
-\hat{x}_t = \arg\min_{x_{t-M:t}} \left[ \Gamma(x_{t-M}) + \sum_{k=t-M}^{t} \|y_k - h(x_k)\|^2 \right]
-$$
+### Convergent
 
-Here $M$ is the estimation window and $\Gamma(x_{t-M})$ is the "arrival cost" -- a compressed summary of everything that happened *before* the window. You don't keep the full history. You keep a good-enough prior and a sliding window of recent data.
+The agent makes progress monotonically enough that small mistakes get corrected and the loop still settles. Test failures trend down. Diffs get narrower. The agent's search becomes more local as it approaches the target.
 
-Context folding in agent systems does exactly this. Claude Code monitors the active token count. When it hits roughly 13,000 tokens below the context limit, it triggers a compaction protocol: the model summarizes the entire conversation history into a dense summary, preserving critical state (file modifications, active directory, unresolved tasks) while discarding the verbose intermediate steps.
+### Oscillatory
 
-A more sophisticated version is literal context folding: the agent branches into an isolated sub-trajectory to handle a localized subtask (fix a bug, install a dependency), then "folds" the entire branch into a single-sentence summary that gets injected back into the main planning thread. The main thread never sees the 50 tool calls it took to resolve a broken import -- it just sees "resolved dependency conflict in package X."
+The agent flips between incompatible local fixes.
 
-This is the arrival cost $\Gamma$. You don't need a perfect transcript of everything that happened. You need a *good enough prior* so the sliding window of recent context can do its job. Research on context folding shows it can reduce the active context footprint by 10x while matching or exceeding the performance of agents that try to keep everything in memory.
+You see this when it alternates between two hypotheses:
 
-## When the Controller Fails
+- patch implementation to satisfy test A
+- patch test fixture to satisfy implementation
+- revert patch because test B now fails
+- reintroduce the original behavior because test A broke again
 
-Here's where control theory really earns its keep. When you wrap an LLM in a recursive loop, it stops being a function and becomes a *discrete dynamical system* evolving through semantic space. And dynamical systems can exhibit distinct failure modes that map cleanly from classical control theory.
+This is the agent equivalent of an underdamped system. There is feedback, but the gain is wrong or the state estimate is incomplete, so it overshoots.
 
-### Three Regimes
+### Divergent
 
-**Convergent (stable):** The agent systematically narrows toward the solution. Each iteration reduces the semantic distance to the goal. The diff gets smaller. The error count drops. The agent converges to a fixed point -- working code that passes all tests. This is the happy path: contractive dynamics.
+The loop gets worse with each iteration. New edits create more failures than they remove. The agent starts reasoning from artifacts it introduced itself. It chases phantom APIs, stale stack traces, or nonexistent invariants.
 
-**Oscillatory (underdamped):** The agent toggles between two competing fixes. It patches function A, which breaks test B. It patches test B, which re-breaks function A. The system cycles between two attractors without ever settling. In control theory, this is an underdamped oscillator -- there's a restoring force, but it overshoots on every cycle.
-
-**Divergent (unstable):** The agent's attempts to fix errors introduce *more* errors. Each iteration pushes the state further from the goal. Hallucinated imports, phantom APIs, code that addresses errors which don't exist. This is the "hallucination spiral" -- an unstable system with no Lyapunov guarantee, diverging exponentially from the truth.
+That is the failure mode people often call "hallucination," but "divergence" is more precise. The issue is not just that one belief is false. The issue is that the closed-loop system is moving away from the target.
 
 <div id="phase-portrait" style="text-align:center; margin: 2em 0;"></div>
 
@@ -396,14 +432,12 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
       .style('display', 'block')
       .style('margin', '0 auto');
 
-    // Background
     svg.append('rect')
       .attr('width', width).attr('height', height)
       .attr('fill', c.bg).attr('rx', 8);
 
     var g = svg.append('g');
 
-    // Light grid
     var gridScale = d3.scaleLinear().domain([-3, 3]).range([margin.left, margin.left + innerW]);
     var gridScaleY = d3.scaleLinear().domain([-3, 3]).range([margin.top + innerH, margin.top]);
     [-2, -1, 0, 1, 2].forEach(function(v) {
@@ -417,7 +451,6 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
         .attr('stroke', c.grid).attr('stroke-width', 0.5);
     });
 
-    // Axis lines
     g.append('line')
       .attr('x1', margin.left).attr('x2', margin.left + innerW)
       .attr('y1', cy).attr('y2', cy)
@@ -427,20 +460,17 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
       .attr('y1', margin.top).attr('y2', margin.top + innerH)
       .attr('stroke', c.muted).attr('stroke-width', 1);
 
-    // Axis labels
     g.append('text').attr('x', margin.left + innerW - 4).attr('y', cy - 8)
       .attr('text-anchor', 'end').attr('fill', c.muted).attr('font-size', '12px').text('x\u2081');
     g.append('text').attr('x', cx + 10).attr('y', margin.top + 14)
       .attr('text-anchor', 'start').attr('fill', c.muted).attr('font-size', '12px').text('x\u2082');
 
-    // Fixed point marker at origin
     g.append('circle')
       .attr('cx', cx).attr('cy', cy).attr('r', 4)
       .attr('fill', c.attractor).attr('stroke', c.text).attr('stroke-width', 1);
     g.append('text').attr('x', cx + 8).attr('y', cy + 16)
       .attr('fill', c.attractor).attr('font-size', '11px').text('equilibrium');
 
-    // Generate trajectories
     var scale = Math.min(innerW, innerH) / 2 * 0.85;
 
     function spiralPoints(r0, decay, nTurns, nPoints) {
@@ -453,16 +483,13 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
       return pts;
     }
 
-    // Convergent: damped spiral inward
     var convergentPts = spiralPoints(0.9, -0.12, 3, 200);
-    // Oscillatory: stable limit cycle (circle)
     var oscPts = [];
     var oscR = 0.5;
     for (var i = 0; i <= 200; i++) {
       var t = i / 200 * 3 * 2 * Math.PI;
       oscPts.push([cx + oscR * Math.cos(t) * scale, cy - oscR * Math.sin(t) * scale]);
     }
-    // Divergent: expanding spiral outward
     var divergentPts = spiralPoints(0.15, 0.09, 3, 200);
 
     var line = d3.line().curve(d3.curveCatmullRom);
@@ -491,7 +518,6 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
         .ease(d3.easeLinear)
         .attr('stroke-dashoffset', 0);
 
-      // Arrowhead at the end
       var endPt = traj.pts[traj.pts.length - 1];
       var prevPt = traj.pts[traj.pts.length - 5] || traj.pts[traj.pts.length - 2];
       var angle = Math.atan2(endPt[1] - prevPt[1], endPt[0] - prevPt[0]) * 180 / Math.PI;
@@ -502,13 +528,11 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
         .attr('opacity', 0)
         .transition().delay(3000).duration(200).attr('opacity', 1);
 
-      // Starting dot
       g.append('circle')
         .attr('cx', traj.pts[0][0]).attr('cy', traj.pts[0][1]).attr('r', 3.5)
         .attr('fill', traj.color).attr('opacity', 0.7);
     });
 
-    // Legend
     var legendX = width / 2 - 140;
     var legendY = 16;
     trajectories.forEach(function(traj, i) {
@@ -521,7 +545,6 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
         .attr('fill', c.text).attr('font-size', '12px').text(traj.label);
     });
 
-    // Replay button
     var btnG = svg.append('g')
       .attr('transform', 'translate(' + (width - 70) + ',' + (height - 24) + ')')
       .style('cursor', 'pointer')
@@ -539,31 +562,106 @@ Here's where control theory really earns its keep. When you wrap an LLM in a rec
 })();
 </script>
 
-### The Lyapunov Lens
+## You Probably Can't Prove Stability, But You Can Instrument It
 
-In classical control, you prove stability by finding a Lyapunov function $V(x)$ -- a scalar measure of "energy" in the system -- and showing it decreases at every step:
+Classical control has Lyapunov functions: scalar quantities that go down when the system is moving toward a stable equilibrium.
 
-$$
-\Delta V(x) = V(x_{k+1}) - V(x_k) < 0
-$$
+For agents, we usually do not have anything that clean. There is no general scalar "distance to solved" for arbitrary software tasks.
 
-If you can prove $\Delta V < 0$ everywhere, the system is guaranteed to converge to the equilibrium. No exceptions.
+But the instinct is still right. You want proxies for progress, and you want to know when they stop improving.
 
-For an AI agent, think of $V(x)$ as the "semantic distance" between the current codebase state and the goal state. If every agent action reduces this distance -- fewer failing tests, smaller diffs, cleaner error logs -- you have a stable system. The moment $\Delta V$ goes positive (an edit that introduces more problems than it solves), you've lost your stability guarantee.
+For coding agents, useful progress signals often look like:
 
-This framing explains *why* the Ralph Wiggum loop sometimes works: the external test suite acts as a perfect Lyapunov function. Each iteration either passes (distance drops to zero) or fails (distance stays positive, but the fresh context prevents *accumulation* of errors). The statelessness is a feature -- it prevents the divergent spiral by resetting the system state each iteration, at the cost of discarding all momentum.
+- number of failing tests
+- compile errors
+- linter violations
+- diff size
+- number of files touched
+- repeated edits to the same region
+- repeated execution of the same command without new information
 
-It also explains the "epistemic speed limit": if you iterate too fast without sufficient planning depth, minor semantic errors accumulate faster than the feedback loop can correct them. The agent enters a regime of *agentic collapse* -- iterating furiously, accomplishing nothing. MPC's prediction horizon is the antidote: think before you act, and *only then* commit.
+None of these is a perfect Lyapunov function. All of them can be gamed. But if you log them over time, you can tell the difference between progress, dithering, and collapse much earlier than if you only inspect the final answer.
 
-## Computational Physics
+This is the practical "what does it mean?" part:
 
-There's a deeper pattern here that I find genuinely beautiful. MPC was invented to manage the physics of chemical reactors -- momentum, inertia, friction, disturbances. Context rot *is* friction, degrading performance over time. Token generation *is* momentum, driving the system forward along a vector that's hard to arrest. Bugs and missing dependencies *are* external disturbances, randomly deflecting the planned trajectory.
+- Treat agent runs as trajectories, not outputs.
+- Instrument intermediate state, not just final success.
+- Add guardrails when progress proxies flatten or reverse.
+- Terminate or escalate when the loop is clearly oscillating.
 
-An AI agent navigating a million-line undocumented codebase to implement a new feature is mathematically indistinguishable from a drone navigating a dense, unpredictable forest. The trajectory is semantic rather than spatial, but the optimization problem is identical: minimize cost, respect constraints, re-plan continuously, don't crash.
+That is a control mindset.
 
-The future of AI agents isn't prompt engineering -- it's control engineering. The frameworks that will win aren't the ones with the cleverest system prompts. They're the ones with the tightest feedback loops, the deepest prediction horizons, and the most rigorous guarantees that $\Delta V < 0$ at every step.
+## What This Changes for Agent Builders
 
-![TL;DR -- Your AI agent is a receding-horizon controller: it observes state, predicts outcomes, picks the best next action, re-evaluates. Context folding is moving horizon estimation, failure modes are Lyapunov stability regimes, and the future of agents is control engineering, not prompt engineering.](/assets/posts-media/claude-code-control-theory.jpg)
+If the control analogy is useful, it should change design decisions. I think it changes at least four.
+
+### 1. Optimize the feedback loop, not just the model
+
+If your verifier is slow, sparse, or ambiguous, your agent is flying mostly open-loop.
+
+A lot of "agent capability" is really feedback quality:
+
+- fast tests beat slow tests
+- structured tool output beats raw terminal spam
+- narrow diffs beat repo-wide rewrites
+- explicit constraints beat vague instructions
+
+A stronger base model helps. But a mediocre model with tight feedback can outperform a stronger model with weak feedback.
+
+### 2. Make state legible
+
+The policy can only act on the state representation you give it.
+
+So make that state cheap to inspect and easy to summarize:
+
+- expose plan state explicitly
+- record what has already been tried
+- track edited files and unresolved failures
+- format tool results so important deltas are obvious
+
+If the agent keeps forgetting what happened, don't only blame the context window. Blame the state representation.
+
+### 3. Control the action space
+
+Controllers get easier to stabilize when the actuators are sensible.
+
+The same is true here. Agents behave better when the available actions are high-signal and constrained:
+
+- use purpose-built tools instead of raw shell when possible
+- prefer patch tools over unconstrained file rewrites
+- separate "inspect" actions from "mutate" actions
+- require verification after high-impact edits
+
+Part of agent engineering is actuator design.
+
+### 4. Measure horizon quality
+
+Long-horizon capability is not "can the model describe a long plan?" It is "can the loop stay coherent while repeatedly updating that plan under feedback?"
+
+Those are very different abilities.
+
+This is why agent benchmarks that grade only final answers miss something essential. Two systems may both finish the task, but one may do it with tight convergence and the other with catastrophic instability that happened to get lucky before the budget ran out.
+
+## The Real Payoff
+
+So what does it mean to say "AI agents are control systems"?
+
+For me, it means four concrete things:
+
+1. Stop thinking of an agent as a single prediction.
+2. Start thinking of it as a closed-loop process with memory, actions, observations, and failure modes.
+3. Evaluate the trajectory, not just the endpoint.
+4. Design the loop so that reality corrects the model quickly and cheaply.
+
+That's it.
+
+The control framing is useful not because it makes agents sound more rigorous than they are. It's useful because it forces a more honest question:
+
+When this thing acts repeatedly on the world, under imperfect information, with limited compute and noisy feedback, does it settle toward the goal or not?
+
+That is the question control theory has been asking for decades. We should probably ask it more often in agent engineering too.
+
+![TL;DR -- Once an LLM is embedded in a tool-use loop, you're no longer evaluating a one-shot predictor. You're evaluating a closed-loop system. The useful control questions are about feedback quality, state estimation, horizon length, and stability under repeated action.](/assets/posts-media/claude-code-control-theory.jpg)
 
 ---
 
@@ -571,16 +669,7 @@ The future of AI agents isn't prompt engineering -- it's control engineering. Th
 
 1. "Model predictive control," Wikipedia. [Link](https://en.wikipedia.org/wiki/Model_predictive_control)
 2. J. B. Rawlings, D. Q. Mayne, and M. M. Diehl, *Model Predictive Control: Theory, Computation, and Design*, 2nd ed. Nob Hill Publishing, 2017. [PDF](https://sites.engineering.ucsb.edu/~jbraw/mpc/MPC-book-2nd-edition-1st-printing.pdf)
-3. "LLM-Based World Models," Emergent Mind. [Link](https://www.emergentmind.com/topics/llm-based-world-models)
+3. "Effective context engineering for AI agents," Anthropic. [Link](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
 4. Y. Feng et al., "Scaling Long-Horizon LLM Agent via Context-Folding," arXiv:2510.11967, 2025. [Link](https://arxiv.org/abs/2510.11967)
-5. "Claude Code: Behind-the-scenes of the master agent loop," PromptLayer Blog. [Link](https://blog.promptlayer.com/claude-code-behind-the-scenes-of-the-master-agent-loop/)
-6. "Effective context engineering for AI agents," Anthropic. [Link](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
-7. G. L. Bailo, "Why AI Agents Fail: The Stochastic Convergence Spiral," Medium, 2025. [Link](https://medium.com/@gianlucabailo/why-ai-agents-fail-the-stochastic-convergence-spiral-4ab5a8aa0ef4)
-8. Z. Chen et al., "Geometric Dynamics of Agentic Loops in Large Language Models," arXiv:2512.10350, 2025. [Link](https://arxiv.org/abs/2512.10350)
-9. H. Kim et al., "Test-Time Alignment for Large Language Models via Textual Model Predictive Control," arXiv:2502.20795, 2025. [Link](https://arxiv.org/abs/2502.20795)
-10. "Multi-Dimensional Constraint Integration Method for Large Language Models via Lyapunov Stability Theory," OpenReview, 2025. [Link](https://openreview.net/forum?id=rbl8fHjLuF)
-11. "Agentic Collapse: A Time-Delayed Cybernetic Framework for Epistemic Stability in Autonomous AI Systems," ResearchGate, 2025. [Link](https://www.researchgate.net/publication/399368003)
-12. A. Gekov, "2026 -- The year of the Ralph Loop Agent," DEV Community. [Link](https://dev.to/alexandergekov/2026-the-year-of-the-ralph-loop-agent-1gkj)
-13. "Ralph Wiggum Loop," beuke.org. [Link](https://beuke.org/ralph-wiggum-loop/)
-14. F. Wang et al., "When control meets large language models: From words to dynamics," arXiv:2602.03433, 2026. [Link](https://arxiv.org/html/2602.03433v1)
-15. "Recursive Language Models: the paradigm of 2026," Prime Intellect. [Link](https://www.primeintellect.ai/blog/rlm)
+5. H. Kim et al., "Test-Time Alignment for Large Language Models via Textual Model Predictive Control," arXiv:2502.20795, 2025. [Link](https://arxiv.org/abs/2502.20795)
+6. F. Wang et al., "When control meets large language models: From words to dynamics," arXiv:2602.03433, 2026. [Link](https://arxiv.org/html/2602.03433v1)
