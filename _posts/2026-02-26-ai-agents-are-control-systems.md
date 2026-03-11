@@ -591,6 +591,69 @@ This is the practical "what does it mean?" part:
 
 That is a control mindset.
 
+## Beyond a Single Agent Loop
+
+So far I've been talking about one agent running one receding-horizon loop. But a lot of production systems are already more complicated than that.
+
+You have an inner loop that does the local work: inspect state, call tools, update the plan, verify the result.
+
+Then you have an outer loop that decides when the inner loop should run at all:
+
+- a cron trigger
+- a queue consumer
+- a supervisor watching for failures
+- a human or service that keeps reissuing goals over time
+
+That is no longer just one controller. It starts to look like a multi-rate control system: a fast inner loop for tactical correction, wrapped in a slower supervisory loop that sets timing, budgets, and objectives.
+
+That framing explains a few production failure modes that are otherwise easy to misdiagnose.
+
+### Deadband and Hysteresis
+
+One of the easiest ways to make an agent waste money is to let it re-plan on every tiny fluctuation.
+
+In control, a **deadband** means "ignore small deviations." A thermostat doesn't switch on because the temperature moved by a tenth of a degree. It waits until the deviation is large enough to matter.
+
+Agents need the same thing. If the latest observation barely changes the plan, the system should often keep going rather than trigger a full re-plan. Otherwise you get chattering: endless tiny updates that burn tokens without changing the trajectory.
+
+**Hysteresis** is the related idea that switching modes should require a bigger signal than staying in the current mode. That is useful for agents that keep flapping between strategies:
+
+- research more
+- no, start writing
+- no, gather more context
+- no, go back to writing
+
+You can fix some of this with better prompts, but a lot of it is really control logic. Don't switch modes on the first wobble. Require stronger evidence to reverse course than to continue.
+
+### Anti-Windup for Retry Loops
+
+Another clean control analogy is **integrator windup**.
+
+In a PID controller, windup happens when the controller keeps accumulating error even though the actuator is already saturated and can't respond usefully. When the system finally does move again, the controller overshoots badly because it has stored up too much corrective pressure.
+
+Agents do something similar in retry cascades.
+
+The tool is down. The patch failed. The API response is malformed. The test runner is flaky. Instead of recognizing that the actuator is effectively saturated, the agent keeps "trying harder": more retries, more reflections, more speculative edits, more elaborate workarounds.
+
+That is windup.
+
+The fix is not mystical:
+
+- clamp retries
+- cap self-reflection depth
+- lower the allowed magnitude of edits after repeated failures
+- force a fallback, cooldown, or human handoff when the loop stops getting traction
+
+### When the Outer Loop Makes the Whole System Worse
+
+The multi-rate framing also explains why some agent deployments feel strangely unstable even when the inner loop is decent.
+
+If the outer loop fires again before the inner loop has actually converged, the system starts stacking partially finished control episodes on top of each other. You see overlapping work, stale goals, duplicated effort, and summaries that reflect a world that no longer exists.
+
+In plain English: the supervisor is sampling the system faster than the worker can settle.
+
+That is a very normal control failure. It just happens to show up here as planning drift, queue pileups, and agents stepping on their own diffs.
+
 ## What This Changes for Agent Builders
 
 If the control analogy is useful, it should change design decisions. I think it changes at least four.
