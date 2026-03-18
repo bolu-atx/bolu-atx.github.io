@@ -23,22 +23,22 @@ I'm building a system to fix this. Not a robo-advisor. Not an auto-trader. A str
 
 ## The Inspiration
 
-A few weeks ago I wrote about [the AI end game](/machine-learning/2026/03/01/the-end-game.html) — the Phase I productivity divergence where senior people with domain expertise direct fleets of AI agents and throughput gains hit 10-100x. I meant it abstractly. Then Karpathy open-sourced [autoresearch](https://github.com/karpathy/autoresearch) and I watched it run 50 experiments overnight — no human in the loop — by giving an agent raw access to a training script, a clean objective metric (validation bits per byte), and a 5-minute wall clock per experiment. The agent edits, runs, measures, commits what works, reverts what doesn't. Twelve experiments per hour, all night.
+A few weeks ago I wrote about [the AI end game](/machine-learning/2026/03/01/the-end-game.html) — the Phase I productivity divergence where senior people with domain expertise direct fleets of AI agents and throughput gains hit 10-100x. I meant it abstractly. Then two projects made it concrete.
 
-That's Phase I in 630 lines of Python. Not a theoretical productivity gain — a working one.
+[OpenClaw](https://github.com/openClaw) hit first — the fastest project to a million GitHub stars, and for good reason. I spent a weekend playing with it, and the thing that stuck wasn't any single feature. It was the orchestration layer: cron triggers, event-driven workflows, structured context management, and a clean integration model for plugging in tools. It showed that the hard problem in agent systems isn't the agent — it's everything *around* the agent. The scheduling, the context assembly, the data plumbing. Get that infrastructure right and the agent just works.
 
-Then [OpenClaw](https://github.com/openClaw) hit — the fastest project to a million GitHub stars, and for good reason. It crystallized a design philosophy that was already in the air: stop building tools for humans to click through and start building tools for agents to *operate*. CLI-first. Structured JSON envelopes. Progressive context disclosure. Navigable action spaces. The interface isn't a dashboard — it's a control surface.
+Then Karpathy open-sourced [autoresearch](https://github.com/karpathy/autoresearch) and I watched it run 50 experiments overnight — no human in the loop — by giving an agent raw access to a training script, a clean objective metric (validation bits per byte), and a 5-minute wall clock per experiment. The agent edits, runs, measures, commits what works, reverts what doesn't. Twelve experiments per hour, all night. That's Phase I in 630 lines of Python. Not a theoretical productivity gain — a working one.
 
-The pattern clicked. My monthly portfolio review — the one I can barely sustain by hand — is the same shape as autoresearch. Except the system can run it *weekly*:
+Between the two, the pattern clicked. My monthly portfolio review — the one I can barely sustain by hand — is the same shape:
 
 - A **cron trigger** kicks off the process (every Sunday night, or on-demand)
 - A **deterministic pipeline** gathers all the inputs (positions, market data, news, SEC filings — the equivalent of autoresearch's `prepare.py`)
 - An **agent** evaluates the evidence against a structured rubric (the equivalent of editing `train.py` and measuring val_bpb)
 - **Version control and audit logs** track every decision and its provenance (the equivalent of git commits on successful experiments)
 
-The difference is the domain. Instead of optimizing a neural network architecture, the agent evaluates investment theses. Instead of bits per byte, the objective is a rubric composite score. But the control loop is identical: gather context → reason within constraints → measure → persist what works.
+The difference is the domain. Instead of optimizing a neural network architecture, the agent evaluates investment theses. Instead of bits per byte, the objective is a rubric composite score. But the control loop is identical: gather context → reason within constraints → measure → persist what works. And the system can run it *weekly* — something I could never sustain manually.
 
-I'd been doing this manually for years — badly, inconsistently, in a way that didn't compound. Autoresearch showed me what it looks like when you take the human out of the *execution* loop and keep them in the *judgment* loop. That's the system I'm building.
+I'd been doing this by hand for years — badly, inconsistently, in a way that didn't compound. These projects showed me what it looks like when you take the human out of the *execution* loop and keep them in the *judgment* loop. That's the system I'm building.
 
 ## The Two Extremes
 
