@@ -26,7 +26,6 @@ Casual, first-person, like explaining to a smart friend. No corporate tone or fi
 - **Layer complexity** — simple case → edge cases → full picture, one new idea per step
 - **Tight prose** — every paragraph earns its place; use diagrams/code/math to break up text
 - **Avoid:** buzzwords ("leverage", "utilize"), hedging filler, unnecessary preambles
-
 ## Mermaid Diagrams
 
 xkcd hand-drawn style, Mermaid v11. Fenced ` ```mermaid ` blocks auto-render. Click → pan/zoom lightbox.

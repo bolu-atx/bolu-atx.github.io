@@ -1,3 +1,5 @@
 assets/posts-media/*.png filter=lfs diff=lfs merge=lfs -text
 assets/posts-media/*.jpg filter=lfs diff=lfs merge=lfs -text
 assets/posts-media/*.jpeg filter=lfs diff=lfs merge=lfs -text
+assets/posts-media/*.gif filter=lfs diff=lfs merge=lfs -text
+assets/posts-media/*.webp filter=lfs diff=lfs merge=lfs -text
