@@ -11,7 +11,9 @@ Open your brokerage app. Look at your watchlist. AAPL, NVDA, TSLA, AMZN, GOOG �
 
 If you're like me, you don't remember. The ticker is there because you added it six months ago when you read something about data center spending. The reasoning is gone. The list is a graveyard of forgotten convictions.
 
-In the [first post](/programming/2026/03/18/agents-dont-read-dashboards-part1.html), I introduced the three-layer architecture — deterministic data gathering, agent evaluation, human decision — and the design principles for making software agent-friendly. This post zooms into the heart of the system: the thesis data structure that organizes everything, and the agent loop that evaluates it.
+The usual diagnosis is that you need better tools — a smarter screener, a faster news feed, a dashboard with more charts. But the problem isn't tooling. It's that there's no *structure* for your reasoning. No place where your beliefs are written down, no criteria for when you'd change your mind, no way to tell whether last month's conviction still holds. The information exists. The reasoning framework doesn't.
+
+That's what this post is about. Not the data pipeline or the agent architecture — I covered those in the [first post](/programming/2026/03/18/agents-dont-read-dashboards-part1.html). This one is about encoding investment reasoning as data structures: theses, hypotheses, scoring rubrics. The kind of structure that makes your thinking consistent whether an AI agent is evaluating it or you're doing it by hand on a Sunday night.
 
 <!--more-->
 
@@ -19,7 +21,7 @@ In the [first post](/programming/2026/03/18/agents-dont-read-dashboards-part1.ht
 
 ## Theses Are Stories, Not Tickers
 
-The fundamental problem with ticker-centric tools is that they organize around the wrong unit. You don't invest in tickers. You invest in *stories* — narratives about structural changes that create opportunities. "AI infrastructure spending will extend as models get larger and inference scales out" is a thesis. NVDA, AMD, AVGO, MRVL, and TSM are symbols that play different roles in that story.
+Every investment tool I've used organizes around tickers. Your portfolio is a list of symbols. Your watchlist is a list of symbols. Your alerts fire on symbols. But you don't invest in tickers — you invest in *stories*. "AI infrastructure spending will extend as models get larger and inference scales out" is a thesis. NVDA, AMD, AVGO, MRVL, and TSM are symbols that play different roles in that story. The thesis is the unit of reasoning. The ticker is just an implementation detail.
 
 Here's what a thesis looks like as a data structure:
 
@@ -61,11 +63,11 @@ time_horizon: "6-12 months"
 
 Same data structure, totally different story. Airlines and oil producers are on opposite sides of the same macro event. DAL and XOM would never appear on the same flat watchlist for the same reason — but here, the thesis makes the relationship explicit. When oil spikes, you already know what to look at and from which direction.
 
-Why YAML? Because it's human-editable, version-controlled, and diffable. The agent and I edit the same file. Git history shows exactly when a thesis changed and why. There's no database migration for updating a conviction — you edit text and commit.
+Why YAML? Because it's human-editable, version-controlled, and diffable. The agent and I edit the same file. Git history shows exactly when a thesis changed and why. There's no database migration for updating a conviction — you edit text and commit. And the act of writing the thesis is itself valuable — it forces you to articulate what you believe and why, which is harder than it sounds when your conviction was formed from half-remembered headlines.
 
 ## Derived Watchlists
 
-There is no manually-maintained watchlist file. The watchlist is *computed*: the union of all symbols from active theses plus everything you currently hold in your portfolio.
+Once your beliefs are encoded as theses, something interesting falls out: you don't need a manually-maintained watchlist anymore. The watchlist is *computed* — the union of all symbols from active theses plus everything you currently hold in your portfolio.
 
 ```json
 {
@@ -88,9 +90,9 @@ The YAML files are the source of truth for reading. But every time a thesis is s
 
 ## The Hypothesis Layer
 
-Theses are relatively static — they describe structural beliefs that play out over months. But markets generate new information daily. The bridge between a static thesis and the stream of incoming evidence is the *hypothesis*.
+A thesis tells you *what* you believe. But it doesn't tell you *what would change your mind*. That's the gap most investors never close — they have convictions but no criteria for abandoning them.
 
-A hypothesis is a falsifiable, time-bounded prediction derived from a thesis:
+Hypotheses close that gap. A hypothesis is a falsifiable, time-bounded prediction derived from a thesis:
 
 ```
 [active, 2w old, horizon: 6 months]
@@ -113,13 +115,13 @@ Every thesis also needs at least one bear-case hypothesis:
                   hyperscalers for 2 consecutive quarters
 ```
 
-Bear-case hypotheses follow the same lifecycle — they can be confirmed (thesis risk realized), invalidated (risk cleared), or revised. The `BEAR:` prefix makes them visually distinct.
+Bear-case hypotheses follow the same lifecycle — they can be confirmed (thesis risk realized), invalidated (risk cleared), or revised. The `BEAR:` prefix makes them visually distinct. The discipline of maintaining at least one bear case per thesis is the part most people skip — and the part that matters most. It's easy to collect confirming evidence for something you already believe. It's much harder to write down the specific conditions under which you'd be wrong.
 
-As hypotheses resolve, the system computes **thesis health** — a recency-weighted ratio of confirmed to invalidated hypotheses. Recent resolutions count more (half-life of ~30 days). Three invalidations in 14 days trigger "failing" status. The health score is one of five levels: `untested → strong → mixed → weakening → failing`.
+As hypotheses resolve over time, they produce a signal. The system computes **thesis health** — a recency-weighted ratio of confirmed to invalidated hypotheses. Recent resolutions count more (half-life of ~30 days). Three invalidations in 14 days trigger "failing" status. The health score is one of five levels: `untested → strong → mixed → weakening → failing`.
 
 Alongside health, the system tracks **time pressure** — how much of the thesis's time horizon has elapsed. A 12-18 month thesis created 3 months ago is "early." At 10 months, it's "late." Past 16 months, it's "overdue."
 
-Both signals feed directly into the agent's scoring. A thesis with "failing" health and "late" time pressure gets a much lower bar for TRIM or EXIT recommendations. The agent doesn't have to figure out these dynamics from raw data — the system computes them and presents them as structured context.
+Health and time pressure together answer the question you'd otherwise avoid: *is this thesis still working, and how much runway does it have left?* A thesis with "failing" health and "late" time pressure gets a much lower bar for TRIM or EXIT recommendations — the structure forces the hard conversation.
 
 Here's what this looks like in the dashboard. The thesis detail view shows the narrative, health and pressure badges, all active hypotheses with their invalidation criteria, and per-symbol composite scores with action recommendations:
 
@@ -129,7 +131,7 @@ The hypotheses aren't buried in a database — they're front and center. Each on
 
 ## The Tiered Architecture
 
-The system has four layers, and each boundary exists for a specific reason:
+So we have theses, hypotheses, and health scores — a structured representation of what you believe and how it's holding up. Now the question is: how does this structure get *evaluated*? The system has four layers, and each boundary exists for a specific reason:
 
 ```mermaid
 graph BT
@@ -182,7 +184,9 @@ Every score review card links to the full report. Every hypothesis shows its inv
 
 ## The Agent Loop
 
-Here's the centerpiece — the five-phase weekly review that the agent executes using CLI tools:
+The thesis structure described above isn't just context for an agent — it's what makes an agent *possible*. Without it, you'd be asking an LLM to "analyze my portfolio," which is the equivalent of handing someone a phone book and asking for investment advice. With it, the agent has a clear job: evaluate specific hypotheses against specific evidence, score along specific dimensions, and produce recommendations grounded in the criteria you defined.
+
+Here's how that plays out — the five-phase weekly review:
 
 ```mermaid
 graph TB
@@ -249,11 +253,11 @@ $$\text{composite} = 0.35 \times \text{thesis} + 0.25 \times \text{news} + 0.25 
 
 For NVDA with scores of 8, 7, 5 (no social data): composite normalizes to ~0.67. Action thresholds: $\geq 0.70$ → `BUY_MORE`, $\geq 0.40$ → `HOLD`, $\geq 0.20$ → `TRIM`, below → `EXIT`. NVDA lands at `HOLD` — close to the buy threshold but not quite there.
 
-The agent provided the judgment (individual scores). The system provided the framework (weights, thresholds, actions). If the recommendation seems wrong, I can trace exactly which dimension drove it and whether the evidence supports the score. No black box.
+The agent provided the judgment (individual scores). The system provided the framework (weights, thresholds, actions). If the recommendation seems wrong, I can trace exactly which dimension drove it and whether the evidence supports the score. The structure makes the reasoning auditable — not just for me reviewing the agent's work, but for the agent reviewing its own work next week in Phase 1.5.
 
 ## Giving the Agent Tools to Investigate
 
-Phase 2.5 — self-directed research — is where the agent acts most like an analyst. But it doesn't browse the web or call APIs. It uses structured CLI commands that return bounded, provenance-tagged output:
+Phase 2.5 — self-directed research — is where the agent acts most like an analyst. But even here, the structure constrains it productively. The agent doesn't browse the web or call APIs. It uses structured CLI commands that return bounded, provenance-tagged output:
 
 ```bash
 # Targeted news for a specific symbol
@@ -311,14 +315,14 @@ The evidence is linked to a specific hypothesis, tagged with direction (confirmi
 
 This is targeted, not exhaustive. Three to five research queries per review is typical. The agent investigates specific questions prompted by gaps in the context packets or contradictions between hypotheses and new data — it doesn't blanket-search every symbol.
 
-## Why This Matters Without an Agent
+## The Structure Is the Product
 
-The thesis structure, the hypothesis layer, the derived watchlists — all of this works without an AI agent in the loop.
+Here's the thing I didn't expect when I started building this: the structure is more valuable than the automation.
 
-Writing a thesis in YAML forces you to articulate *why* you're interested in a set of symbols. Defining hypotheses with concrete invalidation criteria forces you to name what would change your mind. The derived watchlist with provenance labels forces you to confront positions that have no thesis behind them.
+Writing a thesis in YAML forces you to articulate *what* you believe. Defining hypotheses forces you to name *what would change your mind*. Computing thesis health forces you to confront *whether your beliefs are holding up*. Derived watchlists with provenance force you to explain *why you own what you own*. None of this requires an AI agent. It requires a text editor and intellectual honesty.
 
-These are thinking tools. The agent makes them scalable — it can evaluate 20 symbols across 6 theses in a single session, something that would take me an entire afternoon. But the structure itself sharpens human reasoning even when you fill in the scores by hand.
+The agent makes it scalable — it can evaluate 20 symbols across 6 theses in a single session, something that would take me an entire afternoon. But scaling bad reasoning just produces bad recommendations faster. The structure is what makes the reasoning *good*. The agent is what makes it *weekly*.
 
-And that's the graceful degradation from the first post in action. Without an agent, Phase 1 still runs. You still get context packets with all the data gathered, all the hypotheses listed, all the scoring prompts rendered — just with empty scores. A human can fill them in. The system degrades from "AI-assisted weekly review" to "very thorough data dashboard with a built-in evaluation framework." That's still more useful than a flat ticker list and a vague sense that you should probably look at NVDA sometime.
+And that's the graceful degradation from the first post in action. Without an agent, Phase 1 still runs. You still get context packets with all the data gathered, all the hypotheses listed, all the scoring prompts rendered — just with empty scores. A human can fill them in. The system degrades from "AI-assisted weekly review" to "very thorough data dashboard with a built-in evaluation framework." That's still infinitely more useful than a flat ticker list and a vague sense that you should probably look at NVDA sometime.
 
 Next up: how rubric versioning enables longitudinal analysis (did the agent's scoring calibration drift over time?), and the path from CLI to Telegram bot — three interfaces sharing one core.
