@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDG&E TOU Sensitivity Model</title>
+  <style>
+    :root {
+      --ink: #5c6773;
+      --strong: #253340;
+      --muted: #8a9199;
+      --paper: #fafafa;
+      --panel: #ffffff;
+      --line: #e6e9ed;
+      --soft: #f3f4f5;
+      --solar: #ffb454;
+      --grid: #55b4d4;
+      --ev: #86b300;
+      --peak: #f07178;
+      --good: #86b300;
+      --bad: #f07178;
+      --shadow: 0 14px 38px rgba(92, 103, 115, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Avenir Next", Avenir, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, input { font: inherit; }
+
+    .wrap {
+      width: min(1380px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 820px;
+      color: var(--strong);
+      font-size: clamp(30px, 4vw, 58px);
+      font-weight: 720;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .stamp {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--muted);
+      font: 650 12px/1.25 "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      background: var(--panel);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+    }
+
+    .section {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-child { border-bottom: 0; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      color: var(--strong);
+      font-size: 13px;
+      font-weight: 720;
+      letter-spacing: 0;
+    }
+
+    .control {
+      display: grid;
+      gap: 7px;
+      margin: 0 0 14px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .value {
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--grid);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .number {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--strong);
+      padding: 9px 10px;
+      border-radius: 6px;
+    }
+
+    .number:focus {
+      outline: 2px solid rgba(85, 180, 212, .22);
+      border-color: var(--grid);
+    }
+
+    .main {
+      display: grid;
+      gap: 18px;
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 0;
+      min-height: 270px;
+    }
+
+    .verdict {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--line);
+    }
+
+    .verdict-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 720;
+      color: var(--muted);
+    }
+
+    .winner {
+      margin: 18px 0;
+      color: var(--strong);
+      font-size: clamp(40px, 6vw, 82px);
+      font-weight: 760;
+      line-height: .92;
+    }
+
+    .delta {
+      font-size: clamp(26px, 3.7vw, 52px);
+      line-height: 1;
+      font-weight: 760;
+    }
+
+    .delta.good { color: var(--good); }
+    .delta.bad { color: var(--bad); }
+
+    .summary {
+      padding: 24px;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .metric-row span:last-child { text-align: right; }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .chart-panel {
+      padding: 18px;
+      min-height: 320px;
+    }
+
+    .chart-title {
+      margin: 0 0 16px;
+      color: var(--strong);
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .bar-chart {
+      display: grid;
+      gap: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 104px 1fr 82px;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .track {
+      position: relative;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+      overflow: hidden;
+    }
+
+    .bar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      min-width: 1px;
+    }
+
+    .bar.positive { left: 50%; background: var(--grid); }
+    .bar.negative { right: 50%; background: var(--solar); }
+
+    .zero {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-left: 1px solid rgba(92, 103, 115, .45);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .table th,
+    .table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 6px;
+      text-align: right;
+    }
+
+    .table th:first-child,
+    .table td:first-child { text-align: left; }
+
+    .callout {
+      padding: 18px;
+      display: grid;
+      gap: 10px;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .callout strong {
+      color: var(--strong);
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 720;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot.solar { background: var(--solar); }
+    .dot.grid { background: var(--grid); }
+    .dot.peak { background: var(--peak); }
+    .dot.ev { background: var(--ev); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action {
+      border: 1px solid var(--grid);
+      border-radius: 6px;
+      background: var(--grid);
+      color: var(--panel);
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .action.secondary {
+      color: var(--strong);
+      background: var(--panel);
+      border-color: var(--line);
+    }
+
+    @media (max-width: 1040px) {
+      header, .grid, .result, .charts { grid-template-columns: 1fr; }
+      .controls { position: static; max-height: none; }
+      .verdict { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+
+    @media (max-width: 560px) {
+      .wrap { width: min(100vw - 20px, 1460px); padding-top: 14px; }
+      .split { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 82px 1fr 68px; }
+      .section, .chart-panel, .verdict, .summary, .callout { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>SDG&E EV-TOU-5 Sensitivity Desk</h1>
+      </div>
+      <div class="stamp">NEM 2.0<br>Solar + EV<br>San Diego</div>
+    </header>
+
+    <div class="grid">
+      <aside class="panel controls" aria-label="Model controls">
+        <div class="section">
+          <div class="section-title">Home Load <span class="pill"><span class="dot peak"></span>4-9 PM matters</span></div>
+          <label class="control">
+            <span class="label-row"><span>Home use before EV</span><span class="value" id="homeAnnualOut"></span></span>
+            <input id="homeAnnual" type="range" min="2500" max="12000" step="100" value="6200">
+          </label>
+          <label class="control">
+            <span class="label-row"><span>Peak share</span><span class="value" id="peakShareOut"></span></span>
+            <input id="peakShare" type="range" min="5" max="45" step="1" value="24">
+          </label>
+          <label class="control">
+            <span class="label-row"><span>Super off-peak home share</span><span class="value" id="superHomeShareOut"></span></span>
+            <input id="superHomeShare" type="range" min="5" max="45" step="1" value="20">
+          </label>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Vehicle <span class="pill"><span class="dot ev"></span>Midnight-6 AM</span></div>
+          <div class="split">
+            <label class="control">
+              <span class="label-row"><span>Efficiency Wh/mi</span></span>
+              <input class="number" id="whPerMile" type="number" min="180" max="420" step="5" value="285">
+            </label>
+            <label class="control">
+              <span class="label-row"><span>Charge loss %</span></span>
+              <input class="number" id="chargeLoss" type="number" min="0" max="25" step="1" value="12">
+            </label>
+          </div>
+          <label class="control">
+            <span class="label-row"><span>Miles driven per week</span><span class="value" id="evMilesOut"></span></span>
+            <input id="evMiles" type="range" min="0" max="600" step="10" value="185">
+          </label>
+          <label class="control">
+            <span class="label-row"><span>EV charged super off-peak</span><span class="value" id="evSuperShareOut"></span></span>
+            <input id="evSuperShare" type="range" min="50" max="100" step="5" value="100">
+          </label>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Solar <span class="pill"><span class="dot solar"></span>6 kW default</span></div>
+          <label class="control">
+            <span class="label-row"><span>Panel size</span><span class="value" id="solarKwOut"></span></span>
+            <input id="solarKw" type="range" min="0" max="12" step=".25" value="6">
+          </label>
+          <label class="control">
+            <span class="label-row"><span>Annual yield per kW</span><span class="value" id="solarYieldOut"></span></span>
+            <input id="solarYield" type="range" min="1200" max="1900" step="25" value="1550">
+          </label>
+          <label class="control">
+            <span class="label-row"><span>Solar in super off-peak</span><span class="value" id="solarSuperOut"></span></span>
+            <input id="solarSuper" type="range" min="20" max="70" step="1" value="42">
+          </label>
+          <label class="control">
+            <span class="label-row"><span>Solar in peak</span><span class="value" id="solarPeakOut"></span></span>
+            <input id="solarPeak" type="range" min="0" max="12" step="1" value="4">
+          </label>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Rates <span class="pill">$/kWh</span></div>
+          <div class="split">
+            <label class="control">
+              <span class="label-row"><span>DR1 peak</span></span>
+              <input class="number rate" id="dr1Peak" type="number" min="0" max="2" step=".001" value=".69572">
+            </label>
+            <label class="control">
+              <span class="label-row"><span>EV5 peak</span></span>
+              <input class="number rate" id="ev5Peak" type="number" min="0" max="2" step=".001" value=".80292">
+            </label>
+            <label class="control">
+              <span class="label-row"><span>DR1 off</span></span>
+              <input class="number rate" id="dr1Off" type="number" min="0" max="2" step=".001" value=".47505">
+            </label>
+            <label class="control">
+              <span class="label-row"><span>EV5 off</span></span>
+              <input class="number rate" id="ev5Off" type="number" min="0" max="2" step=".001" value=".50584">
+            </label>
+            <label class="control">
+              <span class="label-row"><span>DR1 super</span></span>
+              <input class="number rate" id="dr1Super" type="number" min="0" max="2" step=".001" value=".38773">
+            </label>
+            <label class="control">
+              <span class="label-row"><span>EV5 super</span></span>
+              <input class="number rate" id="ev5Super" type="number" min="0" max="2" step=".001" value=".12852">
+            </label>
+          </div>
+          <label class="control">
+            <span class="label-row"><span>NBC on imported kWh</span><span class="value" id="nbcOut"></span></span>
+            <input id="nbc" type="range" min="0" max="8" step=".25" value="3">
+          </label>
+        </div>
+
+        <div class="section">
+          <div class="actions">
+            <button class="action" id="resetBtn" type="button">Reset</button>
+            <button class="action secondary" id="copyBtn" type="button">Copy scenario</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="panel result" aria-live="polite">
+          <div class="verdict">
+            <div>
+              <div class="verdict-label">Modeled winner</div>
+              <div class="winner" id="winnerOut">EV-TOU-5</div>
+            </div>
+            <div>
+              <div class="verdict-label">Annual difference vs TOU-DR1</div>
+              <div class="delta good" id="deltaOut">$0</div>
+            </div>
+          </div>
+          <div class="summary">
+            <div class="metric-row"><span>EV energy from wall</span><span id="evAnnualOut"></span></div>
+            <div class="metric-row"><span>Solar production</span><span id="solarAnnualOut"></span></div>
+            <div class="metric-row"><span>Net grid energy</span><span id="netAnnualOut"></span></div>
+            <div class="metric-row"><span>Break-even EV use</span><span id="breakevenOut"></span></div>
+            <div class="metric-row"><span>Peak net import</span><span id="peakNetOut"></span></div>
+          </div>
+        </section>
+
+        <section class="charts">
+          <div class="panel chart-panel">
+            <h2 class="chart-title">Annual Net kWh by TOU Period</h2>
+            <div class="bar-chart" id="netBars"></div>
+          </div>
+          <div class="panel chart-panel">
+            <h2 class="chart-title">Cost Stack</h2>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Plan</th>
+                  <th>Energy</th>
+                  <th>NBC</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="costRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel callout">
+          <strong>How to read this</strong>
+          <div id="explainOut"></div>
+          <div>
+            The default rates are SDG&E bundled summer total electric rates effective April 1, 2026: TOU-DR1 69.572¢ / 47.505¢ / 38.773¢ and EV-TOU-5 80.292¢ / 50.584¢ / 12.852¢ for peak / off-peak / super off-peak. This is a sensitivity model, not a bill-grade tariff engine. It intentionally ignores charges that are usually similar between plans, including fixed monthly/base service charges, taxes, climate credits, TOU-DR1 baseline adjustment credits, SDCP-vs-bundled generation differences, and exact monthly true-up mechanics.
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const defaults = {
+      homeAnnual: 6200,
+      peakShare: 24,
+      superHomeShare: 20,
+      whPerMile: 285,
+      chargeLoss: 12,
+      evMiles: 185,
+      evSuperShare: 100,
+      solarKw: 6,
+      solarYield: 1550,
+      solarSuper: 42,
+      solarPeak: 4,
+      dr1Peak: .69572,
+      dr1Off: .47505,
+      dr1Super: .38773,
+      ev5Peak: .80292,
+      ev5Off: .50584,
+      ev5Super: .12852,
+      nbc: 3
+    };
+
+    const ids = Object.keys(defaults);
+    const $ = (id) => document.getElementById(id);
+    const money = (v) => `${v < 0 ? "-" : ""}$${Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    const kwh = (v) => `${Math.round(v).toLocaleString()} kWh`;
+    const pct = (v) => `${Number(v).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+
+    function read() {
+      return Object.fromEntries(ids.map((id) => [id, Number($(id).value)]));
+    }
+
+    function setDefaults() {
+      ids.forEach((id) => { $(id).value = defaults[id]; });
+      calculate();
+    }
+
+    function model(s) {
+      const homePeak = s.homeAnnual * s.peakShare / 100;
+      const homeSuper = s.homeAnnual * s.superHomeShare / 100;
+      const homeOff = Math.max(0, s.homeAnnual - homePeak - homeSuper);
+
+      const evAnnual = s.evMiles * s.whPerMile / 1000 * 52 * (1 + s.chargeLoss / 100);
+      const evSuper = evAnnual * s.evSuperShare / 100;
+      const evOff = evAnnual - evSuper;
+
+      const solarAnnual = s.solarKw * s.solarYield;
+      const solarPeak = solarAnnual * s.solarPeak / 100;
+      const solarSuper = solarAnnual * s.solarSuper / 100;
+      const solarOff = Math.max(0, solarAnnual - solarPeak - solarSuper);
+
+      const periods = {
+        peak: { label: "Peak", load: homePeak, solar: solarPeak },
+        off: { label: "Off-peak", load: homeOff + evOff, solar: solarOff },
+        super: { label: "Super off", load: homeSuper + evSuper, solar: solarSuper }
+      };
+
+      Object.values(periods).forEach((p) => {
+        p.net = p.load - p.solar;
+        p.import = Math.max(0, p.net);
+        p.export = Math.max(0, -p.net);
+      });
+
+      const dr1Rates = { peak: s.dr1Peak, off: s.dr1Off, super: s.dr1Super };
+      const ev5Rates = { peak: s.ev5Peak, off: s.ev5Off, super: s.ev5Super };
+      const nbcRate = s.nbc / 100;
+
+      function costFor(rates) {
+        const energy = Object.entries(periods).reduce((sum, [key, p]) => sum + p.net * rates[key], 0);
+        const nbc = Object.values(periods).reduce((sum, p) => sum + p.import * nbcRate, 0);
+        return { energy, nbc, total: energy + nbc };
+      }
+
+      const dr1 = costFor(dr1Rates);
+      const ev5 = costFor(ev5Rates);
+      const delta = dr1.total - ev5.total;
+
+      const superRateGap = s.dr1Super - s.ev5Super;
+      const nonEvLoad = {
+        peak: homePeak - solarPeak,
+        off: homeOff - solarOff,
+        super: homeSuper - solarSuper
+      };
+      const nonEvDelta = (
+        nonEvLoad.peak * (s.dr1Peak - s.ev5Peak) +
+        nonEvLoad.off * (s.dr1Off - s.ev5Off) +
+        nonEvLoad.super * (s.dr1Super - s.ev5Super)
+      );
+      const breakevenEv = superRateGap > 0 ? Math.max(0, -nonEvDelta / superRateGap) : 0;
+
+      return {
+        periods,
+        dr1,
+        ev5,
+        delta,
+        evAnnual,
+        solarAnnual,
+        netAnnual: Object.values(periods).reduce((sum, p) => sum + p.net, 0),
+        breakevenEv,
+        peakNet: periods.peak.net
+      };
+    }
+
+    function calculate() {
+      const s = read();
+      if (s.peakShare + s.superHomeShare > 95) {
+        s.superHomeShare = 95 - s.peakShare;
+        $("superHomeShare").value = s.superHomeShare;
+      }
+      if (s.solarPeak + s.solarSuper > 95) {
+        s.solarSuper = 95 - s.solarPeak;
+        $("solarSuper").value = s.solarSuper;
+      }
+
+      $("homeAnnualOut").textContent = kwh(s.homeAnnual);
+      $("peakShareOut").textContent = pct(s.peakShare);
+      $("superHomeShareOut").textContent = pct(s.superHomeShare);
+      $("evMilesOut").textContent = `${Math.round(s.evMiles).toLocaleString()} mi`;
+      $("evSuperShareOut").textContent = pct(s.evSuperShare);
+      $("solarKwOut").textContent = `${s.solarKw.toLocaleString(undefined, { maximumFractionDigits: 2 })} kW`;
+      $("solarYieldOut").textContent = `${s.solarYield.toLocaleString()} kWh/kW`;
+      $("solarSuperOut").textContent = pct(s.solarSuper);
+      $("solarPeakOut").textContent = pct(s.solarPeak);
+      $("nbcOut").textContent = `${s.nbc.toFixed(2)}¢`;
+
+      const m = model(s);
+      const evWins = m.delta >= 0;
+      $("winnerOut").textContent = evWins ? "EV-TOU-5" : "TOU-DR1";
+      $("deltaOut").textContent = `${money(Math.abs(m.delta))} ${evWins ? "saved" : "more"}`;
+      $("deltaOut").className = `delta ${evWins ? "good" : "bad"}`;
+      $("evAnnualOut").textContent = kwh(m.evAnnual);
+      $("solarAnnualOut").textContent = kwh(m.solarAnnual);
+      $("netAnnualOut").textContent = kwh(m.netAnnual);
+      $("breakevenOut").textContent = kwh(m.breakevenEv);
+      $("peakNetOut").textContent = kwh(m.peakNet);
+
+      const maxAbs = Math.max(1, ...Object.values(m.periods).map((p) => Math.abs(p.net)));
+      $("netBars").innerHTML = Object.values(m.periods).map((p) => {
+        const width = Math.min(50, Math.abs(p.net) / maxAbs * 50);
+        const cls = p.net >= 0 ? "positive" : "negative";
+        return `
+          <div class="bar-row">
+            <span>${p.label}</span>
+            <span class="track">
+              <span class="zero"></span>
+              <span class="bar ${cls}" style="width:${width}%"></span>
+            </span>
+            <span>${Math.round(p.net).toLocaleString()}</span>
+          </div>
+        `;
+      }).join("");
+
+      $("costRows").innerHTML = `
+        <tr><td>TOU-DR1</td><td>${money(m.dr1.energy)}</td><td>${money(m.dr1.nbc)}</td><td>${money(m.dr1.total)}</td></tr>
+        <tr><td>EV-TOU-5</td><td>${money(m.ev5.energy)}</td><td>${money(m.ev5.nbc)}</td><td>${money(m.ev5.total)}</td></tr>
+      `;
+
+      const monthlyEv = m.evAnnual / 12;
+      const sentence = evWins
+        ? `At ${kwh(monthlyEv)} per month of EV charging, the cheap super off-peak window is carrying the case for EV-TOU-5. Watch the peak net import number: if it rises sharply, the result can flip.`
+        : `At ${kwh(monthlyEv)} per month of EV charging, the model says the solar export and peak-use penalty outweigh the EV charging benefit. More overnight EV kWh, less 4-9 PM usage, or less super off-peak solar export can flip it.`;
+      $("explainOut").textContent = sentence;
+    }
+
+    ids.forEach((id) => $(id).addEventListener("input", calculate));
+    $("resetBtn").addEventListener("click", setDefaults);
+    $("copyBtn").addEventListener("click", async () => {
+      const s = read();
+      const m = model(s);
+      const text = [
+        "SDGE TOU sensitivity scenario",
+        `Home annual kWh before EV: ${Math.round(s.homeAnnual)}`,
+        `Peak share: ${s.peakShare}%`,
+        `EV driving: ${Math.round(s.evMiles)} mi/week at ${s.whPerMile} Wh/mi, ${s.chargeLoss}% charging loss`,
+        `Solar: ${s.solarKw} kW at ${s.solarYield} kWh/kW/year`,
+        `Result: ${m.delta >= 0 ? "EV-TOU-5 saves" : "EV-TOU-5 costs"} ${money(Math.abs(m.delta))}/year vs TOU-DR1`
+      ].join("\\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        $("copyBtn").textContent = "Copied";
+        setTimeout(() => $("copyBtn").textContent = "Copy scenario", 1200);
+      } catch {
+        window.prompt("Copy scenario", text);
+      }
+    });
+
+    calculate();
+  </script>
+</body>
+</html>
