@@ -1,18 +1,17 @@
 ---
 layout: post
-title: "How minibwa Works, Part 7: Heuristics, Repeats, and BS-seq"
-date: 2026-10-27 09:00:00 -0700
+title: "How minibwa Works, Part 3: Advanced Topics and Recommendations"
+date: 2026-08-04 09:00:00 -0700
 tags: bioinformatics algorithms sequencing minibwa programming
 author: bolu-atx
 categories: programming
 ---
 
-Toy examples are kind. Real sequencing data is not.
+Toy examples are kind. Real sequencing data has mixed read lengths, repeats that are not really mappable, and chemistry like bisulfite treatment that changes the alphabet under your feet.
 
 <!--more-->
 
-Reads have different lengths. Some land in repeats where the reference is a bad representative of the sample. Bisulfite sequencing deliberately turns some Cs into Ts, which breaks the assumptions of a normal aligner. This part is about the pragmatic layer around the core seed-chain-align machine.
-
+This is the pragmatic layer around minibwa: adaptive parameters, less wasted effort in repeats, native BS-seq support, and the practical question of when I would actually run it.
 
 <div class="minibwa-series">
 <h2>One formula that slides from short reads to long</h2>
@@ -40,11 +39,11 @@ Reads have different lengths. Some land in repeats where the reference is a bad 
     <div class="wbody">
       <div class="controls">
         <label>read length &#8467;
-          <input type="range" id="len" min="50" max="3000" value="150" step="10">
-          <b id="len-v" style="font-family:var(--mono)">150</b> bp</label>
+          <input type="range" id="adv-curve-len" min="50" max="3000" value="150" step="10">
+          <b id="adv-curve-len-v" style="font-family:var(--mono)">150</b> bp</label>
       </div>
-      <svg id="curve" viewBox="0 0 680 240"></svg>
-      <div id="curve-info" class="note" style="margin-top:4px"></div>
+      <svg id="adv-curve-viz" viewBox="0 0 680 240"></svg>
+      <div id="adv-curve-info" class="note" style="margin-top:4px"></div>
       <p class="hint">
         Short-read regime (&#8467; ≤ 100) &mdash;&mdash; transition (~2 kb half-way) &mdash;&mdash; long-read regime.
         Setting <code>-x sr</code>, <code>-x lr</code>, or <code>--adap=no</code> turns this off and pins one regime.
@@ -88,11 +87,11 @@ Reads have different lengths. Some land in repeats where the reference is a bad 
     <div class="wbar">How minibwa indexes and maps bisulfite reads</div>
     <div class="wbody">
       <div class="controls">
-        <button class="btn" id="bs-step">Next step &rarr;</button>
-        <button class="btn ghost" id="bs-reset">Reset</button>
+        <button class="btn" id="adv-bs-step">Next step &rarr;</button>
+        <button class="btn ghost" id="adv-bs-reset">Reset</button>
       </div>
-      <svg id="bsviz" viewBox="0 0 680 180"></svg>
-      <div id="bs-info" class="note" style="margin-top:4px"></div>
+      <svg id="adv-bs-viz" viewBox="0 0 680 180"></svg>
+      <div id="adv-bs-info" class="note" style="margin-top:4px"></div>
     </div>
   </div>
 
@@ -109,27 +108,114 @@ Reads have different lengths. Some land in repeats where the reference is a bad 
     running several times faster &mdash; and over 10&times; faster than Bismark.
   </p>
 
-  <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;One formula retunes every length-sensitive parameter per read, so I
-    never pick a preset. minibwa spends less effort in repeats it can&rsquo;t map
-    anyway, trading a sliver of centromeric accuracy for speed. And it aligns
-    bisulfite reads natively with a four-copy converted index and an asymmetric
-    score that forgives C-to-T but not T-to-C.&rdquo;
+  <div class="note">
+    <span class="label">Practical takeaway</span>
+    The advanced bits are mostly about making the default behavior less brittle:
+    tune parameters per read length, stop spending too much time in regions that
+    are not really mappable, and handle bisulfite reads inside the aligner
+    instead of relying on a wrapper.
   </div>
 
-<p>None of these details changes the basic architecture, but they decide whether the tool is pleasant and trustworthy on real datasets. The final post pulls the pieces together: what minibwa buys, where it fits, and when I would actually reach for it.</p>
+<h2>Speed</h2>
+  <p>
+    Same accuracy class as bwa-mem on whole-genome short reads, at a fraction of
+    the wall-clock. Relative throughput (higher is faster), from the paper&rsquo;s
+    short-read benchmark:
+  </p>
+
+  <div class="widget">
+    <div class="wbar">Short-read throughput, relative to bwa-mem</div>
+    <div class="wbody">
+      <svg id="adv-speed" viewBox="0 0 680 200"></svg>
+      <p class="hint">Approximate, from the paper&rsquo;s headline figures. strobealign is ~10% faster than minibwa but, per the paper, &ldquo;does not compete on small-variant calling.&rdquo;</p>
+    </div>
+  </div>
+
+  <h2>The full picture</h2>
+  <table class="data">
+    <tr><th>Dimension</th><th>minibwa vs. the field</th></tr>
+    <tr><td>Speed vs bwa-mem</td><td>~4× faster, comparable accuracy</td></tr>
+    <tr><td>Speed vs bwa-mem2</td><td>~2× faster (lead narrows on Hi-C/heavy mate-rescue data)</td></tr>
+    <tr><td>Accuracy (WGS sim.)</td><td>bwa-mem slightly ahead; gap is <em>entirely</em> in centromeric/acrocentric regions — level once excluded</td></tr>
+    <tr><td>Variant calling (HG002, DeepVariant)</td><td>Slightly fewer false negatives — 528 fewer SNP FNs, 1,104 fewer indel FNs than bwa-mem, from better chaining of >10 bp indels</td></tr>
+    <tr><td>Peak memory</td><td>&lt; 20 GB — lower than most, higher than Bowtie2</td></tr>
+    <tr><td>Accurate long reads</td><td>A touch faster than minimap2 at similar accuracy; both ~10× faster than Winnowmap2</td></tr>
+    <tr><td>Bisulfite (BS-seq)</td><td>Native; beats BWA-Meth & BISCUIT on accuracy, several× faster, &gt;10× faster than Bismark</td></tr>
+  </table>
+
+  <h2>Which tool should you actually run?</h2>
+  <p>
+    My short version: use minibwa for short accurate reads and directional
+    bisulfite data. Use minimap2 when the reads are noisy, spliced, or when you
+    want one boring default for long-read workflows.
+  </p>
+  <table class="data">
+    <tr><th>Data</th><th>Run</th><th>Why</th></tr>
+    <tr><td>Short reads (Illumina, 100&ndash;250 bp)</td><td><code>minibwa</code></td><td>Its home turf: fast, accurate, and variant-calling quality on par with or slightly better than bwa-mem.</td></tr>
+    <tr><td>Accurate long reads (HiFi)</td><td><code>minibwa</code> or <code>minimap2</code></td><td>minibwa is a little faster at similar accuracy; minimap2 is still the safer default if the same pipeline also handles other long-read modes.</td></tr>
+    <tr><td>Noisy long reads (ONT, old PacBio)</td><td><code>minimap2</code></td><td>minibwa is not built for high error rates. minimap2&rsquo;s minimizer seeding is much more robust here.</td></tr>
+    <tr><td>Spliced RNA-seq</td><td><code>minimap2 -x splice</code> or a splice-aware aligner</td><td>minibwa has no spliced-alignment mode.</td></tr>
+    <tr><td>Directional bisulfite (methylation)</td><td><code>minibwa --meth</code></td><td>Native support; more accurate than BWA-Meth/BISCUIT and much faster than Bismark. Undirectional BS-seq is not supported.</td></tr>
+    <tr><td>Hi-C</td><td><code>minibwa --hic</code></td><td>Supported and fast, though the speed lead over bwa-mem2 narrows because Hi-C leans heavily on mate rescue.</td></tr>
+  </table>
+
+  <h2>The one idea, three times</h2>
+  <p>
+    If you remember nothing else: minibwa&rsquo;s speed is not a faster
+    algorithm, it&rsquo;s the refusal to waste cycles. The same instinct shows
+    up at every scale of the pipeline &mdash; do a cheap thing first to avoid an
+    expensive thing later:
+  </p>
+  <table class="data">
+    <tr><th>Cheap test</th><th>Expensive thing it avoids</th><th>Where it shows up</th></tr>
+    <tr><td>Prefetch + batch the next memory access</td><td>A 200-cycle CPU stall on a cache miss</td><td>seeding</td></tr>
+    <tr><td>10-mer interval cache</td><td>Ten random-memory backward-search steps</td><td>seeding</td></tr>
+    <tr><td>Ungapped alignment attempt</td><td>Full SIMD Smith–Waterman in the gap</td><td>alignment / pairing</td></tr>
+    <tr><td>7-mer Hough vote</td><td>A doomed mate-rescue Smith–Waterman</td><td>alignment / pairing</td></tr>
+    <tr><td>Cap effort in repeats</td><td>Grinding DP on unmappable bases</td><td>repeats</td></tr>
+  </table>
+
+  <h2>What I&rsquo;d take away</h2>
+  <p>
+    minibwa is interesting because it does not try to replace the whole
+    seed-chain-align playbook. It keeps the parts that were already good, then
+    reshapes the expensive paths around modern hardware and real sequencing
+    workloads.
+  </p>
+  <ul>
+    <li>For short accurate reads, the bwa-mem-style FM-index and SMEM seeds are still a strong fit.</li>
+    <li>For chaining and base alignment, minimap2&rsquo;s machinery gives minibwa a cleaner and faster back half.</li>
+    <li>Most of the speed comes from avoiding wasted work: hide memory stalls, skip doomed DP, and cap effort where the reference is not trustworthy.</li>
+    <li>The production details matter: adaptive parameters, repeat handling, Hi-C behavior, and native BS-seq support are what make the tool feel practical instead of just clever.</li>
+  </ul>
+
+  <div class="note">
+    <span class="label">Bottom line</span>
+    minibwa is bwa-mem&rsquo;s seeding and minimap2&rsquo;s chain-and-align,
+    stitched together with careful performance engineering. The result is a
+    practical aligner: familiar enough to trust, but noticeably faster in the
+    places that dominate real runs.
+  </div>
+
+  <p style="margin-top:40px">
+    Source and paper:
+    <a href="https://github.com/lh3/minibwa">github.com/lh3/minibwa</a> &middot;
+    <a href="https://arxiv.org/abs/2606.15357">arXiv:2606.15357</a>.
+    The design notes in <code>dev.md</code> map each component to its origin.
+  </p>
+
+<p>The version I carry around now is simple: minibwa is not a new theory of read alignment. It is a careful recombination of proven pieces, with the hottest parts reshaped around modern hardware. That is the useful lesson for me: good tools often come from making the boring parts fast, predictable, and hard to misuse.</p>
 <p class="minibwa-credit"><em>Sources and credit: this explanation is based on Heng Li and Nils Homer's <a href="https://arxiv.org/abs/2606.15357">minibwa paper</a>, and on the design lineage from <a href="https://github.com/lh3/bwa">BWA / bwa-mem</a> and <a href="https://github.com/lh3/minimap2">minimap2</a>. The interactive tutorial and widgets were drafted with Opus 4.8.</em></p>
 </div>
-
 <script>
-const NS="http://www.w3.org/2000/svg";
+/* minibwa p7 */
+(function(){
 
 /* ---- adaptive curve ---- */
 (function(){
-  const svg=document.getElementById("curve");
-  const len=document.getElementById("len"), lenv=document.getElementById("len-v");
-  const info=document.getElementById("curve-info");
+  const svg=document.getElementById("adv-curve-viz");
+  const len=document.getElementById("adv-curve-len"), lenv=document.getElementById("adv-curve-len-v");
+  const info=document.getElementById("adv-curve-info");
   const LMIN=100, LMID=2000, thetaS=20, thetaL=200; // illustrative: e.g. DP band width
   const X0=46, Y0=20, W=600, H=170, LMAX=3000;
   function theta(l){ return thetaL - (thetaL-thetaS)*Math.pow(2, -Math.max(l-LMIN,0)/(LMID-LMIN)); }
@@ -167,8 +253,8 @@ const NS="http://www.w3.org/2000/svg";
 
 /* ---- BS-seq stepper ---- */
 (function(){
-  const svg=document.getElementById("bsviz");
-  const info=document.getElementById("bs-info");
+  const svg=document.getElementById("adv-bs-viz");
+  const info=document.getElementById("adv-bs-info");
   const steps=[
     {t:"Bisulfite treatment converts unmethylated C→T in the read. A genomic C can now legitimately read as T — normal alignment breaks.",
      draw:()=>`
@@ -213,8 +299,35 @@ const NS="http://www.w3.org/2000/svg";
     svg.innerHTML=steps[i].draw();
     info.innerHTML=`<span class="label">Step ${i+1} of ${steps.length}</span>${steps[i].t}`;
   }
-  document.getElementById("bs-step").onclick=()=>{i=(i+1)%steps.length;draw();};
-  document.getElementById("bs-reset").onclick=()=>{i=0;draw();};
+  document.getElementById("adv-bs-step").onclick=()=>{i=(i+1)%steps.length;draw();};
+  document.getElementById("adv-bs-reset").onclick=()=>{i=0;draw();};
   draw();
+})();
+})();
+</script>
+
+<script>
+/* minibwa p8 */
+(function(){
+
+/* ---- speed bars ---- */
+(function(){
+  const svg=document.getElementById("adv-speed");
+  const rows=[ // [label, relative throughput vs bwa-mem=1, color]
+    ["minibwa", 4.0, "var(--new)"],
+    ["bwa-mem2", 2.0, "var(--bwa)"],
+    ["bwa-mem", 1.0, "var(--rule-2)"],
+  ];
+  const X0=110, W=480, maxv=4.4;
+  let g="";
+  rows.forEach((r,i)=>{
+    const y=20+i*56, w=r[1]/maxv*W;
+    g+=`<text x="${X0-10}" y="${y+22}" text-anchor="end" font-family="var(--sans)" font-size="14" font-weight="700">${r[0]}</text>
+        <rect x="${X0}" y="${y}" width="${w}" height="32" rx="5" fill="${r[2]}" opacity="0.9"/>
+        <text x="${X0+w+8}" y="${y+22}" font-family="var(--mono)" font-size="14" fill="var(--ink-soft)">${r[1].toFixed(1)}×</text>`;
+  });
+  svg.innerHTML=g;
+})();
+
 })();
 </script>
