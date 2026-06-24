@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How minibwa Works, Part 2: Performance Engineering"
+title: "minibwa, Unpacked, Part 2: Performance Engineering"
 date: 2026-07-14 09:00:00 -0700
 tags: bioinformatics algorithms sequencing minibwa programming
 author: bolu-atx

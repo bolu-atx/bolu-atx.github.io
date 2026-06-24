@@ -1,11 +1,13 @@
 ---
 layout: post
-title: "How minibwa Works, Part 1: The Algorithm"
+title: "minibwa, Unpacked, Part 1: The Algorithm"
 date: 2026-06-23 09:00:00 -0700
 tags: bioinformatics algorithms sequencing minibwa programming
 author: bolu-atx
 categories: programming
 ---
+
+I recently came across a bioRxiv paper from Heng Li, the godfather of modern bioinformatics, about a new mapping method called minibwa. I had a working idea of how read mapping worked, but I had never really chased the details all the way down. With Claude and Codex as study partners, digging into a new method at the level my scientific curiosity wanted stopped feeling like a chore and started feeling like an actual learning trip. So I got to work. This three-part series is the set of questions I had about how minibwa compares with bwa-mem and minimap2, and what makes it stand out.
 
 A 150-base read shows up from the sequencer. Somewhere in the 3.1-billion-base human reference, there is probably a place it came from. The whole algorithm is a way to avoid comparing that read against all 3.1 billion bases directly.
 

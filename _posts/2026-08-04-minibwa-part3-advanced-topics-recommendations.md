@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How minibwa Works, Part 3: Advanced Topics and Recommendations"
+title: "minibwa, Unpacked, Part 3: Advanced Topics and Recommendations"
 date: 2026-08-04 09:00:00 -0700
 tags: bioinformatics algorithms sequencing minibwa programming
 author: bolu-atx
