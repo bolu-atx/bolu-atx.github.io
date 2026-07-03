@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "minibwa, Unpacked, Part 2: Performance Engineering"
-date: 2026-07-14 09:00:00 -0700
+date: 2026-07-03 09:00:00 -0700
 tags: bioinformatics algorithms sequencing minibwa programming
 author: bolu-atx
 categories: programming
@@ -69,8 +69,8 @@ Once you see that, the engineering choices line up: batch independent searches, 
   <p>
     Drag the batch slider above past 3 and the gray stall bars vanish &mdash;
     the compute blocks tile densely because each query&rsquo;s memory wait is
-    filled by its neighbors&rsquo; arithmetic. This is the whole game. The
-    real <code>bwt.c</code> is littered with it:
+    filled by its neighbors&rsquo; arithmetic. That is the entire mechanism.
+    The real <code>bwt.c</code> is littered with it:
   </p>
 
   <div class="note" style="font-family:var(--mono); font-size:13px; white-space:pre-wrap; line-height:1.4">
@@ -121,12 +121,12 @@ mb_bwt_block_prefetch(bwt, s-&gt;p.x[1] + s-&gt;p.size);
   </div>
 
   <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;The index is too big for cache, so every seeding step would stall the
+    <span class="label">In plain English</span>
+    The index is too big for cache, so every seeding step would stall the
     CPU waiting on RAM. minibwa keeps many reads in flight at once and prefetches
     &mdash; so while one read waits for memory, the CPU does another read&rsquo;s
-    arithmetic. The waiting disappears, and that&rsquo;s where the speed comes
-    from.&rdquo;
+    arithmetic. The waiting disappears, and that is where the speed comes
+    from.
   </div>
 
 <h2>DP only in the gaps &mdash; and only when needed</h2>
@@ -220,18 +220,19 @@ mb_bwt_block_prefetch(bwt, s-&gt;p.x[1] + s-&gt;p.size);
 
   <div class="note key">
     <span class="label">The recurring move</span>
-    Notice the pattern for the third time: a cheap test that predicts whether
-    the expensive operation will succeed, run <em>before</em> the expensive
-    operation. Prefetch hid latency; the ungapped fast path skipped needless DP;
-    the Hough filter skips needless mate rescue. Same instinct, three places.
+    This is the same pattern for a third time: a cheap test that predicts
+    whether the expensive operation will succeed, run <em>before</em> the
+    expensive operation. Prefetch hid latency; the ungapped fast path skipped
+    needless DP; the Hough filter skips needless mate rescue &mdash; the same
+    instinct applied in three different places.
   </div>
 
   <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;Real alignment runs only in the gaps between seeds, and only when an
-    ungapped check says there&rsquo;s an indel worth the DP. For paired reads, a
-    cheap 7-mer vote decides whether the missing mate is even findable before we
-    spend a full Smith&ndash;Waterman looking for it.&rdquo;
+    <span class="label">In plain English</span>
+    Real alignment runs only in the gaps between seeds, and only when an
+    ungapped check says there is an indel worth the DP. For paired reads, a
+    cheap 7-mer vote decides whether the missing mate is even findable before
+    spending a full Smith&ndash;Waterman looking for it.
   </div>
 
 <p>This is the performance story in one sentence: minibwa does not magically remove the hard work, but it refuses to pay for it while the CPU is idle or when a cheap test already says the expensive step will fail.</p>

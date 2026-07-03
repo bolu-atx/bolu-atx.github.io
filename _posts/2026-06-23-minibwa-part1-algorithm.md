@@ -7,7 +7,7 @@ author: bolu-atx
 categories: programming
 ---
 
-I recently came across a bioRxiv paper from Heng Li, the godfather of modern bioinformatics, about a new mapping method called minibwa. I had a working idea of how read mapping worked, but I had never really chased the details all the way down. With Claude and Codex as study partners, digging into a new method at the level my scientific curiosity wanted stopped feeling like a chore and started feeling like an actual learning trip. So I got to work. This three-part series is the set of questions I had about how minibwa compares with bwa-mem and minimap2, and what makes it stand out.
+I recently came across a bioRxiv paper from Heng Li, the godfather of modern bioinformatics, about a new mapping method called minibwa. I had a working idea of how read mapping worked, but I had never chased the details all the way down. I used Claude and Codex as study partners to work through the source and the paper together. This three-part series is the set of questions I had about how minibwa compares with bwa-mem and minimap2, and what makes it stand out.
 
 A 150-base read shows up from the sequencer. Somewhere in the 3.1-billion-base human reference, there is probably a place it came from. The whole algorithm is a way to avoid comparing that read against all 3.1 billion bases directly.
 
@@ -121,11 +121,11 @@ The trick is seed, chain, align: find cheap exact matches, connect the ones that
   </table>
 
   <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;Mapping is impossible by brute force, so we seed with cheap exact
+    <span class="label">In plain English</span>
+    Mapping is impossible by brute force, so we seed with cheap exact
     matches, chain the ones that line up, and run real alignment only in the
     gaps. minibwa keeps bwa-mem&rsquo;s seeds and minimap2&rsquo;s
-    chain-and-align.&rdquo;
+    chain-and-align.
   </div>
 
 <p>
@@ -228,11 +228,11 @@ The trick is seed, chain, align: find cheap exact matches, connect the ones that
   </p>
 
   <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;The BWT plus a count table lets me find every exact occurrence of a
-    string by feeding its letters backward and shrinking an interval. It&rsquo;s
+    <span class="label">In plain English</span>
+    The BWT plus a count table finds every exact occurrence of a
+    string by feeding its letters backward and shrinking an interval. It is
     fast in operations &mdash; but each step is a random jump in memory, and
-    that&rsquo;s what we&rsquo;ll have to fight.&rdquo;
+    that is what the performance-engineering post has to fight.
   </div>
 
 <h2>What makes a seed &ldquo;super-maximal&rdquo;</h2>
@@ -322,11 +322,11 @@ for (i = 0; i &lt; n_a0; ++i) { <span style="color:var(--new)">// pass 2: sub-SM
   </div>
 
   <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;Seeds are the read&rsquo;s exact-match runs between mismatches. I take
-    the longest ones &mdash; SMEMs &mdash; and then make a second pass inside the
-    long repetitive ones to dig out the shorter, more-specific seeds I&rsquo;d
-    otherwise miss.&rdquo;
+    <span class="label">In plain English</span>
+    Seeds are the read&rsquo;s exact-match runs between mismatches. minibwa takes
+    the longest ones &mdash; SMEMs &mdash; and then makes a second pass inside the
+    long repetitive ones to dig out the shorter, more-specific seeds that
+    would otherwise get missed.
   </div>
 
 <h2>The dotplot picture</h2>
@@ -418,12 +418,12 @@ for (i = 0; i &lt; n_a0; ++i) { <span style="color:var(--new)">// pass 2: sub-SM
   </p>
 
   <div class="note feynman">
-    <span class="label">Say it out loud</span>
-    &ldquo;On a read-vs-reference dotplot, the true alignment is a string of
+    <span class="label">In plain English</span>
+    On a read-vs-reference dotplot, the true alignment is a string of
     seeds on one diagonal. Chaining is the dynamic program that finds that
     string, paying a penalty for off-diagonal jumps. minibwa uses
-    minimap2&rsquo;s chaining, tweaked so overlapping variable-length seeds
-    don&rsquo;t double-count.&rdquo;
+    minimap2&rsquo;s chaining, adapted so overlapping variable-length seeds
+    do not double-count.
   </div>
 
 <h2>Base alignment: only pay DP in small boxes</h2>
@@ -441,10 +441,10 @@ for (i = 0; i &lt; n_a0; ++i) { <span style="color:var(--new)">// pass 2: sub-SM
   matching could not explain.
 </p>
 <div class="note feynman">
-  <span class="label">Say it out loud</span>
-  &ldquo;minibwa maps by finding SMEM seeds with a BWT/FM-index, chaining the seeds
+  <span class="label">In plain English</span>
+  minibwa maps by finding SMEM seeds with a BWT/FM-index, chaining the seeds
   that sit on one diagonal, and running SIMD alignment only in the small gaps
-  left between anchors.&rdquo;
+  left between anchors.
 </div>
 <p>That is the algorithm. The next layer is why this same algorithm gets much faster when you reshape the hot loops around memory latency and cheap filters.</p>
 <p class="minibwa-credit"><em>Sources and credit: this explanation is based on Heng Li and Nils Homer's <a href="https://arxiv.org/abs/2606.15357">minibwa paper</a>, and on the design lineage from <a href="https://github.com/lh3/bwa">BWA / bwa-mem</a> and <a href="https://github.com/lh3/minimap2">minimap2</a>. The interactive tutorial and widgets were drafted with Opus 4.8.</em></p>
